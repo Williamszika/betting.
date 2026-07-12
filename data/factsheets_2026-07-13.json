@@ -1,0 +1,224 @@
+{
+ "date": "13 juillet 2026 (lundi)",
+ "bookmaker": "Betano",
+ "matches": [
+  {
+   "match": "Djurgårdens IF vs Halmstads BK",
+   "sport": "football",
+   "form_summary": "Match très déséquilibré. DJURGÅRDEN (à domicile, Tele2/3Arena, Stockholm, round 12) arrive lancé: victoire 4-2 en déplacement chez Häcken (3e) au retour de trêve, bilan 5V-1N-4D / 16 pts, attaque prolifique (2+ buts sur 4 de ses 6 derniers: 6-0 Göteborg, 4 à AIK, 4 à Häcken). NUANCE clé: forme à domicile médiocre (env. 2 victoires sur 6 matches à domicile, forme récente maison irrégulière) alors que sa forme à l'extérieur est excellente — or ce match se joue chez lui. HALMSTAD en crise: 15e-16e (dernier ou avant-dernier), 6 pts en 11 matches (1V-3N-7D), différence de buts env. -13 (~23 encaiss",
+   "key_edges": [
+    "Marché très serré sur le 1 sec (Djurgården ~1.24-1.63): peu de value sur la victoire simple; l'intérêt se déplace vers le handicap (-1.5) et les marchés de buts, où l'écart de niveau se monétise mieux.",
+    "Inversion domicile/extérieur de Djurgården: forme à l'extérieur excellente mais forme à DOMICILE médiocre (2 victoires sur 6) — seul vrai bémol au statut de favori, ce match se jouant chez lui; mais il est neutralisé par la forme extérieure catastrophique de Halmstad (0 victoire loin de ses bases).",
+    "Attaque prolifique de Djurgården (2+ buts dans 4 de ses 6 derniers) vs défense poreuse de Halmstad (~23 encaissés, 8 buts sur ses 2 derniers matches) → argument pour handicap -1.5 et Over; MAIS l'historique H2H très fermé (1-0/2-0 récurrents, ~1.3 but/match) invite à la prudence sur l'Over malgré les 56% du marché — tension réelle à arbitrer.",
+    "Défenses des deux camps remaniées par suspension: Djurgården perd son central Marques, Halmstad perd son arrière droit Boman (charnière bricolée, possible 1re titularisation de Schuberg). Le remaniement pèse plus lourd côté Halmstad et sert l'attaque de Djurgården.",
+    "Edge situationnel net à domicile: domination H2H à Tele2 Arena (~13 victoires contre 2) combinée à l'absence totale de victoire extérieure de Halmstad cette saison — configuration défavorable maximale pour le visiteur."
+   ],
+   "injuries_absences": [
+    "Djurgården — Mikael Marques (défenseur central): SUSPENDU (carton rouge lors du match précédent vs Häcken). Absence confirmée par 2 sources; le onze probable de Sports Mole ne le liste pas (un autre onze modèle le mentionnait encore, template périmé).",
+    "Halmstad — Andre Boman (arrière droit): SUSPENDU (carton rouge à la 34e vs Västerås). Remplacement probable par Pascal Gregor; possible première titularisation de la saison pour Filip Schuberg en charnière centrale.",
+    "Halmstad — aucune blessure signalée en dehors de la suspension de Boman (effectif déclaré au complet).",
+    "NB confusion possible: un 'Boman' est aussi cité comme buteur de Västerås; il s'agit vraisemblablement d'un homonyme différent d'Andre Boman (Halmstad)."
+   ],
+   "verified_facts": [
+    "Le match Djurgårdens IF - Halmstads BK se joue le 13 juillet 2026 à Stockholm (Tele2 Arena / 3Arena, même enceinte), 12e journée d'Allsvenskan, Djurgården à dom",
+    "Djurgården arrive sur une victoire 4-2 en déplacement chez Häcken (3e), son dernier match avant la rencontre (retour de trêve estivale).",
+    "Bilan de Djurgården en Allsvenskan 2026: 5V-1N-4D, 16 points; a gagné 3 de ses 5 derniers matches.",
+    "Djurgården affiche une forme à domicile médiocre (env. 2 victoires sur 6 matches de championnat à domicile) contrastant avec une forme à l'extérieur excellente ",
+    "Attaque très prolifique de Djurgården: 2 buts ou plus marqués dans 4 de ses 6 derniers matches (6-0 vs Göteborg, 4 buts à AIK, 4 buts à Häcken).",
+    "Halmstad est en dernière/avant-dernière position (15e-16e) avec 6 points en 11 matches (1V-3N-7D).",
+    "Halmstad n'a signé qu'une seule victoire cette saison (2-0 vs Örgryte) et reste sur deux défaites lourdes (Malmö et Västerås) avec 8 buts encaissés sur ces deux",
+    "Forme extérieure catastrophique de Halmstad: aucune victoire en déplacement, environ 5 défaites sur ses 6 derniers matches à l'extérieur."
+   ]
+  },
+  {
+   "match": "Sonego vs Schwaerzler",
+   "sport": "tennis",
+   "form_summary": "Match d'ouverture (13/07/2026, terre battue, ATP 250 Gstaad) opposant deux dynamiques contrastées. Sonego (n°69) arrive avec sa meilleure séquence 2026 — 3e tour à Wimbledon avec un marathon en 5 sets vs Diallo (7h+ de jeu cumulées) — mais sur GAZON. Le problème central : il bascule vers la terre battue, surface où sa saison 2026 est catastrophique (2 victoires - 6 défaites, éliminations précoces à Monte-Carlo/Madrid/Rome). Enjeu de transition surface + fatigue physique post-Wimbledon. En face, Schwaerzler (20 ans, gaucher, ~n°177) évolue sur SA meilleure surface (titre Challenger sur terre à ",
+   "key_edges": [
+    "PIÈGE DE TRANSITION SURFACE pour Sonego : il passe de son meilleur moment de la saison sur gazon (Wimbledon R3) à la terre battue, sa surface la plus faible en 2026 (2-6, sorties précoces sur les 3 Masters 1000 terre). Décalage rythme gazon->terre + fatigue post-marathons de Wimbledon = vraie vulnérabilité, souvent sous-estimée dans les premiers tours.",
+    "SPÉCIALISATION SURFACE de Schwaerzler : la terre bat est sa surface de prédilection (titre Kigali, bilan carrière terre positif). Cela réduit l'écart théorique face à un top-70, davantage que ne le suggère la cote.",
+    "MOMENTUM NÉGATIF PARTAGÉ mais asymétrique : Sonego perd ses derniers matches sur terre (avant Wimbledon), Schwaerzler reste sur 4 défaites de suite (Trieste, quali Wimbledon). Le 'momentum récent' penche donc du côté d'aucun des deux — attention à sur-pondérer l'élan gazon de Sonego, qui ne se transfère pas sur terre.",
+    "MARCHÉ vs SURFACE : le marché fait de Sonego un favori net (~1.49-1.55, ~63-67% implicite) en privilégiant le niveau/classement plutôt que la forme sur terre. Question de valeur : Schwaerzler à ~2.61, sur sa meilleure surface face à un Sonego en crise sur terre, peut être sous-évalué. Les experts eux-mêmes anticipent un match serré (Sonego gagne mais 'Over 20.5 jeux').",
+    "ÉCART D'EXPÉRIENCE/NIVEAU : Sonego = joueur rodé du top-70, gros vécu sur terre en carrière ; Schwaerzler = 20 ans, 1re apparition en tableau principal ATP de la saison, sans référence à ce niveau sur terre. Argument fort en faveur de Sonego sur la durée si le match s'étire.",
+    "PREMIÈRE CONFRONTATION (aucun H2H) : pas de référence directe, incertitude accrue sur les match-ups de style (droitier vs gaucher)."
+   ],
+   "injuries_absences": [
+    "Sonego : blessure au poignet en début de saison 2026 (abandon à Rio en février), a manqué une partie de la campagne — mais désormais apparemment rétabli (profond parcours à Wimbledon). Aucune blessure active signalée à Gstaad.",
+    "Schwaerzler : aucune blessure rapportée ; sa fragilité est la forme (série de défaites), pas la condition physique.",
+    "Aucun forfait/absence connu affectant spécifiquement ce match."
+   ],
+   "verified_facts": [
+    "Premier duel Sonego–Schwaerzler : aucun H2H sur le circuit principal, c'est leur première confrontation.",
+    "Dernier match de Sonego : défaite au 3e tour de Wimbledon 2026 vs Taylor Fritz 4-6 6-3 6-4 7-6(5), le 4 juillet 2026 (gazon). Il bascule ensuite du gazon vers l",
+    "Meilleure séquence 2026 de Sonego à Wimbledon : victoires vs Etcheverry puis vs Gabriel Diallo (marathon en 5 sets 7-6 4-6 7-6 6-7 6-2), avant la défaite au 3e ",
+    "Saison sur terre battue 2026 très pauvre pour Sonego : bilan de 2 victoires - 6 défaites (2 wins from 8 matches).",
+    "Éliminations précoces de Sonego sur les Masters 1000 terre 2026 : Monte-Carlo 2e tour vs Djere, Madrid 1er tour vs Draper, Rome 1er tour vs Shapovalov (match co",
+    "Sonego est classé n°69 à l'ATP à l'approche de Gstaad ; bilan global 2026 environ 8-12.",
+    "Dernier match de Schwaerzler : défaite au 1er tour du Challenger de Trieste vs Bondioli 3-6 6-3 7-5, le 7 juillet 2026 (terre) ; il reste sur une série de 4 déf",
+    "Meilleur résultat 2026 de Schwaerzler et surface de prédilection = terre : titre au Challenger de Kigali (Rwanda) le 8 mars 2026, en battant Napolitano 7-6(5) 7"
+   ]
+  },
+  {
+   "match": "Detroit Pistons vs New York Knicks",
+   "sport": "basketball",
+   "form_summary": "Les deux équipes arrivent sans victoire, mais avec des dynamiques de gravité très différentes. NEW YORK est en chute libre : 0-2 avec deux blowouts (défaite 65-91 vs Nets le 10/07, soit -26 ; défaite 49-70 vs Spurs le 11/07, soit -21) et surtout une attaque en panne totale (65 puis 49 points, 26,5% aux tirs vs San Antonio, seulement 17 pts à la mi-temps face aux Spurs). Seul signal positif côté Knicks : Tyler Nickel (No.47) monte en puissance (16 pts, 4 tirs à 3pts vs Spurs), soutenu par Dadiet (13) et Kayil (12). DETROIT présente une seule défaite connue, nettement plus compétitive : 93-101 v",
+   "key_edges": [
+    "EDGE PRINCIPAL — Attaque des Knicks en panne : 65 puis 49 points, 26,5% aux tirs vs Spurs, 17 pts à la mi-temps, deux blowouts (-26, -21). Signal fort en faveur de Detroit et/ou d'un total d'équipe Knicks bas (angle UNDER sur le team total NYK), sous réserve du caractère non prédictif de la Summer League.",
+    "CONTRE-ANGLE / inefficience de marché à surveiller — Detroit joue en back-to-back (12 puis 13/07) contre des Knicks reposés (2 jours). En Summer League, la fatigue et la gestion/rotation des joueurs sur un B2B peuvent neutraliser l'avantage de dynamique de Detroit : à intégrer si le marché ne price pas ce facteur.",
+    "Qualité des défaites divergente : Detroit -8 en recollant (a égalisé 2x au 4e QT) vs Knicks battus de 21-26 avec attaque atone. Léger avantage momentum/compétitivité à Detroit sur l'échantillon connu.",
+    "RISQUE DONNÉE MANQUANTE — Le résultat Pistons-Cavaliers du 12/07 est inconnu/non indexé ; il change le bilan (0-2 vs 1-1) et l'état de fraîcheur de Detroit. Toute mise devrait être placée APRÈS confirmation de ce résultat et du rapport de repos/rotation de Detroit.",
+    "Angle individuel vivant côté NYK : Tyler Nickel en progression (16 pts/4 à 3pts) peut empêcher l'attaque des Knicks de s'effondrer à nouveau — à considérer contre un pari trop agressif sur le collapse offensif de New York."
+   ],
+   "injuries_absences": [
+    "Aucune blessure ni absence individuelle confirmée dans les données disponibles — le rapport 'compos' m'est parvenu tronqué et les rapports h2h/experts/marché étaient absents de mon input. À traiter comme donnée manquante, pas comme roster complet.",
+    "Contexte roster à surveiller côté Detroit : dossier de free agency de Jalen Duren évoqué, mais cela concerne l'effectif principal et non la participation Summer League ; sans impact direct sur ce match.",
+    "Volatilité structurelle Summer League : rotations et minutes non annoncées, gestion probable des titulaires sur le back-to-back de Detroit (12-13 juillet). Vérifier le rapport de rotation/repos de Detroit avant toute mise."
+   ],
+   "verified_facts": [
+    "Les New York Knicks arrivent au match du 13/07 avec un bilan de 0-2 (défaites vs Brooklyn Nets le 10/07 et vs San Antonio Spurs le 11/07), soit deux défaites co",
+    "Défaite des Knicks 49-70 face aux Spurs le 11/07 (-21), avec une attaque anémique : 49 points, 26,5% de réussite aux tirs, seulement 17 pts à la mi-temps (Spurs",
+    "Défaite des Knicks 65-91 face aux Nets le 10/07 (ouverture, -26). Mikel Brown Jr. a mené les Nets avec 20 points.",
+    "Défaite des Detroit Pistons 93-101 face aux Philadelphia 76ers le 09/07 (ouverture, -8), défaite serrée où Detroit a recollé et égalisé deux fois au 4e QT. Ebuk",
+    "Detroit dispute un back-to-back (12/07 vs Cavaliers puis 13/07 vs Knicks) tandis que New York est plus reposé (dernier match le 11/07, aucun le 12). Facteur fat",
+    "Signal individuel positif côté Knicks : Tyler Nickel (No.47) monte en puissance (16 pts, 4 tirs à 3pts vs Spurs), avec le soutien de Pacôme Dadiet (13) et Jack "
+   ]
+  },
+  {
+   "match": "Breiðablik vs Keflavík",
+   "sport": "football",
+   "form_summary": "Breiðablik (4e, 22 pts) contre Keflavík (6e, 16 pts), 6 pts d'écart, à domicile au Kópavogsvöllur. Breiðablik reste sur V-D-V-N (7/12) : attaque en feu (a marqué dans ses 4 derniers, 2-1-3-4 buts) mais défense fragile (10 encaissés sur la période, dont un 4-4 à Stjarnan et un 1-4 à domicile contre Víkingur). Keflavík, promu, arrive invaincu depuis 3 matchs (N-V-N), avec le scalp du 2e KR (3-2) et un nul à Valur, mais avec la pire différence de buts du haut de tableau (-6) et une attaque timide (18 buts). Élan psychologique léger pour Keflavík, mais qualité intrinsèque, classement, avantage du ",
+   "key_edges": [
+    "Hiérarchie: classe + domicile + H2H (30-10-8 sur 48 duels) convergent vers Breiðablik, que le marché price à ~1.72. La cote value la plus solide reste Breiðablik favori, mais pas un 'lock' pour un 1X sec vu la forme de Keflavík.",
+    "Angle buts/Over: Breiðablik a marqué dans ses 4 derniers mais encaissé 10 (4-4, 1-4) ; Keflavík invaincu depuis 3. L'Over 2.5 est très fortement pricé (~1.29). Le meilleur edge quantitatif du match est côté total de buts / matchs ouverts de Breiðablik, plutôt qu'un score exact.",
+    "BTTS/résilience Keflavík: défense de Breiðablik perméable récemment + Keflavík capable de scorer (a battu le 2e KR 3-2). Un 'les deux marquent' est plus rationnel qu'un clean sheet blika ; nuance le pari sur victoire+clean sheet.",
+    "Asymétrie offensive: 32 buts pour Breiðablik vs 18 pour Keflavík — sur 90 min l'avantage xG penche nettement Breiðablik ; l'incertitude porte sur l'encaissement, pas sur la production offensive des locaux.",
+    "Piège 'confiance du promu': Keflavík (N-V-N, scalp du 2e) peut sur-performer psychologiquement à l'extérieur — argument pour ne pas surcharger un handicap lourd contre lui."
+   ],
+   "injuries_absences": [
+    "Keflavík — Mirsad Basic (gardien remplaçant, 21 ans, suédois) : fracture de la main à l'entraînement en juin 2026, absent 'plusieurs semaines', déjà forfait contre FH. Impact tactique faible (doublure d'Ásgeir Orra Magnússon, titulaire dans les buts). Source vérifiée : fotbolti.net (20/06/2026).",
+    "Breiðablik — Kristófer Kristinsson : donné 'probablement forfait' (blessure) par les sites de pronostics, MAIS claim douteuse (voir disputed) — une compo probable le titularise et ses stats 2026 (1 but en 149 min) contredisent l'étiquette de 'meilleur buteur'. À ne pas traiter comme une absence décisive sans confirmation club."
+   ],
+   "verified_facts": [
+    "Match: Breiðablik (Kópavogur) reçoit Keflavík ÍF le 13/07/2026, 14e journée de la Besta deild karla 2026, au Kópavogsvöllur (Breiðablik à domicile).",
+    "Avant la 14e journée, Breiðablik est 4e : 13 matchs, 22 pts, 32 buts pour / 25 contre (diff +7).",
+    "Avant la 14e journée, Keflavík ÍF est 6e : 13 matchs, 16 pts, 18 buts pour / 24 contre (diff -6). Écart de 6 pts avec Breiðablik.",
+    "Keflavík est un promu 2026 (vainqueur des barrages), de retour dans l'élite après 2 ans d'absence.",
+    "Forme Breiðablik, 4 derniers (récent→ancien) : V-D-V-N, 7 pts/12 — ÍA Akranes 1-2 Breiðablik (J13, ext.), Breiðablik 1-4 Víkingur R. (J12, dom.), Breiðablik 3-1",
+    "Forme Keflavík, 4 derniers (récent→ancien) : N-V-N-D, 5 pts/12 — Keflavík 1-1 Fram (J13, dom.), Keflavík 3-2 KR (J12, dom.), Valur 1-1 Keflavík (J11, ext.), Kef",
+    "CONTRADICTION RÉSOLUE : le 28/06/2026 (J12), Keflavík a bien battu KR Reykjavík 3-2 (et non 2-3). Victoire d'un promu contre le 2e du classement.",
+    "Face-à-face historique : 48 rencontres depuis 2006, 30 victoires Breiðablik, 10 Keflavík, 8 nuls. Domination nette de Breiðablik."
+   ]
+  },
+  {
+   "match": "Feldbausch vs Kecmanovic",
+   "sport": "tennis",
+   "form_summary": "Contraste net de dynamique confirmé et recoupé. Kilian Feldbausch (SUI, WC, ~ATP 288, en hausse — meilleur classement 279 / virtuel ~254) arrive lancé sur SA surface : 3 Challengers de terre consécutifs avec parcours profonds (titre Kosice fin mai, demie Royan en juin, finale Troyes le 5/07 perdue 7-6(5) 6-3 vs Moeller, après avoir écrasé la TS1 Giustino 6-4 6-3 en demie), bilan 2026 de 27-9 dont 26-8 sur terre. Rythme, confiance et match sharpness maximaux sur terre, à domicile. Miomir Kecmanovic (SRB, ~ATP 50) est le joueur très supérieur au classement (238 places d'écart) et au pedigree — i",
+   "key_edges": [
+    "EDGE RYTHME/SURFACE pour Feldbausch : 3 Challengers de terre d'affilée à parcours profonds (26-8 sur terre), à son plateau de forme le plus haut, à domicile en Suisse avec une wildcard motivante — face à un Kecmanovic qui sort du gazon, ~2 semaines sans match, et dispute son 1er match sur terre depuis Roland-Garros. Avantage net de match sharpness sur la surface.",
+    "CONTRE-EDGE CLASSE/PLAFOND pour Kecmanovic : top-50 (238 places au-dessus), il a poussé Sinner (n°1) au 5e set il y a 2 semaines. À niveau ATP, un top-50 gère généralement un n°288 ; le plafond de Feldbausch a été validé contre des adversaires de Challenger (rang ~200-400), pas contre des top-50. Le marché (1.47) acte ce gap.",
+    "VARIABLE CLÉ — terre d'altitude de Gstaad (~1000m+) : rebonds hauts et jeu rapide qui favorisent la frappe/le service (plutôt Kecmanovic) et diffèrent nettement de la terre lente/basse des Challengers français où Feldbausch a gagné. Peut éroder une partie de l'edge 'rythme terre' de Feldbausch.",
+    "ANGLE VALUE OUTSIDER : Feldbausch à 2.67 (~37% implicite) = joueur chaud et à domicile contre un favori en méforme et rouillé sur terre. Zone de sous-cote potentielle de l'outsider. Vu le gap de plafond, privilégier un Feldbausch +1.5 sets / handicap jeux ou un scénario 'match serré' plutôt que le money-line sec sur l'outsider.",
+    "CAVEAT DATA/DÉCISION : qualité globale élevée (faits décisifs corroborés 2+ sources), mais bilans chiffrés de Kecmanovic divergents — ne pas sur-pondérer un W-L précis. S'appuyer sur la structure : favori supérieur mais rouillé/en méforme vs outsider en pleine confiance sur sa surface, dans un 1er tour sans historique H2H."
+   ],
+   "injuries_absences": [
+    "Aucune blessure ni forfait signalé pour l'un ou l'autre joueur à l'approche du match.",
+    "ATTENTION à ne pas mal attribuer : la 'chute impressionnante' évoquée dans les comptes-rendus de Wimbledon concerne Sinner, PAS Kecmanovic — Kecmanovic est sorti indemne de ce match.",
+    "Facteur fraîcheur/rouille (pas une blessure) côté Kecmanovic : dernier match compétitif le 29/06 (Wimbledon), soit ~2 semaines d'inactivité, et premier match sur terre depuis Roland-Garros fin mai, avec transition gazon→terre juste avant Gstaad.",
+    "Côté Feldbausch : aucune fatigue notable signalée malgré 3 tournois enchaînés — il a eu ~1 semaine entre la finale de Troyes (5/07) et Gstaad (13/07)."
+   ],
+   "verified_facts": [
+    "Kecmanovic (~ATP 50) vs Feldbausch (WC, ~ATP 288) au 1er tour de l'ATP 250 de Gstaad, terre battue d'altitude, lundi 13/07/2026 — première confrontation en carr",
+    "Feldbausch affiche un bilan 2026 de 27-9, dont 26-8 sur terre battue — la surface exacte de Gstaad.",
+    "Dernier match de Feldbausch : finale du Challenger de Troyes (terre) perdue 7-6(5) 6-3 vs Marvin Moeller (ATP 372) le 5/07/2026, après avoir dominé la tête de s",
+    "Feldbausch reste sur 3 Challengers de terre consécutifs à parcours profonds : titre à Kosice (fin mai, son 1er titre 2026), demi-finale à Royan (juin), finale à",
+    "Dernier match de Kecmanovic : défaite au 1er tour de Wimbledon vs Jannik Sinner (n°1) 4-6 6-3 6-7(6) 6-2 6-3 le 29/06/2026 ; il menait 2 sets à 1 avant de céder",
+    "Saison 2026 de Kecmanovic sous la barre des 50% et déficitaire sur terre — méforme confirmée (les agrégateurs divergent sur les chiffres exacts mais convergent ",
+    "Malgré une saison sur terre modeste, Kecmanovic conserve une compétence réelle sur la surface : titre Challenger sur terre à Valence (Copa Faulconbridge) juste ",
+    "Kecmanovic passe du gazon (Halle/Mallorca/Wimbledon) à la terre pour Gstaad ; son dernier match sur terre remonte à Roland-Garros (fin mai) et il n'a pas joué d"
+   ]
+  },
+  {
+   "match": "Atlanta Hawks vs Boston Celtics",
+   "sport": "basketball",
+   "form_summary": "Deux équipes à 1-1 avant le lundi 13 juillet 2026 (16h30 ET, Thomas & Mack Center, ESPN2, terrain neutre). Toronto arrive sur une DÉFAITE d'ouverture serrée face à Boston (80-83, le 10 juil) puis une VICTOIRE nette 102-89 contre Houston (11 juil, dernier match) portée par un banc dominateur (45-24) et Seth Lundy chaud (23 pts, 6/9 à 3 pts). Indiana a battu Cleveland 99-93 en ouverture (10 juil), puis subi une DÉFAITE traumatisante 93-100 en prolongation contre Philadelphie (11 juil, dernier match) : revenus de -24 à 93-93, mais BLANCHIS (0 point) en prolongation. Momentum donc côté Toronto (so",
+   "key_edges": [
+    "PROFONDEUR / BANC TORONTO : le banc des Raptors a écrasé celui de Houston 45-24, avec Lundy brûlant (6/9 à 3 pts) ; en Summer League où la rotation décide souvent des fins de match, c'est un avantage tangible même sans les deux titulaires blessés.",
+    "MOMENTUM ASYMÉTRIQUE : Toronto sort d'une victoire probante ; Indiana sort d'un effondrement en OT (revenu de -24 puis 0 point en prolongation) — signal mental négatif côté Pacers malgré leur combativité.",
+    "POINT D'INCERTITUDE DÉCISIF : retour/gestion de Collin Murray-Boyles et Alijah Martin. S'ils jouent, Toronto monte d'un cran ; s'ils sont absents (probable pour CMB), Toronto reste tout de même une équipe qui a déjà gagné sans eux. Aucune confirmation avant le warm-up.",
+    "HOMME EN FORME PACERS : Jalen Slawson (26 pts, two-way) + le meneur Braden Smith (Purdue) sont les moteurs offensifs à surveiller ; l'attaque d'Indiana dépend fortement de Slawson.",
+    "FACTEURS NEUTRES : bilans identiques (1-1), terrain neutre à Las Vegas, repos égal (2 jours). Peu d'edge situationnel — le match se jouera sur les rosters effectivement alignés et le shooting extérieur.",
+    "CAVEAT PARIEUR : échantillon de 2 matchs, forte variance Summer League, effectifs sans lien avec les rosters NBA de saison régulière. Éviter de surpondérer la 'forme' ; traiter les cotes avec prudence et attendre les infos de warm-up sur les compos."
+   ],
+   "injuries_absences": [
+    "RAPTORS — Collin Murray-Boyles (entorse au doigt) : OUT confirmé pour l'ouverture du 10 juil ; statut pour le 13 juil INCERTAIN. Même en cas de disponibilité, il pourrait être géré/mis au repos (jugé trop établi pour la Summer League, potentiellement 1-2 matchs max avant shutdown).",
+    "RAPTORS — Alijah Martin (inflammation au genou) : OUT confirmé pour l'ouverture du 10 juil ; statut pour le 13 juil INCERTAIN, aucune annonce de retour.",
+    "RAPTORS — En l'absence de ses deux meilleurs éléments, Toronto a néanmoins gagné son 2e match : attaque portée par Seth Lundy, Tyreke Key, le rookie Allen Graves, Jaden/Jamarion Sharp, Nimari Burnett (profondeur de banc réelle).",
+    "PACERS — Aucun blessé signalé. Cinq probable basé sur l'ouverture : Braden Smith, Tamin Lipsey, Taelon Peter, Jalen Slawson, Rienk Mast.",
+    "MÉTHODO — En Summer League, aucun rapport de blessures officiel n'est publié à l'avance et il n'y a pas de suspensions ; les cinq de départ et absences ne sont réellement confirmés qu'au warm-up. La disponibilité des meilleurs joueurs le 13 juil est donc le facteur décisif NON vérifiable à ce stade."
+   ],
+   "verified_facts": [
+    "Le match Toronto Raptors vs Indiana Pacers (NBA Summer League Las Vegas) se joue le lundi 13 juillet 2026 à 16h30 ET au Thomas & Mack Center, sur terrain neutre",
+    "Les deux équipes arrivent à 1-1 en Summer League 2026 avant ce match (Raptors : L vs Celtics puis W vs Rockets ; Pacers : W vs Cavaliers puis L OT vs 76ers).",
+    "Dernier match des Raptors : victoire 102-89 contre Houston le 11 juillet 2026, avec un banc dominateur (+45-24) et Seth Lundy meilleur marqueur (23 pts, 8/11 do",
+    "Dernier match des Pacers : défaite 93-100 en prolongation contre Philadelphie le 11 juillet 2026 ; revenus de -24 au 3e QT jusqu'à 93-93 (Braden Smith a égalisé",
+    "Jalen Slawson est le joueur des Pacers le plus en forme : 26 pts à 8/16 (5 rbds) vs Philadelphie, après 15/6/5 pd/5 contres vs Cleveland ; Braden Smith (16 pts,",
+    "Match d'ouverture des Raptors : défaite 80-83 contre Boston le 10 juillet 2026 ; cinq de départ Hepburn, Burnett, Graves, Lundy, Bittle en l'absence des deux ti",
+    "BLESSURES Raptors : Collin Murray-Boyles (entorse au doigt) et Alijah Martin (inflammation au genou) ont été déclarés OUT pour le match d'ouverture du 10 juille",
+    "Match d'ouverture des Pacers : victoire 99-93 contre Cleveland le 10 juillet 2026 (3e QT décisif 32-15), avec Rienk Mast 16/11, Taevion Kinsey 16 et Jalen Slaws"
+   ]
+  },
+  {
+   "match": "Stricker vs Munar",
+   "sport": "tennis",
+   "form_summary": "Munar (TdS n°8, ~ATP 44, Sofascore 38) est nettement supérieur en niveau et arrive sur une dynamique solide : 3e tour à Wimbledon (victoires sur Cerundolo et Fearnley, défaite serrée en 4 sets contre Lehecka le 4 juillet). MAIS deux bémols crédibilisent un scénario d'accroc : (1) sa saison 2026 sur terre — pourtant sa surface de prédilection historique et celle de Gstaad — est médiocre (4-6 sur terre, 1er tour RG contre Hurkacz, 1er tour Rome, 2e tour Madrid, déroute 1-6 2-6 à Barcelone contre Jodar) ; (2) il doit rebasculer gazon→terre en une semaine, après une préparation gazon écourtée (1er",
+   "key_edges": [
+    "Écart de niveau + marché : ~300 places d'écart (ATP ~44 vs ~343) et cotes 1,36/3,12 font de Munar un favori logique et net sur terre, sa surface de prédilection historique. C'est l'angle central pro-Munar.",
+    "Fragilité physique de Stricker = principal frein à tout pari pro-Stricker : abandon 12 jours avant, à domicile ou non, un joueur qui a lâché mené 4-2 est un risque sur la distance. Prudence sur un Stricker à cote longue.",
+    "Angle value/contre-tendance pro-Stricker (couverture handicap / 'pas en 2 sets') : Munar sort du gazon, affiche seulement 4-6 sur terre en 2026 (éliminations précoces RG/Rome/Madrid, déroute à Barcelone) — le narratif 'terre = sa meilleure surface' est démenti par ses résultats 2026. Sa transition express gazon→terre peut créer un début de match hésitant.",
+    "Facteur domicile + altitude + gaucher pour Stricker : Gstaad est une terre d'altitude (plus rapide, valorise le service), Stricker y a atteint 3 quarts (2022/23/25) et joue devant son public. Si physiquement d'aplomb, c'est un outsider réellement dangereux — mais ce 'si' est lourd.",
+    "Contraste de momentum : Munar en confiance (3e tour Wimbledon, scalps Cerundolo/Fearnley) face à un Stricker en niveau Challenger, forme mitigée (~5/10) et sortant d'un abandon. Renforce le scénario Munar mais l'accroc d'entame reste le seul vrai risque."
+   ],
+   "injuries_absences": [
+    "STRICKER — préoccupation physique majeure : abandon mené 4-2 contre Sharipov (Challenger Troyes) le 1er juillet 2026, 12 jours avant Gstaad ; s'inscrit dans un historique long de blessures ayant provoqué sa chute au classement (~343). Aptitude à enchaîner un match ATP en 3 sets à confirmer.",
+    "MUNAR — aucune blessure signalée. Facteur de risque = calendrier/transition de surface : passage gazon (Wimbledon jusqu'au 4 juillet) → terre battue en une semaine, après une préparation gazon écourtée (1er tour à Bois-le-Duc)."
+   ],
+   "verified_facts": [
+    "Premier affrontement en carrière entre Jaume Munar et Dominic Stricker — aucun head-to-head préalable ; match au 1er tour de l'ATP 250 EFG Swiss Open de Gstaad ",
+    "MUNAR — éliminé au 3e tour de Wimbledon 2026 par Jiri Lehecka 6-4 6-4 4-6 6-4 le 4 juillet 2026, après des victoires nettes sur Fran Cerundolo (1er tour) et Jac",
+    "MUNAR — tête de série n°8 à Gstaad ; classé ATP 44 selon Wikipedia et Tennis Tonic (38 selon Sofascore).",
+    "MUNAR — saison 2026 sur terre décevante malgré que ce soit sa meilleure surface historique : bilan 4-6 sur terre, 1er tour Roland-Garros (battu par Hurkacz), 1e",
+    "STRICKER — a ABANDONNÉ mené 4-2 contre Marat Sharipov au 2e tour du Challenger de Troyes le 1er juillet 2026 (Sharipov vainqueur 4-2 ab.), 12 jours avant Gstaad",
+    "STRICKER — classé ~ATP 343 (sommet de carrière n°88 en 2023), en difficulté sur blessures/motivation ; à Gstaad via wildcard, sa 1re apparition en tableau princ",
+    "STRICKER — excellent pedigree à Gstaad : quarts de finale en 2022, 2023 et 2025 ; 6e participation (terre d'altitude favorable à son jeu de gaucher/service).",
+    "MARCHÉ — Munar large favori : cote ~1,36 (probabilité implicite ~73%) contre ~3,12 pour Stricker (~32%) ; pronostic dominant Munar en 2 sets."
+   ]
+  },
+  {
+   "match": "Vestri vs Fylkir",
+   "sport": "football",
+   "form_summary": "Match de milieu de tableau contre haut de tableau en D2 islandaise, mais dont le scénario est dominé par le calendrier. Vestri (4e) est solide récemment — invaincu sur ses 4 derniers matches de championnat (2V-2N), 2 clean sheets sur 3 et 2 victoires à domicile — mais le club est pris en sandwich entre deux tours de Ligue Europa (défaite 3-0 à Qarabağ le 9/07, retour à domicile le 16-17/07), soit 3 matches en ~7 jours avec un long voyage international: rotation et fatigue très probables, l'Europe étant la priorité du vainqueur de la Coupe. Fylkir (2e, 24 pts, candidat à la montée) arrive frais",
+   "key_edges": [
+    "Asymétrie fatigue/motivation (edge n°1): Vestri est coincé entre deux manches de Ligue Europa (long déplacement Azerbaïdjan le 9/07 + retour 16-17/07), 3 matches en ~7 jours et priorité à l'Europe; Fylkir est reposé ~10 jours. Rotation probable de Vestri → avantage net Fylkir.",
+    "Profil sans nul de Fylkir (8V-0N-4D): aucun match nul de la saison — angle fort pour les marchés (Draw No Bet / double chance / éviter le nul / résultat décisif attendu).",
+    "Choc de styles: solidité défensive récente à domicile de Vestri (2 clean sheets sur 3) contre l'efficacité offensive extérieure de Fylkir (5-2, 4-2, 1-0) — décisif surtout si Vestri aligne un onze de rotation.",
+    "Hiérarchie/enjeu classement: Fylkir 2e (24 pts, course à la montée, forte motivation) vs Vestri 4e (21 pts) dont l'objectif prioritaire est la Coupe d'Europe → surmotivation Fylkir.",
+    "Tendance buts: matches de Fylkir à l'extérieur très prolifiques et à haute variance; les clean sheets de Vestri sont venus à domicile → angle Over/BTTS plausible mais données mitigées."
+   ],
+   "injuries_absences": [
+    "Aucune blessure ni suspension nommément confirmée dans les données disponibles (spécialiste compos non livré).",
+    "Vestri: pas d'absents individuels confirmés, mais RISQUE ÉLEVÉ de rotation/repos de cadres en raison du calendrier européen congestionné (Qarabağ à l'extérieur le 9/07, retour à domicile le 16-17/07). Turnover attendu mais non confirmé par une compo probable.",
+    "Fylkir: aucune absence signalée; effectif reposé (dernier match le 3/07)."
+   ],
+   "verified_facts": [
+    "Vestri vs Fylkir se joue le lundi 13 juillet 2026 en 1. deild karla (D2 islandaise), à domicile pour Vestri (Ísafjörður).",
+    "Contexte majeur: le match est encadré par deux tours de qualif. de Ligue Europa. Vestri a perdu l'aller 3-0 à Qarabağ le 9 juillet 2026 (buts Sawo 30', Zoubir 4",
+    "Vestri, club de 2e division, dispute l'Europa League 2026/27 comme vainqueur de la Coupe d'Islande 2025 (premier titre national du club).",
+    "Vestri reste sur 4 matches de championnat sans défaite (2V-2N) avant la rencontre: 3-2 vs Ægir (17/06, dom.), 2-0 vs Afturelding (21/06, dom.), 1-1 à Þróttur (2",
+    "Vestri a signé 2 clean sheets sur ses 3 derniers matches de ligue (2-0 vs Afturelding, 0-0 à Grindavík) et a gagné ses 2 derniers matches de championnat à domic",
+    "Fylkir est 2e de 1. deild karla 2026: 12 matches, 8V-0N-4D, 23 buts pour / 17 contre, 24 points — candidat à la montée.",
+    "Profil binaire distinctif de Fylkir: AUCUN match nul de toute la saison (0 nul en 12 matches) — l'équipe gagne ou perd, jamais de partage.",
+    "Fylkir reste sur 3 victoires lors de ses 4-5 derniers matches de championnat, avec une forte efficacité offensive à l'extérieur: 1-0 à Grindavík (17/06), 5-2 à "
+   ]
+  }
+ ]
+}
