@@ -1,0 +1,17 @@
+match_id,market,pick,odds,bookmaker
+PL-ARS-EVE,1X2,1,1.45,demo
+PL-ARS-EVE,1X2,X,4.50,demo
+PL-ARS-EVE,1X2,2,7.00,demo
+LL-RM-GET,1X2,1,1.35,demo
+LL-RM-GET,1X2,X,5.00,demo
+LL-RM-GET,1X2,2,8.50,demo
+SA-INT-EMP,1X2,1,1.40,demo
+SA-INT-EMP,1X2,X,4.75,demo
+SA-INT-EMP,1X2,2,7.50,demo
+L1-PSG-LOR,1X2,1,1.30,demo
+L1-PSG-LOR,1X2,X,5.50,demo
+L1-PSG-LOR,1X2,2,9.00,demo
+ATP-F-F,Moneyline,home,1.50,demo
+ATP-F-F,Moneyline,away,2.60,demo
+NBA-BOS-DET,Moneyline,home,1.55,demo
+NBA-BOS-DET,Moneyline,away,2.45,demo

@@ -1,0 +1,9 @@
+# Le coeur (modeles, value, coupon) n'a AUCUNE dependance : stdlib Python uniquement.
+# Ces paquets ne servent qu'a la couche de scraping web (sans cle API).
+httpx>=0.27
+beautifulsoup4>=4.12
+lxml>=5.0
+PyYAML>=6.0
+
+# Dev
+pytest>=8.0

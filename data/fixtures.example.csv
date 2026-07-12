@@ -1,0 +1,7 @@
+sport,league,home,away,start_time,match_id
+football,Premier League,Arsenal,Everton,2026-07-12T16:00:00,PL-ARS-EVE
+football,La Liga,Real Madrid,Getafe,2026-07-12T20:00:00,LL-RM-GET
+football,Serie A,Inter,Empoli,2026-07-12T18:45:00,SA-INT-EMP
+football,Ligue 1,PSG,Lorient,2026-07-12T21:00:00,L1-PSG-LOR
+tennis,ATP,Player Fort,Player Faible,2026-07-12T13:00:00,ATP-F-F
+basketball,NBA,Boston Celtics,Detroit Pistons,2026-07-12T23:00:00,NBA-BOS-DET
