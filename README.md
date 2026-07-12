@@ -69,8 +69,14 @@ données entre étapes) :
    cote réelle ? raisonnement solide ?).
 6. **Table ronde** — un **coordinateur** voit *toutes* les opportunités vérifiées,
    les classe et signale les **corrélations** à éviter dans un combiné.
-7. **Synthèse** — construction du **coupon cote ~5** + jusqu'à 2 **simples cote
-   5-7**, avec avertissements.
+7. **Synthèse** — construction du **coupon** dans une fourchette de cote
+   **configurable** (défaut prudent **1,95–3** ; ou viser ~5 si l'on accepte
+   plus de risque) + jusqu'à 2 **simples cote 5-7** (option plus risquée), avec
+   avertissements.
+
+> Fourchette du coupon paramétrable via `args` : `couponTargetOdds` (min) et
+> `couponMaxOdds` (max). Plus la cote totale est basse, plus la probabilité de
+> gagner est haute (et le gain plus faible) — c'est le compromis risque/gain.
 
 ### Le « pool de 500+ agents », honnêtement
 

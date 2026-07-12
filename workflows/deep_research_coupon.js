@@ -16,8 +16,8 @@ export const meta = {
 const DATE = (args && args.date) || "aujourd'hui"
 const SINGLE_MIN = (args && args.oddsMin) || 5.0
 const SINGLE_MAX = (args && args.oddsMax) || 7.0
-const COUPON_TARGET = (args && args.couponTargetOdds) || 5.0
-const COUPON_MAX = (args && args.couponMaxOdds) || 6.5
+const COUPON_TARGET = (args && args.couponTargetOdds) || 1.95
+const COUPON_MAX = (args && args.couponMaxOdds) || 3.0
 const MAX_PICKS = (args && args.maxPicks) || 2
 const MAX_MATCHES = (args && args.maxMatches) || 12
 
@@ -277,7 +277,9 @@ const coord = await agent(
     confidence: o.confidence, dq: o.data_quality,
   }))).slice(0, 8000) + `\n\n` +
   `Classe-les de la meilleure à la moins bonne pour bâtir : (a) au plus ${MAX_PICKS} ` +
-  `paris SIMPLES cote ${SINGLE_MIN}-${SINGLE_MAX}, et (b) un COUPON combiné cote ~${COUPON_TARGET}. ` +
+  `paris SIMPLES cote ${SINGLE_MIN}-${SINGLE_MAX} (option plus risquée), et (b) un ` +
+  `COUPON combiné cote totale ${COUPON_TARGET}-${COUPON_MAX} (option plus sûre : ` +
+  `privilégie les sélections à HAUTE probabilité). ` +
   `Pénalise les data_quality basses et signale toute CORRÉLATION entre sélections ` +
   `(même match, même compétition, issues liées) à éviter dans un combiné.`,
   { label: 'coordinateur', phase: 'Table ronde', schema: COORD_SCHEMA }
@@ -313,8 +315,8 @@ const coupon = couponLegs ? {
 
 const writeup = await agent(
   `Rédige en français une note claire et HONNÊTE pour le parieur, à partir de ces données :\n` +
-  `SINGLES: ${JSON.stringify(singles.map(s => ({ match: s.match, market: s.market, pick: s.pick, odds: s.odds, est_prob: s.prob, edge: Number(s.edge.toFixed(3)), confidence: s.confidence, why: s.rationale })))}\n` +
-  `COUPON: ${JSON.stringify(coupon)}\n` +
+  `SINGLES (cote ${SINGLE_MIN}-${SINGLE_MAX}, option plus risquée): ${JSON.stringify(singles.map(s => ({ match: s.match, market: s.market, pick: s.pick, odds: s.odds, est_prob: s.prob, edge: Number(s.edge.toFixed(3)), confidence: s.confidence, why: s.rationale })))}\n` +
+  `COUPON (cote totale ${COUPON_TARGET}-${COUPON_MAX}, option plus sûre): ${JSON.stringify(coupon)}\n` +
   `Rappels obligatoires : proba réelle de gain, aucune garantie, gestion de mise ` +
   `raisonnable, et l'avertissement suivant intégré : "${DISCLAIMER}". ` +
   `Ton factuel, pas de survente, pas de "safe".`,
