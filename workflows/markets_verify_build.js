@@ -148,5 +148,7 @@ const writeup = await agent(
   { label: 'redaction', phase: 'Synthese' }
 );
 
+const verified_picks = verified.map(o => ({ match: o.match, sport: o.sport, market: o.market,
+  pick: o.pick, odds: o.odds, est_prob: o.prob, edge: Number(o.edge.toFixed(3)), confidence: o.confidence }));
 return { date: DATE, bookmaker: BOOKMAKER, considered: MATCHES.length, opportunities: opps.length,
-  verified: verified.length, coupon, singles, writeup, disclaimer: DISCLAIMER };
+  verified: verified.length, verified_picks, coupon, singles, writeup, disclaimer: DISCLAIMER };
