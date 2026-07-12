@@ -13,13 +13,19 @@ export const meta = {
 }
 
 // ---------- Paramètres ----------
-const DATE = (args && args.date) || "aujourd'hui"
-const SINGLE_MIN = (args && args.oddsMin) || 5.0
-const SINGLE_MAX = (args && args.oddsMax) || 7.0
-const COUPON_TARGET = (args && args.couponTargetOdds) || 1.95
-const COUPON_MAX = (args && args.couponMaxOdds) || 3.0
-const MAX_PICKS = (args && args.maxPicks) || 2
-const MAX_MATCHES = (args && args.maxMatches) || 12
+// args peut arriver comme objet OU comme chaine JSON selon le harness : on normalise.
+let A = args;
+if (typeof A === 'string') { try { A = JSON.parse(A); } catch (e) { A = {}; } }
+if (!A || typeof A !== 'object') A = {};
+
+const DATE = A.date || "aujourd'hui"
+const SINGLE_MIN = A.oddsMin || 5.0
+const SINGLE_MAX = A.oddsMax || 7.0
+const COUPON_TARGET = A.couponTargetOdds || 1.95
+const COUPON_MAX = A.couponMaxOdds || 3.0
+const MAX_PICKS = A.maxPicks || 2
+const MAX_MATCHES = A.maxMatches || 12
+const BOOKMAKER = A.bookmaker || "Betano"
 
 const DISCLAIMER =
   "ESTIMATIONS statistiques, PAS des certitudes. Aucun pari n'est « sûr » : " +
@@ -163,10 +169,13 @@ const sports = [
 ];
 const discovered = await parallel(sports.map(s => () =>
   agent(
-    `Recherche sur le web (WebSearch/WebFetch) les matchs de ${s.key} programmés ${DATE}. ` +
-    `Couvre : ${s.hint}. Sources fiables uniquement (sites officiels, agrégateurs, presse). ` +
+    `Recherche sur le web (WebSearch/WebFetch) les matchs de ${s.key} programmés ${DATE} ` +
+    `qui sont PROPOSÉS SUR ${BOOKMAKER} (vérifie le catalogue ${BOOKMAKER} : betano.com ou ` +
+    `le site régional betano.pt / betano.br / betano.de / betano.ng selon disponibilité). ` +
+    `Couvre : ${s.hint}. Ne retiens que des matchs listés par ${BOOKMAKER}. ` +
+    `Sources fiables (${BOOKMAKER}, sites officiels, agrégateurs, presse). ` +
     `Rends UNIQUEMENT des matchs réels et vérifiables avec l'URL source. ` +
-    `En cas de doute sur l'existence d'un match, ne l'inclus pas.`,
+    `En cas de doute sur l'existence d'un match ou son absence sur ${BOOKMAKER}, ne l'inclus pas.`,
     { label: `discover:${s.key}`, phase: 'Découverte', schema: FIXTURES_SCHEMA }
   )
 ));
@@ -228,11 +237,12 @@ const perMatch = await pipeline(
     `Base-toi UNIQUEMENT sur cette fiche de faits vérifiés :\n` +
     JSON.stringify(r.sheet).slice(0, 6000) + `\n\n` +
     `Passe en revue TOUS les marchés pertinents : ${MARKETS[r.m.sport]}. ` +
-    `Pour chaque marché intéressant, récupère la cote réelle chez un bookmaker, ` +
+    `Pour chaque marché intéressant, récupère la cote réelle telle qu'affichée SUR ${BOOKMAKER} ` +
+    `(uniquement des marchés/cotes réellement proposés par ${BOOKMAKER}), indique le bookmaker="${BOOKMAKER}", ` +
     `estime honnêtement la probabilité, et ne garde que les opportunités de VALUE ` +
     `(proba estimée > proba implicite de la cote). Privilégie les cotes exploitables ` +
     `pour un simple (${SINGLE_MIN}-${SINGLE_MAX}) ou une jambe de combiné. ` +
-    `Cite les sources. N'invente aucune cote.`,
+    `Cite les sources. N'invente aucune cote ; si ${BOOKMAKER} n'offre pas le marché, ne le propose pas.`,
     { label: `markets:${r.m.home}-${r.m.away}`, phase: 'Marchés', schema: MARKETS_SCHEMA }
   ).then(mk => ({ m: r.m, sheet: r.sheet, markets: (mk && mk.opportunities) || [] }))
 );
@@ -265,8 +275,8 @@ const verified = (await parallel(toVerify.map(o => () =>
     `Vérifie de façon ADVERSARIALE cette opportunité :\n` +
     `${o.match} (${o.competition}) — ${o.market} / ${o.pick} @ ${o.odds}.\n` +
     `Argument : ${o.rationale}\n` +
-    `Contrôle sur le web : (1) le match a-t-il lieu ${DATE} ? ` +
-    `(2) la cote ${o.odds} est-elle réelle et plausible ? ` +
+    `Contrôle sur le web : (1) le match a-t-il lieu ${DATE} et est-il encore À VENIR (pas déjà commencé/fini) ? ` +
+    `(2) la cote ${o.odds} est-elle réellement proposée SUR ${BOOKMAKER} et plausible ? ` +
     `(3) le raisonnement tient-il (blessure majeure ignorée ? enjeu ? piège ?). ` +
     `Sois sceptique : au moindre doute sérieux, verdict=drop.`,
     { label: `verify:${o.id}`, phase: 'Vérification', schema: VERDICT_SCHEMA }
