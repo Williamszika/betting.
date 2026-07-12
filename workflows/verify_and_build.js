@@ -7,14 +7,19 @@ export const meta = {
   ],
 }
 
-const DATE = (args && args.date) || "12 juillet 2026"
-const OPPS = (args && args.opportunities) || []
-const SINGLE_MIN = (args && args.oddsMin) || 5.0
-const SINGLE_MAX = (args && args.oddsMax) || 7.0
-const COUPON_TARGET = (args && args.couponTargetOdds) || 1.95
-const COUPON_MAX = (args && args.couponMaxOdds) || 3.0
-const MAX_PICKS = (args && args.maxPicks) || 2
-const VERIFY_CAP = (args && args.verifyCap) || 14
+// args peut arriver comme objet OU comme chaine JSON selon le harness : on normalise.
+let A = args;
+if (typeof A === 'string') { try { A = JSON.parse(A); } catch (e) { A = {}; } }
+if (!A || typeof A !== 'object') A = {};
+
+const DATE = A.date || "12 juillet 2026"
+const OPPS = A.opportunities || []
+const SINGLE_MIN = A.oddsMin || 5.0
+const SINGLE_MAX = A.oddsMax || 7.0
+const COUPON_TARGET = A.couponTargetOdds || 1.95
+const COUPON_MAX = A.couponMaxOdds || 3.0
+const MAX_PICKS = A.maxPicks || 2
+const VERIFY_CAP = A.verifyCap || 14
 
 const DISCLAIMER =
   "ESTIMATIONS statistiques, PAS des certitudes. Aucun pari n est sur. " +
