@@ -45,8 +45,32 @@ src/sportsbet/
   pipeline.py            chaîne complète : matchs -> recherche -> coupons
   cli.py                 `python -m sportsbet.cli daily ...`
 workflows/
-  daily_coupon.js        workflow deep-research (fan-out recherches web réelles)
+  daily_coupon.js          workflow deep-research simple (≤2 simples cote 5-7)
+  deep_research_coupon.js  workflow AVANCÉ multi-agents (voir ci-dessous)
 ```
+
+### Workflow avancé : `deep_research_coupon.js`
+
+Chaîne multi-agents où les agents **échangent et réconcilient des faits
+vérifiés** (c'est la « communication inter-agents », réalisée par le passage de
+données entre étapes) :
+
+1. **Découverte** — 3 agents (foot/tennis/basket) trouvent les vrais matchs du jour.
+2. **Recherche** — par match, 5 **spécialistes** en parallèle : forme, compos/blessures,
+   H2H, avis d'experts & réseaux sociaux, mouvements de cotes. Chaque fait porte
+   une source et une confiance.
+3. **Consolidation** — un **desk éditeur** par match réconcilie les faits des 5
+   spécialistes, résout les contradictions, recoupe les points décisifs → une
+   **fiche de faits vérifiés partagée**.
+4. **Marchés** — un analyste lit la fiche partagée et passe en revue **tous les
+   marchés** (1X2, handicaps, O/U, BTTS, sets, spreads, totals, props…) pour en
+   extraire les opportunités de **value**.
+5. **Vérification** — contrôle **adversarial** de chaque opportunité (match réel ?
+   cote réelle ? raisonnement solide ?).
+6. **Table ronde** — un **coordinateur** voit *toutes* les opportunités vérifiées,
+   les classe et signale les **corrélations** à éviter dans un combiné.
+7. **Synthèse** — construction du **coupon cote ~5** + jusqu'à 2 **simples cote
+   5-7**, avec avertissements.
 
 ### Le « pool de 500+ agents », honnêtement
 
