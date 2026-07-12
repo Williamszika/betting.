@@ -82,9 +82,12 @@ const perMatch = await parallel(MATCHES.map(m => () =>
     "Tu es l ANALYSTE MARCHES pour " + m.match + " (" + m.sport + ", " + DATE + ").\n" +
     "Fiche de faits verifies :\n" + JSON.stringify(m).slice(0, 3500) + "\n\n" +
     "Passe en revue les marches : " + (MARKETS[m.sport] || "principaux marches") + ".\n" +
-    "Recupere la cote REELLE telle qu affichee SUR " + BOOKMAKER + " (uniquement des marches proposes par " + BOOKMAKER + "), " +
-    "estime honnetement la probabilite, garde uniquement les opportunites de VALUE (proba > implicite). " +
-    "Verifie sur le web que le match est ENCORE A VENIR le " + DATE + ". N invente aucune cote.",
+    "Pour la cote : cherche d abord la cote " + BOOKMAKER + " ; si tu ne la trouves pas exactement, " +
+    "utilise la MEILLEURE COTE CONSENSUS PUBLIQUE (comparateurs type oddsportal/wincomparator, previews, " +
+    "cotes citees par la presse) et indique la source dans 'sources' (le parieur confirmera le prix exact sur " + BOOKMAKER + "). " +
+    "Estime honnetement la probabilite et garde 2 a 5 opportunites de VALUE (proba estimee > proba implicite de la cote). " +
+    "Ne rends une liste VIDE que si le match n a AUCUNE value credible. " +
+    "Verifie sur le web que le match est ENCORE A VENIR le " + DATE + ". N invente jamais une cote : cite toujours une source.",
     { label: ("markets:" + m.match).slice(0, 55), phase: 'Marches', schema: MARKETS_SCHEMA }
   ).then(r => ({ m, opps: (r && r.opportunities) || [] }))
 ));
@@ -109,7 +112,7 @@ const verified = (await parallel(toVerify.map(o => () =>
     o.match + " — " + o.market + " / " + o.pick + " @ " + o.odds + " (proba estimee " + Math.round(o.prob * 100) + "%).\n" +
     "Argument : " + (o.rationale || 'n/a') + "\n" +
     "Controle sur le web : (1) le match est-il ENCORE A VENIR le " + DATE + " (pas commence/fini) ? " +
-    "(2) la cote " + o.odds + " est-elle reellement proposee sur " + BOOKMAKER + " et plausible ? " +
+    "(2) la cote " + o.odds + " est-elle plausible (sur " + BOOKMAKER + " ou en consensus marche) ? " +
     "(3) le raisonnement tient-il ? Sois sceptique : au moindre doute serieux, verdict=drop.",
     { label: ("verify:" + o.id), phase: 'Verification', schema: VERDICT_SCHEMA }
   ).then(v => ({ ...o, verdict: v }))
