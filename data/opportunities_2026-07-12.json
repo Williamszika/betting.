@@ -1,0 +1,422 @@
+{
+  "date": "2026-07-12",
+  "status": "UNVERIFIED - vérification adversariale en attente (limite d'usage, reset 14:30 UTC)",
+  "opportunities": [
+    {
+      "match": "Brann vs Start",
+      "market": "Total de buts (Over/Under)",
+      "pick": "Under 4,5 buts",
+      "decimal_odds": 1.43,
+      "est_probability": 0.75,
+      "edge": 0.073,
+      "bookmaker": "Bet365",
+      "rationale": "Jambe de combine a faible variance. Les 3 derniers matchs de Brann ont totalise 3, 4 et 3 buts (tous sous 4,5), et l'attaque de Brann est en panne (1 but/match) sous un tout nouvel entraineur: scores les plus probables 2-1, 2-0, 1-1, 3-1. M",
+      "sources": [
+        "https://www.kickoff.co.uk/norwegian-eliteserien-predictions-stats-odds/brann-vs-ik-start/",
+        "https://www.sportsgambler.com/betting-tips/football/brann-vs-ik-start-prediction-lineups-odds-2026-07-12/"
+      ]
+    },
+    {
+      "match": "Brann vs Start",
+      "market": "Handicap asiatique",
+      "pick": "Start +1,5",
+      "decimal_odds": 1.79,
+      "est_probability": 0.6,
+      "edge": 0.074,
+      "bookmaker": "BetMGM",
+      "rationale": "Ne perd que si Brann s'impose par 2+ buts. Brann est un favori nettement diminue: gardien titulaire Dyngeland absent, jusqu'a ~7-8 blesses, et tout premier match du nouvel entraineur Horneland (animation/XI incertains). Surtout, Brann n'a m",
+      "sources": [
+        "https://www.sportsgambler.com/betting-tips/football/brann-vs-ik-start-prediction-lineups-odds-2026-07-12/"
+      ]
+    },
+    {
+      "match": "Brann vs Start",
+      "market": "Double Chance",
+      "pick": "X2 (nul ou Start)",
+      "decimal_odds": 2.88,
+      "est_probability": 0.37,
+      "edge": 0.066,
+      "bookmaker": "BetMGM",
+      "rationale": "Meme these que Start +1,5 mais sans exiger une victoire de Start: il suffit que Brann ne gagne pas. Modele: P(nul) ~20% + P(Start gagne) ~18% = ~38% contre 34,7% implicite (cote +188). Attention: la valeur n'existe qu'a ce prix BetMGM eleve",
+      "sources": [
+        "https://www.sportsgambler.com/betting-tips/football/brann-vs-ik-start-prediction-lineups-odds-2026-07-12/"
+      ]
+    },
+    {
+      "match": "Brann vs Start",
+      "market": "Draw No Bet",
+      "pick": "Start (DNB, rembourse si nul)",
+      "decimal_odds": 5.25,
+      "est_probability": 0.21,
+      "edge": 0.103,
+      "bookmaker": "BetMGM",
+      "rationale": "Pari speculatif en simple (fourchette 5-7) mais version securisee: mise remboursee sur nul. Modele: P(Start gagne | pas de nul) ~22% contre 19% implicite (cote +425). Confiance faible / variance elevee: Start reste la pire equipe (1 seule v",
+      "sources": [
+        "https://www.sportsgambler.com/betting-tips/football/brann-vs-ik-start-prediction-lineups-odds-2026-07-12/",
+        "https://footballwhispers.com/blog/brann-vs-start-prediction-12-07-2026/"
+      ]
+    },
+    {
+      "match": "KFUM Oslo vs Bodø/Glimt",
+      "market": "Corners par equipe (Bodo/Glimt)",
+      "pick": "Bodo/Glimt Under 6.5 corners",
+      "decimal_odds": 1.7,
+      "est_probability": 0.63,
+      "edge": 0.071,
+      "bookmaker": "BetMGM (via SportsGambler, -143)",
+      "rationale": "Tendance citee par SportsGambler : Bodo n'a pas depasse 6,5 corners sur 4 matchs consecutifs, et les 6 derniers matchs a domicile de KFUM ont vu moins de 6,5 corners concedes. P ~0,63 > implicite 58,8%. Edge modere ~+4 pts ; ideal comme jam",
+      "sources": [
+        "https://www.sportsgambler.com/betting-tips/football/kfum-vs-bodo-glimt-prediction-lineups-odds-2026-07-12/"
+      ]
+    },
+    {
+      "match": "KFUM Oslo vs Bodø/Glimt",
+      "market": "Handicap asiatique",
+      "pick": "KFUM Oslo +1",
+      "decimal_odds": 1.98,
+      "est_probability": 0.58,
+      "edge": 0.148,
+      "bookmaker": "BetMGM (via SportsGambler, -102)",
+      "rationale": "Value phare, recommandee par SportsGambler. Gagne si KFUM ne perd pas ; MISE REMBOURSEE si defaite par 1 but exactement. P(KFUM gagne ou nul) ~0,44 ; P(Bodo par exactement 1) ~0,25 (push) ; P(defaite de 2+) ~0,31. Proba deux voies hors push",
+      "sources": [
+        "https://www.sportsgambler.com/betting-tips/football/kfum-vs-bodo-glimt-prediction-lineups-odds-2026-07-12/",
+        "https://www.forebet.com/en/football/matches/kfum-oslo-bodoglimt-2438452"
+      ]
+    },
+    {
+      "match": "KFUM Oslo vs Bodø/Glimt",
+      "market": "Both Teams To Score (BTTS)",
+      "pick": "Non (No)",
+      "decimal_odds": 2.2,
+      "est_probability": 0.55,
+      "edge": 0.21,
+      "bookmaker": "BetMGM (2,20) ; 5/4 = 2,25 cite par Footballwhispers",
+      "rationale": "Value la plus solide. KFUM n'a marque que 12 buts en 11 matchs (~1,09/match) et affronte la defense de Bodo (vainqueur de la coupe, haut de tableau) : P(KFUM ne marque pas) ~0,50. En posant P(KFUM marque)~0,50 et P(Bodo marque)~0,85, P(les ",
+      "sources": [
+        "https://www.sportsgambler.com/betting-tips/football/kfum-vs-bodo-glimt-prediction-lineups-odds-2026-07-12/",
+        "https://footballwhispers.com/blog/kfum-vs-bodo-glimt-prediction-12-07-2026/"
+      ]
+    },
+    {
+      "match": "KFUM Oslo vs Bodø/Glimt",
+      "market": "Over/Under buts",
+      "pick": "Under 2.5",
+      "decimal_odds": 2.6,
+      "est_probability": 0.43,
+      "edge": 0.118,
+      "bookmaker": "Melbet / Megapari / Paripesa / 20Bet (2,60 ; table mightytips)",
+      "rationale": "Pari contrarian : le marche penche fort Over (~1,48). Mais Bodo est ampute de 3 cadres offensifs/createurs et KFUM a ete compact a domicile avant la treve (2-0, 0-0). Esperance de buts estimee ~2,4-2,7 -> P(Under 2,5) ~0,43 > implicite 38,5",
+      "sources": [
+        "https://www.mightytips.com/football-predictions/kfum-vs-bodo-glimt-prediction-12-07-2026/",
+        "https://www.sportsgambler.com/betting-tips/football/kfum-vs-bodo-glimt-prediction-lineups-odds-2026-07-12/"
+      ]
+    },
+    {
+      "match": "KFUM Oslo vs Bodø/Glimt",
+      "market": "Buteur a tout moment",
+      "pick": "Dino Islamovic (Rosenborg)",
+      "decimal_odds": 2.55,
+      "est_probability": 0.43,
+      "edge": 0.096,
+      "bookmaker": "Aggregateurs previews (+155) - A RECONFIRMER au book",
+      "rationale": "Islamovic est le seul vrai finisseur de RBK (double 2-2 vs Bodo/Glimt, ses 2 seuls buts de ligue, attaquant de pointe). Face a la defense de KBK (aucun clean sheet sur 7, 18 encaisses), sa proba de marquer estimee ~43% depasse l'implicite ~",
+      "sources": [
+        "https://ratingbet.com/predictions/rosenborg-vs-kristiansund-prediction-teams-form-analysis-possible-lineups-on-july-12-2026/",
+        "https://www.sportsmole.co.uk/football/rosenborg/preview/rosenborg-vs-kristiansund-prediction-team-news-lineups_600990.html"
+      ]
+    },
+    {
+      "match": "KFUM Oslo vs Bodø/Glimt",
+      "market": "Resultat mi-temps",
+      "pick": "Nul a la mi-temps",
+      "decimal_odds": 2.6,
+      "est_probability": 0.42,
+      "edge": 0.092,
+      "bookmaker": "BetMGM (via SportsGambler)",
+      "rationale": "Reprise post-treve (Coupe du monde), favori a l'exterieur ampute de cadres -> premiere periode souvent prudente, beaucoup de 0-0 a la pause. P(nul MT) ~0,42 > implicite 38,5%. Value mineure, confiance faible ; a reserver a une jambe de comb",
+      "sources": [
+        "https://www.sportsgambler.com/betting-tips/football/kfum-vs-bodo-glimt-prediction-lineups-odds-2026-07-12/"
+      ]
+    },
+    {
+      "match": "KFUM Oslo vs Bodø/Glimt",
+      "market": "1X2",
+      "pick": "Match nul (Draw)",
+      "decimal_odds": 4.66,
+      "est_probability": 0.24,
+      "edge": 0.118,
+      "bookmaker": "22bet (4,66 ; table mightytips)",
+      "rationale": "Expression du theme 'Bodo surcote'. Si la vraie proba de Bodo est ~56% (contre ~65% implicite marche a 1,50), le nul remonte vers ~24% > implicite 21,5%. Coherent avec les absences de Bodo, la solidite domicile de KFUM et un H2H domine par ",
+      "sources": [
+        "https://www.mightytips.com/football-predictions/kfum-vs-bodo-glimt-prediction-12-07-2026/",
+        "https://www.forebet.com/en/football/matches/kfum-oslo-bodoglimt-2438452"
+      ]
+    },
+    {
+      "match": "KFUM Oslo vs Bodø/Glimt",
+      "market": "Buteur a tout moment",
+      "pick": "Teodor Berg Haltvik (KFUM)",
+      "decimal_odds": 6.2,
+      "est_probability": 0.22,
+      "edge": 0.364,
+      "bookmaker": "Stake (via recherche web)",
+      "rationale": "Si KFUM marque (~50%), Haltvik est le candidat n1 : meilleur buteur du club (3-4 buts + 1 passe en 7 matchs). Proba buteur ~0,22 > implicite 16,1%. Longshot value (EV theorique ~+35%) MAIS cote issue d'un agregateur (Stake via recherche) a ",
+      "sources": [
+        "https://stake.com/sports/soccer/norway/eliteserien/45838983-kfum-oslo-bodoe-glimt",
+        "https://www.sportsmole.co.uk/football/kfum/preview/kfum-vs-bodoglimt-prediction-team-news-lineups_600980.html"
+      ]
+    },
+    {
+      "match": "KFUM Oslo vs Bodø/Glimt",
+      "market": "1X2",
+      "pick": "Victoire KFUM Oslo",
+      "decimal_odds": 5.75,
+      "est_probability": 0.2,
+      "edge": 0.15,
+      "bookmaker": "1xBet (5,75 ; table mightytips) / BetMGM (+475)",
+      "rationale": "Longshot value. Absences lourdes de Bodo (Berg, Bjorkan, Hauge) + KFUM solide a domicile ; proba estimee ~0,20 > implicite 17,4%. Mais H2H totalement defavorable (KFUM jamais vainqueur sur 5 duels) et amicaux de reprise ratés (5-1 vs Molde)",
+      "sources": [
+        "https://www.mightytips.com/football-predictions/kfum-vs-bodo-glimt-prediction-12-07-2026/",
+        "https://www.sportsgambler.com/betting-tips/football/kfum-vs-bodo-glimt-prediction-lineups-odds-2026-07-12/"
+      ]
+    },
+    {
+      "match": "Malmö FF vs IFK Göteborg",
+      "market": "Over/Under buts - Over 2.5",
+      "pick": "Over 2.5 buts",
+      "decimal_odds": 1.62,
+      "est_probability": 0.635,
+      "edge": 0.029,
+      "bookmaker": "Melbet / 20Bet (aussi 1xBet 1.60, Megapari/Paripesa 1.61)",
+      "rationale": "Angle principal du match. IFK Goteborg n'a garde AUCUN clean sheet en 11 matchs et ses 3 derniers deplacements ont produit 5, 9 et 6 buts (3-2, 5-4, 0-6). Malmo marque a domicile (5-2 puis flot de buts recent) contre la defense la plus perm",
+      "sources": [
+        "https://www.mightytips.com/football-predictions/malmo-vs-goteborg-prediction-12-07-2026/",
+        "https://www.sportsmole.co.uk/football/allsvenskan/malmo-vs-ifk-goteborg_game_250240.html",
+        "https://www.sportsgambler.com/betting-tips/football/malmo-ff-vs-ifk-goteborg-prediction-lineups-odds-2026-07-12/"
+      ]
+    },
+    {
+      "match": "Malmö FF vs IFK Göteborg",
+      "market": "Les deux equipes marquent (BTTS)",
+      "pick": "Oui",
+      "decimal_odds": 1.65,
+      "est_probability": 0.62,
+      "edge": 0.023,
+      "bookmaker": "Cote citee via preview FootballWhispers (13/20 = 1.65). NB: BetMGM a 1.53 = PAS de value",
+      "rationale": "Value marginale, uniquement a cote >=1.65. Malmo marque quasi systematiquement contre une defense de Goteborg jamais inviolee (P(Malmo marque) ~0.86); Malmo fragile a domicile et Goteborg a inscrit 10 buts sur 5 matchs (P(Goteborg marque) ~",
+      "sources": [
+        "https://footballwhispers.com/blog/malmo-vs-goteborg-prediction-betting-tips-and-preview-12-07-2026/",
+        "https://www.sportsgambler.com/betting-tips/football/malmo-ff-vs-ifk-goteborg-prediction-lineups-odds-2026-07-12/"
+      ]
+    },
+    {
+      "match": "Malmö FF vs IFK Göteborg",
+      "market": "1X2 - Vainqueur",
+      "pick": "Malmo FF (1)",
+      "decimal_odds": 1.95,
+      "est_probability": 0.53,
+      "edge": 0.034,
+      "bookmaker": "bet365 / Megapari / Paripesa (1.90-1.95). NB: books a 1.83 = pas de value",
+      "rationale": "Favori logique a domicile: 2 victoires de suite, effet nouveau coach (Helstrup), cadres (Olsen, Botheim) face a une equipe 14e en zone de relegation, sans clean sheet et battue 2-1 chez elle par AIK. H2H 5-3-2 sur 10 et invaincu sur 5 recep",
+      "sources": [
+        "https://www.mightytips.com/football-predictions/malmo-vs-goteborg-prediction-12-07-2026/",
+        "https://footballwhispers.com/blog/malmo-vs-goteborg-prediction-betting-tips-and-preview-12-07-2026/",
+        "https://www.sportsgambler.com/betting-tips/football/malmo-ff-vs-ifk-goteborg-prediction-lineups-odds-2026-07-12/"
+      ]
+    },
+    {
+      "match": "Malmö FF vs IFK Göteborg",
+      "market": "Buteur a tout moment",
+      "pick": "Erik Botheim marque a tout moment",
+      "decimal_odds": 2.17,
+      "est_probability": 0.48,
+      "edge": 0.042,
+      "bookmaker": "BetMGM (+117 converti en decimal 2.17)",
+      "rationale": "Value marginale a haute incertitude (props joueur = bruit). Botheim est la pointe attendue titulaire, deja buteur a Degerfors, face a la defense la plus permeable de l'Allsvenskan (aucun clean sheet) dans un match ou Malmo devrait marquer ~",
+      "sources": [
+        "https://www.sportsgambler.com/betting-tips/football/malmo-ff-vs-ifk-goteborg-prediction-lineups-odds-2026-07-12/"
+      ]
+    },
+    {
+      "match": "Malmö FF vs IFK Göteborg",
+      "market": "Over/Under buts - Over 3.5",
+      "pick": "Over 3.5 buts",
+      "decimal_odds": 2.63,
+      "est_probability": 0.41,
+      "edge": 0.078,
+      "bookmaker": "Cote citee via preview FootballWhispers (13/8 = 2.63)",
+      "rationale": "Meilleure EV du lot mais variance elevee. Profils extremes des deux cotes: deplacements de Goteborg a 5, 9 et 6 buts, Malmo implique dans ~22 buts sur ses 5 derniers matchs. Modele: ~41% vs 38,0% implicite a 2.63 (EV ~+8%); modele Sports Mo",
+      "sources": [
+        "https://footballwhispers.com/blog/malmo-vs-goteborg-prediction-betting-tips-and-preview-12-07-2026/",
+        "https://www.sportsmole.co.uk/football/allsvenskan/malmo-vs-ifk-goteborg_game_250240.html"
+      ]
+    },
+    {
+      "match": "Rosenborg vs Kristiansund BK",
+      "market": "Under/Over buts (Under 3.5)",
+      "pick": "Moins de 3,5 buts",
+      "decimal_odds": 1.44,
+      "est_probability": 0.74,
+      "edge": 0.066,
+      "bookmaker": "Bet365 / Coral (via xpertstats)",
+      "rationale": "Jambe de combine a faible variance. Avec un xG total ~2,4-2,6, P(<=3 buts) ~74% contre une implicite de 69,4%. Edge modeste ~+6% mais tres securisant, coherent avec l'attaque atone de RBK. Ideal comme jambe stabilisatrice d'un combine (corr",
+      "sources": [
+        "https://predictions.xpertstats.com/rosenborg-vs-kristiansund-prediction-120726/"
+      ]
+    },
+    {
+      "match": "Rosenborg vs Kristiansund BK",
+      "market": "Under/Over buts (Under 2.5)",
+      "pick": "Moins de 2,5 buts",
+      "decimal_odds": 2.26,
+      "est_probability": 0.52,
+      "edge": 0.175,
+      "bookmaker": "22bet (via mightytips)",
+      "rationale": "Le marche price Over 2.5 a ~1.65 (implicite ~60%) en surponderant la defense poreuse de KBK, mais l'attaque de RBK est la pire de la ligue (0,82 but/match). XG total estime ~2,4-2,6 = pile-ou-face autour de 2,5. Contexte 'match de la peur' ",
+      "sources": [
+        "https://www.mightytips.com/football-predictions/rosenborg-vs-kristiansund-prediction-12-07-2026/",
+        "https://predictions.xpertstats.com/rosenborg-vs-kristiansund-prediction-120726/"
+      ]
+    },
+    {
+      "match": "Rosenborg vs Kristiansund BK",
+      "market": "Les deux equipes marquent (BTTS)",
+      "pick": "Non (BTTS No)",
+      "decimal_odds": 2.1,
+      "est_probability": 0.51,
+      "edge": 0.071,
+      "bookmaker": "Coral (via xpertstats)",
+      "rationale": "Lean faible conviction. BTTS Yes est price ~1.80 (implicite ~56%) sur la reputation de passoire de KBK, mais l'attaque nulle de RBK signifie qu'il blanchit souvent (~22%) et KBK peut aussi etre musele a l'exterieur (3 defaites sur 4). J'est",
+      "sources": [
+        "https://predictions.xpertstats.com/rosenborg-vs-kristiansund-prediction-120726/",
+        "https://www.mightytips.com/football-predictions/rosenborg-vs-kristiansund-prediction-12-07-2026/"
+      ]
+    },
+    {
+      "match": "Rosenborg vs Kristiansund BK",
+      "market": "Double Chance (X2)",
+      "pick": "Kristiansund ou Nul",
+      "decimal_odds": 2.3,
+      "est_probability": 0.49,
+      "edge": 0.127,
+      "bookmaker": "Bet365 (via xpertstats)",
+      "rationale": "MEILLEURE VALUE / pick n1 pour un simple. Le marche installe RBK a ~60% (1.67), ce qui surestime une equipe 15e a l'attaque la plus faible du championnat (9 buts en 11, dont un seul doubleur Islamovic). J'estime RBK a ~51% de victoire, donc",
+      "sources": [
+        "https://predictions.xpertstats.com/rosenborg-vs-kristiansund-prediction-120726/",
+        "https://www.mightytips.com/football-predictions/rosenborg-vs-kristiansund-prediction-12-07-2026/"
+      ]
+    },
+    {
+      "match": "Rosenborg vs Kristiansund BK",
+      "market": "Draw No Bet",
+      "pick": "Kristiansund (rembourse si nul)",
+      "decimal_odds": 3.75,
+      "est_probability": 0.31,
+      "edge": 0.163,
+      "bookmaker": "Bet365 (via xpertstats)",
+      "rationale": "Meme these que le X2 mais avec filet de securite (mise remboursee sur nul). Conditionnellement a l'absence de nul, j'estime KBK a ~31% (23%/[51%+23%]=31%) contre une implicite de 26,7%. Edge ~+16% sur les issues non nulles. Bonne alternativ",
+      "sources": [
+        "https://predictions.xpertstats.com/rosenborg-vs-kristiansund-prediction-120726/"
+      ]
+    },
+    {
+      "match": "Rosenborg vs Kristiansund BK",
+      "market": "1X2 (Nul)",
+      "pick": "Match nul",
+      "decimal_odds": 4.2,
+      "est_probability": 0.26,
+      "edge": 0.092,
+      "bookmaker": "Megapari / Paripesa / 20Bet (via mightytips)",
+      "rationale": "Deux equipes qui se valent au classement, cadre de 'match de la peur', attaque RBK anemique et debut de coach = terrain fertile pour le nul. J'estime le nul a ~26% contre une implicite de 23,8% a 4.20. Edge ~+9%, variance elevee (pick de va",
+      "sources": [
+        "https://www.mightytips.com/football-predictions/rosenborg-vs-kristiansund-prediction-12-07-2026/",
+        "https://predictions.xpertstats.com/rosenborg-vs-kristiansund-prediction-120726/"
+      ]
+    },
+    {
+      "match": "Sandefjord vs HamKam",
+      "market": "Les deux equipes marquent (BTTS)",
+      "pick": "Oui",
+      "decimal_odds": 1.615,
+      "est_probability": 0.63,
+      "edge": 0.017,
+      "bookmaker": "bet365",
+      "rationale": "Cote 8/13 = 1.615 (proba implicite 61,9%), estimation honnete ~63% => leger value (~+1 pt). Signal fondamental le plus propre du match : Sandefjord n'a AUCUN clean sheet cette saison et 6 de ses 7 derniers matchs ont vu BTTS ; HamKam n'a pa",
+      "sources": [
+        "https://www.freesupertips.com/predictions/sandefjord-vs-hamkam-predictions-betting-tips-match-previews/",
+        "https://www.sportsmole.co.uk/football/sandefjord/preview/sandefjord-vs-hamkam-prediction-team-news-lineups_601002.html",
+        "https://www.mightytips.com/football-predictions/sandefjord-vs-hamarkameratene-prediction-12-07-2026/"
+      ]
+    },
+    {
+      "match": "Sandefjord vs HamKam",
+      "market": "1X2 (Resultat du match)",
+      "pick": "Sandefjord (victoire a domicile)",
+      "decimal_odds": 1.94,
+      "est_probability": 0.53,
+      "edge": 0.028,
+      "bookmaker": "1xBet",
+      "rationale": "Meilleure cote domicile 1.94 (proba implicite 51,5% ; consensus 6 bookmakers 1.89-1.94), estimation honnete ~53% => value fin (~+1,5 pt). Trois angles convergents : (1) split domicile/exterieur extreme, Sandefjord 1,6 pt/match a domicile (8",
+      "sources": [
+        "https://www.mightytips.com/football-predictions/sandefjord-vs-hamarkameratene-prediction-12-07-2026/",
+        "https://www.sportsmole.co.uk/football/sandefjord/preview/sandefjord-vs-hamkam-prediction-team-news-lineups_601002.html",
+        "https://ratingbet.com/predictions/sandefjord-vs-hamkam-prediction-team-news-lineups-expert-analysis/"
+      ]
+    },
+    {
+      "match": "Sarpsborg 08 vs Viking",
+      "market": "Corners par equipe",
+      "pick": "Viking plus de 5,5 corners",
+      "decimal_odds": 1.65,
+      "est_probability": 0.63,
+      "edge": 0.039,
+      "bookmaker": "BetMGM (-154)",
+      "rationale": "Value fine, confiance faible. Viking tourne a ~6.7 corners/match (over25tips) contre 3.5 pour Sarpsborg; en tant qu'equipe dominante en possession et a l'attaque, meme prive de Berisha, la barre de 5,5 est basse. J'estime ~63% vs implicite ",
+      "sources": [
+        "https://www.sportsgambler.com/betting-tips/football/sarpsborg-vs-viking-prediction-lineups-odds-2026-07-12/",
+        "https://www.over25tips.com/football/prediction/sarpsborg-vs-viking-fk.html"
+      ]
+    },
+    {
+      "match": "Sarpsborg 08 vs Viking",
+      "market": "Handicap asiatique",
+      "pick": "Sarpsborg 08 +0.75",
+      "decimal_odds": 1.86,
+      "est_probability": 0.6,
+      "edge": 0.116,
+      "bookmaker": "BetMGM (-116)",
+      "rationale": "PICK PRINCIPAL (meilleur rapport valeur/risque). La ligne AH est quasi pick'em (Sarp +0.75 a 1.86 / Viking -0.75 a 1.82), ce qui est incoherent avec le 1X2 du meme book donnant Viking ~55%. On exploite cet ecart. Le +0.75 gagne pleinement s",
+      "sources": [
+        "https://www.sportsgambler.com/betting-tips/football/sarpsborg-vs-viking-prediction-lineups-odds-2026-07-12/",
+        "https://www.over25tips.com/football/prediction/sarpsborg-vs-viking-fk.html"
+      ]
+    },
+    {
+      "match": "Sarpsborg 08 vs Viking",
+      "market": "Resultat 1re mi-temps",
+      "pick": "Nul a la mi-temps",
+      "decimal_odds": 2.55,
+      "est_probability": 0.41,
+      "edge": 0.045,
+      "bookmaker": "BetMGM (+155)",
+      "rationale": "Value fine, confiance faible. Dans un match a deux equipes proches (mon 1X2 estime: Viking 47% / Nul 25% / Sarp 28%) et une premiere periode statistiquement plus fermee, le nul est l'issue modale a la pause. J'estime ~41% vs implicite 39.2%",
+      "sources": [
+        "https://www.sportsgambler.com/betting-tips/football/sarpsborg-vs-viking-prediction-lineups-odds-2026-07-12/"
+      ]
+    },
+    {
+      "match": "Sarpsborg 08 vs Viking",
+      "market": "1X2 (Resultat final)",
+      "pick": "Sarpsborg 08 (victoire domicile)",
+      "decimal_odds": 4.1,
+      "est_probability": 0.27,
+      "edge": 0.107,
+      "bookmaker": "BetMGM (+310)",
+      "rationale": "Pari contrarian a variance elevee mais value reelle. Le book implique 24.4%; j'estime ~27% (EV ~+10%). La cote de 4.10 repose sur une serie de 9 victoires Viking dont la fraicheur est douteuse (compteurs de matches figes a 10/11 alors que l",
+      "sources": [
+        "https://www.sportsgambler.com/betting-tips/football/sarpsborg-vs-viking-prediction-lineups-odds-2026-07-12/",
+        "https://www.over25tips.com/football/prediction/sarpsborg-vs-viking-fk.html"
+      ]
+    }
+  ]
+}
