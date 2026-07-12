@@ -175,8 +175,22 @@ const seen = new Set();
 matches = matches.filter(m => {
   const k = `${m.sport}|${(m.home || '').toLowerCase()}|${(m.away || '').toLowerCase()}`;
   if (seen.has(k)) return false; seen.add(k); return true;
-}).slice(0, MAX_MATCHES);
-matches = matches.map((m, i) => ({ ...m, key: `${i}:${m.home} vs ${m.away}` }));
+});
+// Entrelacement par sport pour une couverture equilibree (le foot ne monopolise plus les places).
+const bySport = { football: [], tennis: [], basketball: [] };
+for (const m of matches) { (bySport[m.sport] || (bySport[m.sport] = [])).push(m); }
+const inter = [];
+let added = true;
+while (inter.length < MAX_MATCHES && added) {
+  added = false;
+  for (const s of ['football', 'tennis', 'basketball']) {
+    if (bySport[s] && bySport[s].length) {
+      inter.push(bySport[s].shift()); added = true;
+      if (inter.length >= MAX_MATCHES) break;
+    }
+  }
+}
+matches = inter.map((m, i) => ({ ...m, key: `${i}:${m.home} vs ${m.away}` }));
 log(`${matches.length} match(s) réel(s) retenu(s) pour analyse approfondie.`);
 if (matches.length === 0) {
   return { picks: [], coupon: null, disclaimer: DISCLAIMER,
@@ -245,7 +259,7 @@ log(`${opps.length} opportunité(s) de marché détectée(s) sur ${perMatch.leng
 // ================= PHASE 5 : Vérification adversariale =================
 phase('Vérification')
 // On vérifie en priorité les meilleures value (borne le coût).
-const toVerify = opps.filter(o => o.edge > 0).sort((a, b) => b.edge - a.edge).slice(0, 24);
+const toVerify = opps.filter(o => o.edge > 0).sort((a, b) => b.edge - a.edge).slice(0, 12);
 const verified = (await parallel(toVerify.map(o => () =>
   agent(
     `Vérifie de façon ADVERSARIALE cette opportunité :\n` +
