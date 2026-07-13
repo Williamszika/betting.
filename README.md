@@ -140,3 +140,33 @@ python -m pytest tests/ -q
 Fourni « tel quel », à des fins d'analyse personnelle et éducative. Vérifiez la
 légalité des paris et du scraping dans votre juridiction. Les auteurs déclinent
 toute responsabilité en cas de pertes.
+
+---
+
+## 🧮 Modèle SportPredix (features pondérées → Poisson/ML)
+
+`src/sportsbet/features.py` + `model.py` :
+- **Normalisation** des données brutes (buts, xG, forme, dispo, H2H) sur 0–1.
+- **Pondération** (défaut : forme 30 %, attaque 25 %, dispo 20 %, domicile 15 %, H2H 10 %).
+- **Football** : features → buts attendus (xG ajustés) → **Poisson** (1X2, O/U, BTTS).
+- **Tennis / Basket** : écart de score pondéré → **logistique** (proba de victoire).
+- `blend_probabilities(model, recherche)` : **croise** la proba du modèle avec
+  celle de la recherche (avis/marché) — le « comparer & vérifier » du projet.
+- `value_vs_odds(p, cote)` : détecte la value.
+
+## 📊 Suivi & amélioration continue
+
+- `src/sportsbet/ledger.py` : registre JSONL des coupons, **règlement**, bilan
+  🟢/🔴, **ROI**.
+- `scripts/build_dashboard.py` → `data/tracking.html` (coloré) + `data/tracking.md`.
+- `scripts/log_coupon.py` / `apply_settlement.py` : journaliser / régler.
+- `workflows/settle_coupons.js` : après les matchs, des agents **vérifient le
+  résultat réel** de chaque jambe (gagné/perdu), et sur chaque **perte** tiennent
+  une **rétro** (causes + données à ajouter) écrite dans `data/lessons.md`.
+- Le workflow d'analyse **relit `data/lessons.md`** → boucle d'amélioration.
+
+## ⏰ Automatisation quotidienne (Betano.de, heure de Berlin)
+
+- **20h** : recherche des matchs de demain → coupon 1,95–3 → journalisé + poussé.
+- **12h** : règlement des coupons de la veille (🟢/🔴), rétro des pertes, MAJ des leçons.
+- Notifications push + email à chaque exécution.
