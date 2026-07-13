@@ -68,13 +68,13 @@ const DATA_SPEC = {
     marche: "Cotes " + "Betano (betano.de)" + " si visibles + consensus, favori/outsider, MOUVEMENT des cotes (une cote qui chute = info possible).",
   },
   basketball: {
-    forme: "Forme récente (bilan dom/ext), points marqués/encaissés par match, écarts, série en cours, contexte (saison régulière vs Summer League = plus bruité).",
-    effectif: "Blessures, REPOS/load management, rotation attendue, minutes des cadres, joueurs clés absents.",
-    avance: "STATS avancées : offensive/defensive rating, PACE, eFG%, 3P%, turnovers, rebonds ; force des bancs.",
-    h2h: "Confrontations directes récentes, écarts, tendances total points/handicap.",
-    tactique: "Style (rythme rapide/lent, adresse extérieure), matchups clés, profondeur de banc.",
-    externe: "Back-to-back / repos, voyage, terrain neutre, enjeu (seeding, match sans enjeu).",
-    marche: "Cotes sur " + "Betano (betano.de)" + " si visibles + consensus, mouvements de cotes.",
+    forme: "Forme 5-10 derniers matchs, série V/D, performance CONTRE des équipes similaires, momentum ; points marqués/encaissés par match, écarts.",
+    effectif: "PLAYER IMPACT : joueur clé/leader offensif, usage rate, PER, minutes, +/-, dépendance à une star ; blessures/absences (star OUT = impact énorme), repos/load management, rotation.",
+    avance: "TEAM + ADVANCED chiffrés : offensive/defensive RATING, PACE, FG%/3PT%/FT%, rebonds off/def, turnovers ; TS%, eFG%, assist ratio, turnover ratio, NET RATING (attaque-défense).",
+    h2h: "Confrontations directes récentes, écarts, tendances total points (Over/Under) et handicap.",
+    tactique: "MATCHUPS individuels (ex. pivot vs pivot), style défensif (zone/individuel), systèmes (pick&roll, isolation, jeu rapide), qui contrôle le TEMPO, qui domine sous le panier, mismatches exploitables.",
+    externe: "CONTEXTE : back-to-back/fatigue, domicile/extérieur, voyage, motivation (playoffs, revanche, seeding), match sans enjeu ; Summer League = échantillon bruité.",
+    marche: "Cotes " + "Betano (betano.de)" + " si visibles + consensus, favori/outsider, MOUVEMENT des cotes.",
   },
 };
 function spec(m, key) { return (DATA_SPEC[m.sport] && DATA_SPEC[m.sport][key]) || DATA_SPEC.football[key]; }
