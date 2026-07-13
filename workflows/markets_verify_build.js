@@ -82,9 +82,9 @@ const perMatch = await parallel(MATCHES.map(m => () =>
     "Tu es l ANALYSTE MARCHES pour " + m.match + " (" + m.sport + ", " + DATE + ").\n" +
     "Fiche de faits verifies :\n" + JSON.stringify(m).slice(0, 3500) + "\n\n" +
     "Passe en revue les marches : " + (MARKETS[m.sport] || "principaux marches") + ".\n" +
-    "Pour la cote : cherche d abord la cote " + BOOKMAKER + " ; si tu ne la trouves pas exactement, " +
-    "utilise la MEILLEURE COTE CONSENSUS PUBLIQUE (comparateurs type oddsportal/wincomparator, previews, " +
-    "cotes citees par la presse) et indique la source dans 'sources' (le parieur confirmera le prix exact sur " + BOOKMAKER + "). " +
+    "Pour la cote : cherche d abord " + BOOKMAKER + " ; sinon la cote REELLE sur Flashscore/Flashresultats " +
+    "ou un comparateur (oddsportal, betexplorer, wincomparator, previews presse). " +
+    "Indique la source dans 'sources' (le parieur confirmera le prix exact sur " + BOOKMAKER + "). " +
     "Estime honnetement la probabilite et garde 2 a 5 opportunites de VALUE (proba estimee > proba implicite de la cote). " +
     "Ne rends une liste VIDE que si le match n a AUCUNE value credible. " +
     "Verifie sur le web que le match est ENCORE A VENIR le " + DATE + ". N invente jamais une cote : cite toujours une source.",

@@ -56,7 +56,7 @@ const DATA_SPEC = {
     h2h: "Confrontations directes récentes (scores, buts), style des duels (ouverts/fermés), tendances Over/Under et BTTS sur les H2H.",
     tactique: "Style de jeu (offensif/défensif, pressing haut/bloc bas), ENJEU (maintien, qualif, derby, titre), motivation, FATIGUE (calendrier serré), voyage/déplacement.",
     externe: "MÉTÉO (pluie/chaleur/vent), état du terrain, ARBITRE désigné et ses tendances (cartons/penalties).",
-    marche: "Cotes sur " + "Betano (betano.de)" + " si visibles + consensus public, cote d'ouverture vs actuelle, MOUVEMENTS de cotes, où va l'argent.",
+    marche: "Cotes sur " + "Betano (betano.de) — sinon Flashscore/Flashresultats ou comparateur (oddsportal, betexplorer, wincomparator)" + " si visibles + consensus public, cote d'ouverture vs actuelle, MOUVEMENTS de cotes, où va l'argent.",
   },
   tennis: {
     forme: "CLASSEMENT ATP/WTA + points + progression (en forme / en chute) ; forme 5-10 derniers matchs (V-D, NIVEAU des adversaires battus, scores faciles/serrés), série en cours.",
@@ -65,7 +65,7 @@ const DATA_SPEC = {
     h2h: "Head-to-Head : bilan des confrontations (global et sur la surface), qui domine, style qui gêne l'autre, scénarios (serrés / à sens unique).",
     tactique: "SURFACE = facteur clé (terre/dur/gazon) et niveau du joueur SUR cette surface ; style (gros serveur / défenseur / agressif) et matchup de styles.",
     externe: "Conditions (indoor/outdoor, altitude, balle, vitesse du court) ; CONTEXTE : niveau du tournoi (Grand Chelem / ATP 250...), pression, motivation.",
-    marche: "Cotes " + "Betano (betano.de)" + " si visibles + consensus, favori/outsider, MOUVEMENT des cotes (une cote qui chute = info possible).",
+    marche: "Cotes " + "Betano (betano.de) — sinon Flashscore/Flashresultats ou comparateur (oddsportal, betexplorer, wincomparator)" + " si visibles + consensus, favori/outsider, MOUVEMENT des cotes (une cote qui chute = info possible).",
   },
   basketball: {
     forme: "Forme 5-10 derniers matchs, série V/D, performance CONTRE des équipes similaires, momentum ; points marqués/encaissés par match, écarts.",
@@ -74,7 +74,7 @@ const DATA_SPEC = {
     h2h: "Confrontations directes récentes, écarts, tendances total points (Over/Under) et handicap.",
     tactique: "MATCHUPS individuels (ex. pivot vs pivot), style défensif (zone/individuel), systèmes (pick&roll, isolation, jeu rapide), qui contrôle le TEMPO, qui domine sous le panier, mismatches exploitables.",
     externe: "CONTEXTE : back-to-back/fatigue, domicile/extérieur, voyage, motivation (playoffs, revanche, seeding), match sans enjeu ; Summer League = échantillon bruité.",
-    marche: "Cotes " + "Betano (betano.de)" + " si visibles + consensus, favori/outsider, MOUVEMENT des cotes.",
+    marche: "Cotes " + "Betano (betano.de) — sinon Flashscore/Flashresultats ou comparateur (oddsportal, betexplorer, wincomparator)" + " si visibles + consensus, favori/outsider, MOUVEMENT des cotes.",
   },
 };
 function spec(m, key) { return (DATA_SPEC[m.sport] && DATA_SPEC[m.sport][key]) || DATA_SPEC.football[key]; }
@@ -271,12 +271,13 @@ const perMatch = await pipeline(
     `Base-toi UNIQUEMENT sur cette fiche de faits vérifiés :\n` +
     JSON.stringify(r.sheet).slice(0, 6000) + `\n\n` +
     `Passe en revue TOUS les marchés pertinents : ${MARKETS[r.m.sport]}. ` +
-    `Pour chaque marché intéressant, récupère la cote réelle telle qu'affichée SUR ${BOOKMAKER} ` +
-    `(uniquement des marchés/cotes réellement proposés par ${BOOKMAKER}), indique le bookmaker="${BOOKMAKER}", ` +
-    `estime honnêtement la probabilité, et ne garde que les opportunités de VALUE ` +
+    `Pour chaque marché intéressant, récupère la COTE RÉELLE : d'abord ${BOOKMAKER} (${DOMAIN}) si visible, ` +
+    `SINON sur Flashscore / Flashresultats ou un comparateur de cotes (oddsportal, betexplorer, wincomparator). ` +
+    `Indique la source de la cote (le parieur confirmera le prix exact sur ${BOOKMAKER}). ` +
+    `Estime honnêtement la probabilité et ne garde que les opportunités de VALUE ` +
     `(proba estimée > proba implicite de la cote). Privilégie les cotes exploitables ` +
     `pour un simple (${SINGLE_MIN}-${SINGLE_MAX}) ou une jambe de combiné. ` +
-    `Cite les sources. N'invente aucune cote ; si ${BOOKMAKER} n'offre pas le marché, ne le propose pas.`,
+    `N'invente JAMAIS une cote : cite toujours une source réelle.`,
     { label: `markets:${r.m.home}-${r.m.away}`, phase: 'Marchés', schema: MARKETS_SCHEMA }
   ).then(mk => ({ m: r.m, sheet: r.sheet, markets: (mk && mk.opportunities) || [] }))
 );
@@ -310,7 +311,7 @@ const verified = (await parallel(toVerify.map(o => () =>
     `${o.match} (${o.competition}) — ${o.market} / ${o.pick} @ ${o.odds}.\n` +
     `Argument : ${o.rationale}\n` +
     `Contrôle sur le web : (1) le match a-t-il lieu ${DATE} et est-il encore À VENIR (pas déjà commencé/fini) ? ` +
-    `(2) la cote ${o.odds} est-elle réellement proposée SUR ${BOOKMAKER} et plausible ? ` +
+    `(2) la cote ${o.odds} est-elle réelle/plausible (${BOOKMAKER} si visible, sinon Flashscore/comparateur) ? ` +
     `(3) le raisonnement tient-il (blessure majeure ignorée ? enjeu ? piège ?). ` +
     `Sois sceptique : au moindre doute sérieux, verdict=drop.`,
     { label: `verify:${o.id}`, phase: 'Vérification', schema: VERDICT_SCHEMA }
