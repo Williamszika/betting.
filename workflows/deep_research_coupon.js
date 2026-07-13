@@ -489,6 +489,15 @@ verified.sort((a, b) => a.rank - b.rank || b.confidence - a.confidence || b.edge
 
 // ================= PHASE 7 : Synthèse (coupon + singles) =================
 phase('Synthèse')
+// Toujours remonter les paris VÉRIFIÉS (même hors fourchette de coupon) = les prédictions du jour.
+const verified_picks = verified.slice()
+  .sort((a, b) => (b.eff_edge || 0) - (a.eff_edge || 0) || b.prob - a.prob)
+  .map(o => ({
+    match: o.match, sport: o.sport, competition: o.competition, market: o.market, pick: o.pick,
+    odds: o.odds, est_prob: o.prob, edge: Number((o.edge || 0).toFixed(3)),
+    reliability: o.reliability, confidence: o.confidence, rationale: o.rationale,
+  }));
+
 // Singles cote 5-7, matchs distincts
 const singles = [];
 const usedForSingles = new Set();
@@ -498,11 +507,15 @@ for (const o of verified) {
     if (singles.length >= MAX_PICKS) break;
   }
 }
-// Coupon combiné cote ~COUPON_TARGET : privilégie les sélections les plus probables
-const couponLegs = buildCoupon(
-  verified.map(o => ({ matchKey: o.matchKey, odds: o.odds, prob: o.prob, ref: o })),
-  COUPON_TARGET, COUPON_MAX, 2, 5
-);
+
+// Coupon dans la fourchette cible ; SINON repli : meilleur combiné 2 jambes hors fourchette.
+const pool = verified.map(o => ({ matchKey: o.matchKey, odds: o.odds, prob: o.prob, ref: o }));
+let couponLegs = buildCoupon(pool, COUPON_TARGET, COUPON_MAX, 2, 5);
+let couponOutOfRange = false;
+if (!couponLegs) {
+  couponLegs = buildCoupon(pool, 1.01, 1e9, 2, 5);   // n'importe quelle cote, juste 2 jambes distinctes
+  couponOutOfRange = !!couponLegs;
+}
 const coupon = couponLegs ? {
   legs: couponLegs.map(c => ({
     match: c.ref.match, market: c.ref.market, pick: c.ref.pick,
@@ -510,23 +523,31 @@ const coupon = couponLegs ? {
   })),
   total_odds: Number(prod(couponLegs.map(c => c.odds)).toFixed(2)),
   joint_prob: Number(prod(couponLegs.map(c => c.prob)).toFixed(3)),
+  out_of_range: couponOutOfRange,
 } : null;
 
-const writeup = await agent(
-  `Rédige en français une note claire et HONNÊTE pour le parieur, à partir de ces données :\n` +
-  `SINGLES (cote ${SINGLE_MIN}-${SINGLE_MAX}, option plus risquée): ${JSON.stringify(singles.map(s => ({ match: s.match, market: s.market, pick: s.pick, odds: s.odds, est_prob: s.prob, edge: Number(s.edge.toFixed(3)), confidence: s.confidence, why: s.rationale })))}\n` +
-  `COUPON (cote totale ${COUPON_TARGET}-${COUPON_MAX}, option plus sûre): ${JSON.stringify(coupon)}\n` +
-  `Rappels obligatoires : proba réelle de gain, aucune garantie, gestion de mise ` +
-  `raisonnable, et l'avertissement suivant intégré : "${DISCLAIMER}". ` +
-  `Ton factuel, pas de survente, pas de "safe".`,
+// Meilleur pari le plus sûr (proba la plus haute) et meilleure value (edge le plus haut).
+const safest = verified.slice().sort((a, b) => b.prob - a.prob)[0] || null;
+const bestValue = verified.slice().sort((a, b) => (b.eff_edge || 0) - (a.eff_edge || 0))[0] || null;
+
+const writeup = verified_picks.length ? await agent(
+  `Rédige en français une note claire et HONNÊTE pour un parieur ${BOOKMAKER}, à partir de ces données VÉRIFIÉES par les agents.\n` +
+  `PARIS VÉRIFIÉS (présente-les TOUS — ce sont les prédictions du jour) : ${JSON.stringify(verified_picks)}\n` +
+  `LE PLUS SÛR (proba max) : ${JSON.stringify(safest && { match: safest.match, pick: safest.pick, odds: safest.odds, est_prob: safest.prob })}\n` +
+  `MEILLEURE VALUE : ${JSON.stringify(bestValue && { match: bestValue.match, pick: bestValue.pick, odds: bestValue.odds, est_prob: bestValue.prob, edge: Number((bestValue.edge || 0).toFixed(3)) })}\n` +
+  `SINGLES cote ${SINGLE_MIN}-${SINGLE_MAX} : ${JSON.stringify(singles.map(s => ({ match: s.match, pick: s.pick, odds: s.odds, est_prob: s.prob })))}\n` +
+  `COUPON (cible ${COUPON_TARGET}-${COUPON_MAX}${couponOutOfRange ? " — AUCUN dans la fourchette : voici le meilleur combiné HORS fourchette, à signaler comme tel" : ""}) : ${JSON.stringify(coupon)}\n` +
+  `IMPÉRATIF : ne dis JAMAIS "aucune sélection" s'il y a des paris vérifiés — présente-les (le plus sûr ET la meilleure value). ` +
+  `Rappels : proba réelle de gain, aucune garantie, gestion de mise 1-2%, cotes à CONFIRMER sur ${BOOKMAKER}. Intègre l'avertissement : "${DISCLAIMER}".`,
   { label: 'redaction', phase: 'Synthèse' }
-);
+) : ("Aucune opportunité n'a passé la vérification aujourd'hui — rien à parier. " + DISCLAIMER);
 
 return {
   date: DATE,
   considered: matches.length,
   opportunities: opps.length,
   verified: verified.length,
+  verified_picks,
   singles,
   coupon,
   writeup,
