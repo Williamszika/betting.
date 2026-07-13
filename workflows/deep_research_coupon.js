@@ -473,7 +473,9 @@ const coord = await agent(
   `(même match, même compétition, issues liées) à éviter dans un combiné.`,
   { label: 'coordinateur', phase: 'Table ronde', schema: COORD_SCHEMA }
 );
-const rankById = new Map((coord.ranked || []).map(x => [x.id, x.rank]));
+// Degradation propre : si le coordinateur a echoue (null, ex. limite), on garde
+// l ordre par confiance/edge sans planter le run.
+const rankById = new Map(((coord && coord.ranked) || []).map(x => [x.id, x.rank]));
 for (const o of verified) o.rank = rankById.has(o.id) ? rankById.get(o.id) : 999;
 verified.sort((a, b) => a.rank - b.rank || b.confidence - a.confidence || b.edge - a.edge);
 

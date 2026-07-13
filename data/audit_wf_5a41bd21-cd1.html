@@ -1,0 +1,49 @@
+<title>Audit du run — SportPredix</title>
+<style>
+:root { color-scheme: light dark; }
+body { font-family: system-ui, sans-serif; margin: 0; padding: 1.4rem; line-height: 1.45; }
+h1 { font-size: 1.35rem; margin: 0 0 .2rem; } h2 { font-size: 1.05rem; margin: 1.3rem 0 .5rem; }
+.sub { opacity: .65; font-size: .85rem; margin-bottom: 1rem; }
+.kpi { display:flex; gap:.6rem; flex-wrap:wrap; margin:.6rem 0 1rem; }
+.kpi div { background: rgba(127,127,127,.1); border-radius:8px; padding:.5rem .8rem; }
+.kpi b { font-size:1.3rem; display:block; }
+table { border-collapse: collapse; width:100%; }
+td { padding:.28rem .5rem; border-bottom:1px solid rgba(127,127,127,.18); font-size:.92rem; }
+.num { text-align:right; font-variant-numeric: tabular-nums; font-weight:700; width:3rem; }
+.desc { opacity:.6; font-size:.85rem; }
+.funnel div.row { display:grid; grid-template-columns: 15rem 1fr; align-items:center; gap:.6rem; margin:.25rem 0; }
+.bar { position:relative; background: rgba(127,127,127,.12); border-radius:6px; height:1.5rem; }
+.fill { height:100%; border-radius:6px; }
+.bar span { position:absolute; right:.5rem; top:0; line-height:1.5rem; font-size:.82rem; font-weight:700; }
+.howto { background: rgba(37,99,235,.1); border-radius:8px; padding:.8rem 1rem; font-size:.92rem; }
+ul { margin:.3rem 0; padding-left:1.1rem; } li { margin:.15rem 0; font-size:.9rem; }
+.disc { margin-top:1.2rem; font-size:.78rem; opacity:.6; }
+</style>
+<h1>🔍 Audit du run — <code>wf_5a41bd21-cd1</code></h1>
+<div class='sub'>Trace complète : agents, travail, flux d'information, construction du coupon.</div>
+<div class='kpi'>
+  <div><b>52</b>agents lancés</div>
+  <div><b>47</b>terminés</div>
+  <div><b>5</b>échec/incomplets</div>
+  <div><b>64</b>matchs</div>
+  <div><b>17</b>opportunités</div>
+  <div><b>2</b>vérifiées 🟢</div>
+</div>
+<h2>👥 Qui a travaillé (par rôle)</h2>
+<table><tr><td>📚 Spécialiste recherche</td><td class='num'>23</td><td class='desc'>Collecte des données (forme, xG, H2H, cotes…)</td></tr><tr><td>🕵️ Vérificateur</td><td class='num'>9</td><td class='desc'>Contrôle adversarial (match à venir ? cote ? logique ?)</td></tr><tr><td>🧩 Desk éditeur</td><td class='num'>6</td><td class='desc'>Réconcilie/vérifie les faits + stats chiffrées</td></tr><tr><td>📊 Analyste marchés</td><td class='num'>6</td><td class='desc'>Tous les marchés → opportunités de value (modèle croisé)</td></tr><tr><td>🔎 Découverte</td><td class='num'>3</td><td class='desc'>Trouve les vrais matchs du jour (Betano.de)</td></tr></table>
+<h2>🔻 Flux d'information (entonnoir jusqu'au coupon)</h2>
+<div class='funnel'>
+  <div class='row'><span>🔎 Matchs découverts</span><div class='bar'><div class='fill' style='width:100%;background:#2563eb'></div><span>64</span></div></div>
+  <div class='row'><span>📚 Spécialistes (données)</span><div class='bar'><div class='fill' style='width:35%;background:#0891b2'></div><span>23</span></div></div>
+  <div class='row'><span>🧩 Fiches réconciliées</span><div class='bar'><div class='fill' style='width:9%;background:#7c3aed'></div><span>6</span></div></div>
+  <div class='row'><span>📊 Opportunités de value</span><div class='bar'><div class='fill' style='width:26%;background:#d97706'></div><span>17</span></div></div>
+  <div class='row'><span>🕵️ Gardées après vérif</span><div class='bar'><div class='fill' style='width:3%;background:#16a34a'></div><span>2</span></div></div>
+  <div class='row'><span>🔴 Écartées</span><div class='bar'><div class='fill' style='width:10%;background:#dc2626'></div><span>7</span></div></div>
+</div>
+<h2>🧮 Comment le coupon est créé</h2>
+<div class='howto'>PIPELINE & COMMENT LE COUPON EST CRÉÉ (version optimisée après audit) :<br>0. PRÉ-FILTRE : on retire AVANT analyse les amicaux et les compétitions peu fiables<br>   (fiabilité < 0,35 : ex. NBA Summer League 0,30 ❌) → moins de bruit, moins d'agents.<br>1. RECHERCHE : 4 spécialistes consolidés/match (stats+xG, effectif+tactique, contexte+H2H, cotes).<br>2. FUSION : 1 fiche de faits vérifiés + STATS chiffrées par match (desk).<br>3. MODÈLE : proba finale = BLEND(modèle Poisson/logistique, recherche).<br>4. VALUE : edge = proba × cote − 1, AJUSTÉ par la fiabilité (edge × fiabilité).<br>   Seuils : safe > 5 %, combiné > 6 %, agressif > 8 %. En-dessous = rejeté (pas de value « fake »).<br>5. VÉRIFICATION adversariale (allégée) : match à venir ? cote réelle ? cohérence ?<br>6. SOLVEUR : combinaison de jambes (matchs DISTINCTS) dans la fourchette (défaut 1,95–3),<br>   en MAXIMISANT la proba conjointe (le plus « sûr »).<br>7. COMBIEN : 1 coupon combiné/jour (+ jusqu'à 2 simples cote 5–7). Rien n'est forcé :<br>   si aucune combi ne rentre ou si rien ne passe → « rien à parier ».</div>
+<h2>⚽ Matchs analysés</h2>
+<ul><li><b>football</b> — France vs Spain <span class='desc'>(FIFA World Cup 2026 — Semi-final)</span></li><li><b>football</b> — The New Saints vs Sabah <span class='desc'>(UEFA Champions League 2026/27 — 1st qualifying round, 2nd leg)</span></li><li><b>football</b> — Shamrock Rovers vs Floriana <span class='desc'>(UEFA Champions League 2026/27 — 1st qualifying round, 2nd leg)</span></li><li><b>football</b> — Iberia 1999 Tbilisi vs Flora Tallinn <span class='desc'>(UEFA Champions League 2026/27 — 1st qualifying round, 2nd leg)</span></li><li><b>football</b> — Inter Club d'Escaldes vs Lincoln Red Imps <span class='desc'>(UEFA Champions League 2026/27 — 1st qualifying round, 2nd leg)</span></li><li><b>football</b> — Larne vs Tre Fiori <span class='desc'>(UEFA Champions League 2026/27 — 1st qualifying round, 2nd leg)</span></li><li><b>football</b> — Riga FC vs Ararat-Armenia <span class='desc'>(UEFA Champions League 2026/27 — 1st qualifying round, 2nd leg)</span></li><li><b>football</b> — KuPS Kuopio vs Vardar <span class='desc'>(UEFA Champions League 2026/27 — 1st qualifying round, 2nd leg)</span></li><li><b>football</b> — Drita vs Kauno Žalgiris <span class='desc'>(UEFA Champions League 2026/27 — 1st qualifying round, 2nd leg)</span></li><li><b>football</b> — Levski Sofia vs Borac Banja Luka <span class='desc'>(UEFA Champions League 2026/27 — 1st qualifying round, 2nd leg)</span></li><li><b>football</b> — ETO FC Győr vs Víkingur Reykjavík <span class='desc'>(UEFA Champions League 2026/27 — 1st qualifying round, 2nd leg)</span></li><li><b>football</b> — Zhejiang Professional vs Qingdao Hainiu <span class='desc'>(Chinese Super League 2026)</span></li><li><b>football</b> — Brora Rangers vs Aberdeen <span class='desc'>(Scottish Premier Sports Cup 2026/27 — Group stage)</span></li><li><b>football</b> — Brechin City vs Livingston <span class='desc'>(Scottish Premier Sports Cup 2026/27 — Group stage)</span></li><li><b>football</b> — Montrose vs Dundee United <span class='desc'>(Scottish Premier Sports Cup 2026/27 — Group stage)</span></li><li><b>football</b> — Kilmarnock vs Raith Rovers <span class='desc'>(Scottish Premier Sports Cup 2026/27 — Group stage)</span></li><li><b>football</b> — Falkirk vs Ayr United <span class='desc'>(Scottish Premier Sports Cup 2026/27 — Group stage)</span></li><li><b>football</b> — Annan Athletic vs Dundee <span class='desc'>(Scottish Premier Sports Cup 2026/27 — Group stage)</span></li><li><b>football</b> — The Spartans vs Stirling Albion <span class='desc'>(Scottish Premier Sports Cup 2026/27 — Group stage)</span></li><li><b>football</b> — Kelty Hearts vs Queen's Park <span class='desc'>(Scottish Premier Sports Cup 2026/27 — Group stage)</span></li><li><b>football</b> — Dunfermline Athletic vs Dumbarton <span class='desc'>(Scottish Premier Sports Cup 2026/27 — Group stage)</span></li><li><b>football</b> — Forfar Athletic vs Partick Thistle <span class='desc'>(Scottish Premier Sports Cup 2026/27 — Group stage)</span></li><li><b>tennis</b> — Stefanos Tsitsipas vs Ignacio Buse <span class='desc'>(ATP 250 Gstaad (Swiss Open))</span></li><li><b>tennis</b> — Stan Wawrinka vs Jaime Faria <span class='desc'>(ATP 250 Gstaad (Swiss Open))</span></li></ul>
+<h2>🔴 Pourquoi des paris ont été écartés (échantillon)</h2>
+<ul><li>🔴 <span class='desc'>(conf 0.63)</span> Fixture confirmed and UPCOMING: Shamrock Rovers v Floriana, UCL 1st qual round 2nd leg, 14 July 2026 20:00 Tallaght Stadium (today is 13 July, kicks off tomorro</li><li>🔴 <span class='desc'>(conf 0.7)</span> Fixture, date and status all verified: Shamrock Rovers vs Floriana, 2026/27 UCL 1st qual round 2nd leg, Tuesday 14 July 2026 20:00 at Tallaght Stadium; match is</li><li>🔴 <span class='desc'>(conf 0.8)</span> Fixture and timing CONFIRMED and upcoming: Shamrock Rovers vs Floriana, CL 2026/27 Q1 2nd leg, Tue 14 July 2026, 21:00 CEST, Tallaght Stadium. Today is 13 July,</li><li>🔴 <span class='desc'>(conf 0.7)</span> Fixture verified: Shamrock Rovers vs Floriana, UCL 1st qualifying round 2nd leg, Tallaght Stadium Dublin, Tuesday 14 July 2026 20:00. Upcoming (today is 13 July</li><li>🔴 <span class='desc'>(conf 0.72)</span> Fixture confirmed and upcoming: Shamrock Rovers vs Floriana, UCL 26/27 1st qual. round 2nd leg, Tue 14 July 2026 19:00 GMT, Tallaght Stadium (today is 13 July).</li><li>🔴 <span class='desc'>(conf 0.7)</span> Fixture confirmed upcoming: Tue 14 July 2026, 20:00 UK, Tallaght Stadium, Dublin; first leg Floriana 2-0 Rovers on 7 July 2026 (2 goals despite a red card, cons</li><li>🔴 <span class='desc'>(conf 0.6)</span> Match verified: France vs Spain WC 2026 semi-final, Tuesday 14 July 2026, Dallas/AT&T Stadium, ~19:00 UTC. Today is 13 July, so it is genuinely upcoming (not st</li></ul>
+<div class='disc'>Audit généré depuis le journal du run. ESTIMATIONS — aucun pari n'est sûr.</div>
