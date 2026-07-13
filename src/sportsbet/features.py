@@ -19,6 +19,34 @@ def normalize(value: float, lo: float, hi: float) -> float:
     return max(0.0, min(1.0, (value - lo) / (hi - lo)))
 
 
+def weighted_recent(values: list[float], decay: float = 0.85) -> float:
+    """Moyenne pondérée exponentiellement vers le PLUS RÉCENT.
+
+    `values` est ordonné ancien -> récent. Le dernier élément a le poids le plus
+    fort. Sert au xG GLISSANT (rolling) et à la forme pondérée.
+    """
+    if not values:
+        return 0.0
+    n = len(values)
+    num = den = 0.0
+    for i, v in enumerate(values):
+        w = decay ** (n - 1 - i)   # i grand (récent) -> poids ~1
+        num += w * v
+        den += w
+    return num / den if den else 0.0
+
+
+def weighted_form_points(results: list[str], decay: float = 0.85) -> float:
+    """Forme PONDÉRÉE (récent > ancien) ramenée sur /15 (échelle 5 matchs).
+
+    `results` : liste de 'W'/'D'/'L' (ancien -> récent). Compatible avec le champ
+    `form_points` (0–15) utilisé partout.
+    """
+    pts = {"W": 3.0, "D": 1.0, "L": 0.0}
+    vals = [pts.get((r or "").strip().upper()[:1], 0.0) for r in results]
+    return weighted_recent(vals, decay) * 5.0   # points/match pondérés × 5
+
+
 # Poids par défaut (repris de la grille SportPredix). Somme = 1.0.
 DEFAULT_WEIGHTS = {
     "form": 0.30,          # forme récente
@@ -34,11 +62,12 @@ class TeamStats:
     """Données brutes d'une équipe (par match), alimentées par la recherche."""
     goals_for: float = 1.3        # buts marqués / match
     goals_against: float = 1.3    # buts encaissés / match
-    xg: float = 1.3               # expected goals / match
+    xg: float = 1.3               # expected goals / match (idéalement GLISSANT/pondéré)
     xga: float = 1.3              # expected goals against / match
-    form_points: float = 7.0      # points sur les 5 derniers (0–15)
+    form_points: float = 7.0      # points sur les 5 derniers (0–15, idéalement pondéré)
     availability: float = 1.0     # 1.0 = effectif complet ; <1 si absents clés
     h2h_score: float = 0.5        # domination H2H vs l'adversaire (0–1)
+    elo: float = 1500.0           # note ELO (0 ou 1500 = inconnu -> ignoré)
     is_home: bool = False
 
 

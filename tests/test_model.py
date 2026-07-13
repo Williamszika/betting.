@@ -74,3 +74,34 @@ def test_blend_market_probs():
     # clé absente d'un côté -> valeur disponible
     b2 = M.blend_market_probs({"1": 0.6}, {"2": 0.4})
     assert b2["1"] == 0.6 and b2["2"] == 0.4
+
+
+def test_weighted_recent_favours_recent():
+    # même valeurs mais la tendance récente pèse plus
+    montante = F.weighted_recent([0, 0, 3, 3, 3])   # récent bon
+    descendante = F.weighted_recent([3, 3, 3, 0, 0])  # récent mauvais
+    assert montante > descendante
+
+
+def test_weighted_form_points_scale():
+    fp = F.weighted_form_points(["W", "W", "W", "W", "W"])
+    assert math.isclose(fp, 15.0, rel_tol=1e-9)   # 5 victoires -> 15/15
+    fp0 = F.weighted_form_points(["L", "L", "L"])
+    assert math.isclose(fp0, 0.0, abs_tol=1e-9)
+
+
+def test_elo_1x2_sums_and_favours_stronger():
+    e = M.elo_1x2(1800, 1500)
+    assert math.isclose(e["1"] + e["X"] + e["2"], 1.0, rel_tol=1e-9)
+    assert e["1"] > e["2"]
+
+
+def test_predict_football_elo_shifts_toward_stronger():
+    base_home = F.TeamStats(is_home=True)
+    base_away = F.TeamStats()
+    p_no_elo = M.predict_football(base_home, base_away)
+    strong = F.TeamStats(is_home=True, elo=1900)
+    weak = F.TeamStats(elo=1400)
+    p_elo = M.predict_football(strong, weak)
+    assert p_elo["1"] > p_no_elo["1"]
+    assert math.isclose(p_elo["1"] + p_elo["X"] + p_elo["2"], 1.0, rel_tol=1e-6)

@@ -137,9 +137,26 @@ function _expGoals(h, a, avg = 1.35) {
   return [Math.max(0.2, base(h) * oppDef(a) * form(h) * avail(h) * 1.10),
           Math.max(0.2, base(a) * oppDef(h) * form(a) * avail(a))];
 }
+function _elo1x2(he, ae, adv = 65) {
+  const p = 1 / (1 + Math.pow(10, ((ae) - (he + adv)) / 400));
+  const diff = Math.abs((he + adv) - ae);
+  const draw = 0.30 * Math.exp(-diff / 300);
+  return { "1": p * (1 - draw), "X": draw, "2": (1 - p) * (1 - draw) };
+}
 function modelProbs(sport, stats) {
   if (!stats || !stats.home || !stats.away) return null;
-  if (sport === 'football') { const g = _expGoals(stats.home, stats.away); return _footProbs(g[0], g[1]); }
+  if (sport === 'football') {
+    const g = _expGoals(stats.home, stats.away);
+    const probs = _footProbs(g[0], g[1]);
+    const he = _num(stats.home.elo, 0), ae = _num(stats.away.elo, 0);
+    if (he > 1000 && ae > 1000) {                      // ELO connu -> croiser 1X2
+      const e = _elo1x2(he, ae), w = 0.35;
+      for (const k of ['1', 'X', '2']) probs[k] = (1 - w) * probs[k] + w * e[k];
+      const tot = probs['1'] + probs['X'] + probs['2'];
+      if (tot > 0) for (const k of ['1', 'X', '2']) probs[k] /= tot;
+    }
+    return probs;
+  }
   const score = (t, home) => 0.45 * _norm(_num(t.form_points, 7), 0, 15) + 0.25 * _clamp01(_num(t.availability, 1))
     + 0.15 * _clamp01(_num(t.h2h_score, 0.5)) + 0.15 * (home ? 1 : 0);
   const diff = score(stats.home, true) - score(stats.away, false);
@@ -200,7 +217,7 @@ const FACTSHEET_SCHEMA = {
     injuries_absences: { type: 'array', items: { type: 'string' } },
     form_summary: { type: 'string' },
     key_edges: { type: 'array', items: { type: 'string' } },
-    stats: { type: 'object', properties: { home: { type: 'object', properties: { goals_for: { type: 'number' }, goals_against: { type: 'number' }, xg: { type: 'number' }, xga: { type: 'number' }, form_points: { type: 'number' }, availability: { type: 'number' }, h2h_score: { type: 'number' } } }, away: { type: 'object', properties: { goals_for: { type: 'number' }, goals_against: { type: 'number' }, xg: { type: 'number' }, xga: { type: 'number' }, form_points: { type: 'number' }, availability: { type: 'number' }, h2h_score: { type: 'number' } } } } },
+    stats: { type: 'object', properties: { home: { type: 'object', properties: { goals_for: { type: 'number' }, goals_against: { type: 'number' }, xg: { type: 'number' }, xga: { type: 'number' }, form_points: { type: 'number' }, availability: { type: 'number' }, h2h_score: { type: 'number' }, elo: { type: 'number' } } }, away: { type: 'object', properties: { goals_for: { type: 'number' }, goals_against: { type: 'number' }, xg: { type: 'number' }, xga: { type: 'number' }, form_points: { type: 'number' }, availability: { type: 'number' }, h2h_score: { type: 'number' }, elo: { type: 'number' } } } } },
     data_quality: { type: 'string', enum: ['high', 'medium', 'low'] },
   }, required: ['verified_facts', 'form_summary', 'data_quality'],
 };
@@ -341,10 +358,11 @@ const perMatch = await pipeline(
     `Réconcilie-les : garde les faits corroborés (idéalement 2+ sources), signale les ` +
     `contradictions, isole blessures/absences, résume la forme, et dégage les vrais ` +
     `angles (key_edges). Recoupe/vérifie sur le web les faits douteux mais décisifs.\n` +
-    `Renseigne AUSSI 'stats' avec des estimations CHIFFRÉES par équipe (home/away) : ` +
-    `goals_for, goals_against, xg, xga (par match), form_points (0-15 sur 5 matchs), ` +
-    `availability (0-1, 1=effectif complet), h2h_score (0-1). Au tennis/basket, approxime : ` +
-    `form_points = niveau/forme, availability = fraîcheur physique, h2h_score = domination directe.`,
+    `Renseigne AUSSI 'stats' par équipe (home/away) : goals_for, goals_against, ` +
+    `xg, xga (par match — utilise un xG GLISSANT pondéré vers les matchs RÉCENTS), ` +
+    `form_points (0-15, forme PONDÉRÉE récent>ancien), availability (0-1), h2h_score (0-1), ` +
+    `elo (note de force ~1300-2000 ; au tennis convertis le classement, ex. top50~1900, top200~1550). ` +
+    `Au tennis/basket, approxime : form_points = niveau/forme, availability = fraîcheur.`,
     { label: `desk:${r.m.home}-${r.m.away}`, phase: 'Consolidation', schema: FACTSHEET_SCHEMA }
   ).then(sheet => ({ m: r.m, sheet })),
 

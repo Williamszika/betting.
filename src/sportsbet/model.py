@@ -23,7 +23,19 @@ from .features import (
     offensive_strength,
     team_score,
 )
-from .probability import poisson
+from .probability import elo as elo_mod, poisson
+
+
+def elo_1x2(home_elo: float, away_elo: float, home_adv: float = 65.0) -> Dict[str, float]:
+    """1X2 dérivé des notes ELO (avec un modèle de nul).
+
+    ELO donne P(domicile | hors nul) ; on répartit ensuite une probabilité de nul
+    qui augmente quand les deux équipes sont proches (matchs serrés = plus de nuls).
+    """
+    p_home_excl = elo_mod.expected_score(home_elo + home_adv, away_elo)
+    diff = abs((home_elo + home_adv) - away_elo)
+    draw = 0.30 * math.exp(-diff / 300.0)      # ~0.30 si égal, décroît avec l'écart
+    return {"1": p_home_excl * (1.0 - draw), "X": draw, "2": (1.0 - p_home_excl) * (1.0 - draw)}
 
 
 def expected_goals(home: TeamStats, away: TeamStats,
@@ -57,10 +69,24 @@ def expected_goals(home: TeamStats, away: TeamStats,
 
 
 def predict_football(home: TeamStats, away: TeamStats,
-                     league_avg: float = 1.35) -> Dict[str, float]:
-    """Probabilités des marchés football via le modèle (features → xG → Poisson)."""
+                     league_avg: float = 1.35, weight_elo: float = 0.35) -> Dict[str, float]:
+    """Probabilités football : xG (glissant) → Poisson, 1X2 CROISÉ avec l'ELO.
+
+    Over/Under et BTTS restent Poisson. Le 1X2 est un mélange Poisson × ELO
+    (poids `weight_elo`) quand les deux ELO sont connus (≠ 1500 par défaut).
+    """
     hx, ax = expected_goals(home, away, league_avg)
-    return poisson.market_probs(hx, ax)
+    probs = poisson.market_probs(hx, ax)
+    has_elo = (home.elo and away.elo and (home.elo != 1500.0 or away.elo != 1500.0))
+    if has_elo:
+        e = elo_1x2(home.elo, away.elo)
+        for k in ("1", "X", "2"):
+            probs[k] = (1.0 - weight_elo) * probs[k] + weight_elo * e[k]
+        tot = probs["1"] + probs["X"] + probs["2"]
+        if tot > 0:
+            for k in ("1", "X", "2"):
+                probs[k] /= tot
+    return probs
 
 
 def predict_two_way(home: TeamStats, away: TeamStats,
