@@ -1,6 +1,10 @@
 # Suivi des coupons — SportPredix
 
-**Bilan :** 0 🟢 · 1 🔴 · 0 ⏳ — réussite **0%**, ROI **-100.0%** (profit -1.00 u sur 1 u misées)
+**Bilan :** 0 🟢 · 1 🔴 · 1 ⏳ — réussite **0%**, ROI **-100.0%** (profit -1.00 u sur 1 u misées)
+
+### ⏳ 2026-07-14 — cote 3.21 (pending)
+- ⏳ KuPS vs Vardar — Total buts O/U 2.5 / Over 2.5 buts @ 1.67
+- ⏳ France vs Spain — Corners equipe (Espagne) / Espagne Over 4.5 corners @ 1.92
 
 ### 🔴 2026-07-13-test — cote 5.71 (lost)
 - 🟢 Ningbo (Shanghai Jiading) vs Foshan Nanshi — 1X2 / Ningbo victoire (1) @ 1.68
