@@ -289,23 +289,31 @@ function buildCoupon(cands, tMin, tMax, minLegs, maxLegs, poolSize = 16) {
 
 // ================= PHASE 1 : Découverte =================
 phase('Découverte')
-const sports = [
-  { key: 'football', hint: "toutes ligues actives : championnats d'été, MLS, Brésil, Scandinavie, Asie, coupes, sélections, amicaux de préparation" },
-  { key: 'tennis', hint: "tournois ATP/WTA/Challenger/ITF en cours, order of play du jour" },
-  { key: 'basketball', hint: "NBA/Summer League, EuroLeague, ligues nationales, compétitions internationales" },
-];
-const discovered = await parallel(sports.map(s => () =>
-  agent(
-    `Recherche sur le web (WebSearch/WebFetch) les matchs de ${s.key} programmés ${DATE} ` +
-    `qui sont PROPOSÉS SUR ${BOOKMAKER} Allemagne (${DOMAIN}). ` +
-    `Couvre : ${s.hint}. Ne retiens que des matchs listés par ${BOOKMAKER}. ` +
-    `Sources fiables (${BOOKMAKER}, sites officiels, agrégateurs, presse). ` +
-    `Rends UNIQUEMENT des matchs réels et vérifiables avec l'URL source. ` +
-    `En cas de doute sur l'existence d'un match ou son absence sur ${BOOKMAKER}, ne l'inclus pas.`,
-    { label: `discover:${s.key}`, phase: 'Découverte', schema: FIXTURES_SCHEMA }
-  )
-));
-let matches = discovered.filter(Boolean).flatMap(d => d.matches || []);
+const SEED = (A.matches && A.matches.length) ? A.matches : null;
+let matches;
+if (SEED) {
+  // Matchs FOURNIS (ex. captures Betano) — on saute la découverte web ; ils seront quand même VÉRIFIÉS plus loin.
+  matches = SEED.map(m => ({ sport: m.sport, competition: m.competition || '', home: m.home, away: m.away, start_local: m.start_local || '' }));
+  log(`${matches.length} match(s) fourni(s) — découverte web ignorée (ils passent par la vérification comme d'habitude).`);
+} else {
+  const sports = [
+    { key: 'football', hint: "toutes ligues actives : championnats d'été, MLS, Brésil, Scandinavie, Asie, coupes, sélections, amicaux de préparation" },
+    { key: 'tennis', hint: "tournois ATP/WTA/Challenger/ITF en cours, order of play du jour" },
+    { key: 'basketball', hint: "NBA/Summer League, EuroLeague, ligues nationales, compétitions internationales" },
+  ];
+  const discovered = await parallel(sports.map(s => () =>
+    agent(
+      `Recherche sur le web (WebSearch/WebFetch) les matchs de ${s.key} programmés ${DATE} ` +
+      `qui sont PROPOSÉS SUR ${BOOKMAKER} Allemagne (${DOMAIN}). ` +
+      `Couvre : ${s.hint}. Ne retiens que des matchs listés par ${BOOKMAKER}. ` +
+      `Sources fiables (${BOOKMAKER}, sites officiels, agrégateurs, presse). ` +
+      `Rends UNIQUEMENT des matchs réels et vérifiables avec l'URL source. ` +
+      `En cas de doute sur l'existence d'un match ou son absence sur ${BOOKMAKER}, ne l'inclus pas.`,
+      { label: `discover:${s.key}`, phase: 'Découverte', schema: FIXTURES_SCHEMA }
+    )
+  ));
+  matches = discovered.filter(Boolean).flatMap(d => d.matches || []);
+}
 const seen = new Set();
 matches = matches.filter(m => {
   const k = `${m.sport}|${(m.home || '').toLowerCase()}|${(m.away || '').toLowerCase()}`;
