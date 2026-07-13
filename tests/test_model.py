@@ -96,6 +96,27 @@ def test_elo_1x2_sums_and_favours_stronger():
     assert e["1"] > e["2"]
 
 
+def test_two_way_elo_dominates_on_big_gap():
+    # Outsider en super forme MAIS ELO bien inférieur -> proba capée par l'ELO.
+    underdog = F.TeamStats(is_home=True, form_points=15, availability=1.0, elo=1560)
+    favorite = F.TeamStats(form_points=6, availability=1.0, elo=1830)  # ~top niveau
+    p = M.predict_two_way(underdog, favorite)
+    # malgré sa forme, l'outsider reste minoritaire (l'ELO domine)
+    assert p["home"] < 0.45
+    assert math.isclose(p["home"] + p["away"], 1.0, rel_tol=1e-9)
+
+
+def test_calibrate_to_market_pulls_more_when_unreliable_or_big_gap():
+    base = M.calibrate_to_market(0.55, 0.29, reliability=1.0, level_gap=0.0)
+    weak_comp = M.calibrate_to_market(0.55, 0.29, reliability=0.3, level_gap=0.0)
+    big_gap = M.calibrate_to_market(0.55, 0.29, reliability=1.0, level_gap=300.0)
+    # plus on est vers le marché (0.29), plus la proba baisse depuis 0.55
+    assert base >= weak_comp >= 0.29
+    assert base >= big_gap >= 0.29
+    # compétition faible ET gros écart -> encore plus proche du marché
+    assert weak_comp < 0.55 and big_gap < 0.55
+
+
 def test_predict_football_elo_shifts_toward_stronger():
     base_home = F.TeamStats(is_home=True)
     base_away = F.TeamStats()

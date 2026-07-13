@@ -160,10 +160,23 @@ function modelProbs(sport, stats) {
   const score = (t, home) => 0.45 * _norm(_num(t.form_points, 7), 0, 15) + 0.25 * _clamp01(_num(t.availability, 1))
     + 0.15 * _clamp01(_num(t.h2h_score, 0.5)) + 0.15 * (home ? 1 : 0);
   const diff = score(stats.home, true) - score(stats.away, false);
-  const pH = 1 / (1 + Math.exp(-6 * diff));
+  let pH = 1 / (1 + Math.exp(-6 * diff));
+  const he = _num(stats.home.elo, 0), ae = _num(stats.away.elo, 0);
+  if (he > 1000 && ae > 1000) {                       // GARDE-FOU écart de niveau
+    const pElo = 1 / (1 + Math.pow(10, (ae - he) / 400));
+    const gap = Math.abs(he - ae);
+    const wElo = Math.min(0.9, 0.55 + gap / 500);     // ELO domine ; + si gros écart
+    pH = wElo * pElo + (1 - wElo) * pH;
+  }
   return { "home": pH, "away": 1 - pH };
 }
 function blendP(m, r, w) { return w * m + (1 - w) * r; }
+// Calibrage vers le MARCHÉ selon la compétition (fiabilité) et l'écart de niveau (ELO).
+function calibrateToMarket(model, implied, reliability, levelGap) {
+  let wM = (1 - Math.max(0, Math.min(1, reliability))) * 0.6 + Math.min(0.45, (levelGap || 0) / 350);
+  wM = Math.max(0, Math.min(0.85, wM));
+  return (1 - wM) * model + wM * implied;
+}
 function modelKeyFor(sport, market, pick) {
   const mk = (market || '').toLowerCase(), pk = (pick || '').toLowerCase();
   if (sport !== 'football') return null;
@@ -369,7 +382,7 @@ const perMatch = await pipeline(
     `Renseigne AUSSI 'stats' par équipe (home/away) : goals_for, goals_against, ` +
     `xg, xga (par match — utilise un xG GLISSANT pondéré vers les matchs RÉCENTS), ` +
     `form_points (0-15, forme PONDÉRÉE récent>ancien), availability (0-1), h2h_score (0-1), ` +
-    `elo (note de force ~1300-2000 ; au tennis convertis le classement, ex. top50~1900, top200~1550). ` +
+    `elo (note de force RÉALISTE : top10~2000, top30~1920, top50~1870, top100~1750, top150~1650, top200~1580, top300~1470 ; au foot/basket ~1300-1900). ` +
     `Au tennis/basket, approxime : form_points = niveau/forme, availability = fraîcheur.`,
     { label: `desk:${r.m.home}-${r.m.away}`, phase: 'Consolidation', schema: FACTSHEET_SCHEMA }
   ).then(sheet => ({ m: r.m, sheet })),
@@ -422,6 +435,12 @@ for (const r of perMatch.filter(Boolean)) {
       }
       if (key && mm[key] != null) { model_prob = mm[key]; prob = blendP(model_prob, research, 0.5); }
     }
+    // CALIBRAGE marché : considérer la compétition (fiabilité) + l'écart de niveau (ELO).
+    const rel0 = compReliability(r.m.competition, r.m.sport);
+    const st = r.sheet && r.sheet.stats;
+    let eloGap = 0;
+    if (st && st.home && st.away && st.home.elo && st.away.elo) eloGap = Math.abs(Number(st.home.elo) - Number(st.away.elo));
+    prob = calibrateToMarket(prob, 1 / d, rel0, eloGap);
     const rel = compReliability(r.m.competition, r.m.sport);
     const edgeRaw = prob * d - 1;
     opps.push({

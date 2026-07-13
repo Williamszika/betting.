@@ -91,12 +91,37 @@ def predict_football(home: TeamStats, away: TeamStats,
 
 def predict_two_way(home: TeamStats, away: TeamStats,
                     weights: dict | None = None, scale: float = 6.0) -> Dict[str, float]:
-    """Probabilité de victoire à 2 issues (tennis/basket) via logistique sur
-    l'écart des scores pondérés des deux camps."""
+    """Probabilité de victoire à 2 issues (tennis/basket).
+
+    On combine la proba ELO (écart de niveau brut) et la proba « forme/contexte ».
+    GARDE-FOU : l'ELO DOMINE, et d'autant plus que l'écart de niveau est grand —
+    pour ne plus sur-coter un outsider en forme face à un joueur bien mieux classé
+    (leçon 13/07 : Feldbausch @3.40 perdu 6-1 6-3 vs Kecmanovic).
+    """
     w = weights or DEFAULT_WEIGHTS
     diff = team_score(home, away, w) - team_score(away, home, w)
-    p_home = 1.0 / (1.0 + math.exp(-scale * diff))
+    p_form = 1.0 / (1.0 + math.exp(-scale * diff))
+    has_elo = (home.elo and away.elo and (home.elo != 1500.0 or away.elo != 1500.0))
+    if not has_elo:
+        return {"home": p_form, "away": 1.0 - p_form}
+    p_elo = elo_mod.expected_score(home.elo, away.elo)
+    gap = abs(home.elo - away.elo)
+    w_elo = min(0.9, 0.55 + gap / 500.0)     # ELO domine ; +encore si gros écart
+    p_home = w_elo * p_elo + (1.0 - w_elo) * p_form
     return {"home": p_home, "away": 1.0 - p_home}
+
+
+def calibrate_to_market(model_prob: float, implied_prob: float,
+                        reliability: float = 0.70, level_gap: float = 0.0) -> float:
+    """Tire la proba du modèle vers le MARCHÉ, en CONSIDÉRANT LA COMPÉTITION.
+
+    Plus la compétition est peu fiable (reliability basse) et plus l'écart de
+    niveau (ELO) est grand, plus on fait confiance au marché plutôt qu'au modèle.
+    Empêche la « value fake » née d'un modèle qui s'emballe sur des données faibles.
+    """
+    w_market = (1.0 - max(0.0, min(1.0, reliability))) * 0.6 + min(0.45, level_gap / 350.0)
+    w_market = max(0.0, min(0.85, w_market))
+    return (1.0 - w_market) * model_prob + w_market * implied_prob
 
 
 def blend_probabilities(model_prob: float, research_prob: float,
