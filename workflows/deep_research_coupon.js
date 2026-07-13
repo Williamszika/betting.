@@ -27,6 +27,7 @@ const MAX_PICKS = A.maxPicks || 2
 const MAX_MATCHES = A.maxMatches || 12
 const BOOKMAKER = A.bookmaker || "Betano"
 const DOMAIN = A.domain || "betano.de"  // Betano Allemagne
+const PREFILTER_FLOOR = A.prefilterFloor || 0.35  // fiabilité minimale d'une compétition (audit)
 
 const DISCLAIMER =
   "ESTIMATIONS statistiques, PAS des certitudes. Aucun pari n'est « sûr » : " +
@@ -79,16 +80,37 @@ const DATA_SPEC = {
 };
 function spec(m, key) { return (DATA_SPEC[m.sport] && DATA_SPEC[m.sport][key]) || DATA_SPEC.football[key]; }
 
-// 7 spécialistes déployés sur CHAQUE match (couverture complète de la grille d'analyse).
+// 4 spécialistes CONSOLIDÉS (audit anti-surcollecte : moins d'agents, mêmes données).
 const SPECIALISTS = [
-  { key: 'forme',    ask: (m) => spec(m, 'forme') },
-  { key: 'effectif', ask: (m) => spec(m, 'effectif') },
-  { key: 'avance',   ask: (m) => spec(m, 'avance') },
-  { key: 'h2h',      ask: (m) => spec(m, 'h2h') },
-  { key: 'tactique', ask: (m) => spec(m, 'tactique') },
-  { key: 'externe',  ask: (m) => spec(m, 'externe') },
+  { key: 'stats',    ask: (m) => spec(m, 'forme') + ' ' + spec(m, 'avance') },
+  { key: 'effectif', ask: (m) => spec(m, 'effectif') + ' ' + spec(m, 'tactique') },
+  { key: 'contexte', ask: (m) => spec(m, 'h2h') + ' ' + spec(m, 'externe') },
   { key: 'marche',   ask: (m) => spec(m, 'marche') },
 ];
+
+// ---------- Fiabilité par compétition + seuils (port JS de src/sportsbet/reliability.py) ----------
+const COMP_RULES = [
+  [["summer league"], 0.30],
+  [["friendly", "amical", "testspiel", "exhibition", "pre-season", "preseason", "pré-saison"], 0.25],
+  [["champions league", "europa league", "premier league", "la liga", "serie a", "bundesliga", "ligue 1"], 1.00],
+  [["grand slam", "wimbledon", "roland", "us open", "australian open", "atp masters", "wta 1000"], 0.95],
+  [["atp", "wta"], 0.90],
+  [["eredivisie", "primeira", "liga portugal", "championship", "super lig", "allsvenskan", "eliteserien"], 0.85],
+  [["euroleague", "eurocup"], 0.90],
+  [["nba"], 1.00],
+  [["challenger", "itf"], 0.75],
+  [["besta deild", "1. deild", "2. deild", "islande", "iceland"], 0.65],
+];
+const SPORT_DEFAULT_REL = { football: 0.70, tennis: 0.85, basketball: 0.70 };
+const BLACKLIST = ["friendly", "amical", "testspiel", "exhibition", "pre-season", "preseason", "pré-saison"];
+const MIN_EDGE = { safe: 0.05, aggressive: 0.08, combine: 0.06 };
+function compReliability(comp, sport) {
+  const c = (comp || '').toLowerCase();
+  for (const [kws, coef] of COMP_RULES) if (kws.some(k => c.includes(k))) return coef;
+  return SPORT_DEFAULT_REL[sport] || 0.70;
+}
+function isBlacklisted(comp) { const c = (comp || '').toLowerCase(); return BLACKLIST.some(k => c.includes(k)); }
+function passesPrefilter(comp, sport, floor) { if (isBlacklisted(comp)) return false; return compReliability(comp, sport) >= (floor || 0.35); }
 
 // ---------- Modèle Poisson/logistique (port JS de src/sportsbet/model.py) ----------
 function _clamp01(v) { return Math.max(0, Math.min(1, v)); }
@@ -272,6 +294,10 @@ matches = matches.filter(m => {
   const k = `${m.sport}|${(m.home || '').toLowerCase()}|${(m.away || '').toLowerCase()}`;
   if (seen.has(k)) return false; seen.add(k); return true;
 });
+// PRÉ-FILTRE (audit) : retire amicaux + compétitions peu fiables AVANT l'analyse coûteuse.
+const _beforePF = matches.length;
+matches = matches.filter(m => passesPrefilter(m.competition, m.sport, PREFILTER_FLOOR));
+if (_beforePF - matches.length > 0) log(`Pré-filtre : ${_beforePF - matches.length} match(s) écarté(s) (amicaux / compétitions peu fiables).`);
 // Entrelacement par sport pour une couverture equilibree (le foot ne monopolise plus les places).
 const bySport = { football: [], tennis: [], basketball: [] };
 for (const m of matches) { (bySport[m.sport] || (bySport[m.sport] = [])).push(m); }
@@ -310,7 +336,7 @@ const perMatch = await pipeline(
   // 3) Desk éditeur : les agents "échangent" -> réconciliation + vérification
   (r) => agent(
     `Tu es le DESK ÉDITEUR pour ${r.m.home} vs ${r.m.away} (${r.m.competition}). ` +
-    `Voici les faits rapportés par 5 spécialistes (forme, compos, h2h, experts, marché) :\n` +
+    `Voici les faits rapportés par 4 spécialistes (stats, effectif/tactique, contexte/H2H, marché) :\n` +
     JSON.stringify(r.facts).slice(0, 6000) + `\n\n` +
     `Réconcilie-les : garde les faits corroborés (idéalement 2+ sources), signale les ` +
     `contradictions, isole blessures/absences, résume la forme, et dégage les vrais ` +
@@ -341,7 +367,8 @@ const perMatch = await pipeline(
       `Indique la source (le parieur confirmera sur ${BOOKMAKER}). ` +
       `Garde uniquement les opportunités de VALUE (proba > implicite). ` +
       `Privilégie les cotes exploitables (simple ${SINGLE_MIN}-${SINGLE_MAX} ou jambe de combiné). ` +
-      `N'invente JAMAIS une cote : cite toujours une source réelle.`,
+      `N'invente JAMAIS une cote : cite toujours une source réelle. ` +
+      `Compare aussi à un book SHARP (Pinnacle) et au consensus : un écart net = possible erreur de marché (value réelle) ou piège.`,
       { label: `markets:${r.m.home}-${r.m.away}`, phase: 'Marchés', schema: MARKETS_SCHEMA }
     ).then(mk => ({ m: r.m, sheet: r.sheet, markets: (mk && mk.opportunities) || [], modelMap: mm }));
   }
@@ -369,12 +396,14 @@ for (const r of perMatch.filter(Boolean)) {
       }
       if (key && mm[key] != null) { model_prob = mm[key]; prob = blendP(model_prob, research, 0.5); }
     }
+    const rel = compReliability(r.m.competition, r.m.sport);
+    const edgeRaw = prob * d - 1;
     opps.push({
       id: idc++, matchKey: r.m.key, match: `${r.m.home} vs ${r.m.away}`,
-      sport: r.m.sport, competition: r.m.competition,
+      sport: r.m.sport, competition: r.m.competition, reliability: rel,
       market: o.market, pick: o.pick, odds: d,
       prob, research_prob: research, model_prob,
-      edge: prob * d - 1, rationale: o.rationale || '',
+      edge: edgeRaw, eff_edge: edgeRaw * rel, rationale: o.rationale || '',
       sources: o.sources || [], data_quality: (r.sheet && r.sheet.data_quality) || 'low',
     });
   }
@@ -384,7 +413,10 @@ log(`${opps.length} opportunité(s) de marché détectée(s) sur ${perMatch.leng
 // ================= PHASE 5 : Vérification adversariale =================
 phase('Vérification')
 // On vérifie en priorité les meilleures value (borne le coût).
-const toVerify = opps.filter(o => o.edge > 0).sort((a, b) => b.edge - a.edge).slice(0, 12);
+// Seuil de value (audit) : ne vérifier que les opportunités dont l'edge AJUSTÉ par la
+// fiabilité dépasse le seuil combiné (élimine la value "fake" et le bruit Summer League).
+const toVerify = opps.filter(o => o.eff_edge >= MIN_EDGE.combine).sort((a, b) => b.eff_edge - a.eff_edge).slice(0, 12);
+log(`${toVerify.length} opportunité(s) au-dessus du seuil de value ajusté (>=${Math.round(MIN_EDGE.combine * 100)}%).`);
 const verified = (await parallel(toVerify.map(o => () =>
   agent(
     `Vérifie de façon ADVERSARIALE cette opportunité :\n` +

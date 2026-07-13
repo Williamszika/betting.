@@ -146,14 +146,19 @@ def render_text(a):
     return "\n".join(L)
 
 
-COUPON_HOWTO = """COMMENT LE COUPON EST CRÉÉ (algorithme) :
-1. Chaque opportunité a : cote (Betano.de/Flashscore) + proba finale = BLEND(modèle Poisson, recherche).
-2. VALUE = proba × cote − 1. On ne garde que value > 0.
-3. VÉRIFICATION adversariale : match encore à venir ? cote réelle ? raisonnement solide ? (sinon écarté)
-4. Le solveur choisit la combinaison de jambes (matchs DISTINCTS) dont la cote totale
-   tombe dans la fourchette (défaut 1,95–3) en MAXIMISANT la proba conjointe (le plus « sûr »).
-5. COMBIEN : 1 coupon combiné par jour (+ jusqu'à 2 paris simples cote 5–7 en option).
-   Rien n'est forcé : si aucune combi ne rentre ou si rien ne passe la vérif → « rien à parier »."""
+COUPON_HOWTO = """PIPELINE & COMMENT LE COUPON EST CRÉÉ (version optimisée après audit) :
+0. PRÉ-FILTRE : on retire AVANT analyse les amicaux et les compétitions peu fiables
+   (fiabilité < 0,35 : ex. NBA Summer League 0,30 ❌) → moins de bruit, moins d'agents.
+1. RECHERCHE : 4 spécialistes consolidés/match (stats+xG, effectif+tactique, contexte+H2H, cotes).
+2. FUSION : 1 fiche de faits vérifiés + STATS chiffrées par match (desk).
+3. MODÈLE : proba finale = BLEND(modèle Poisson/logistique, recherche).
+4. VALUE : edge = proba × cote − 1, AJUSTÉ par la fiabilité (edge × fiabilité).
+   Seuils : safe > 5 %, combiné > 6 %, agressif > 8 %. En-dessous = rejeté (pas de value « fake »).
+5. VÉRIFICATION adversariale (allégée) : match à venir ? cote réelle ? cohérence ?
+6. SOLVEUR : combinaison de jambes (matchs DISTINCTS) dans la fourchette (défaut 1,95–3),
+   en MAXIMISANT la proba conjointe (le plus « sûr »).
+7. COMBIEN : 1 coupon combiné/jour (+ jusqu'à 2 simples cote 5–7). Rien n'est forcé :
+   si aucune combi ne rentre ou si rien ne passe → « rien à parier »."""
 
 
 def render_html(a):
