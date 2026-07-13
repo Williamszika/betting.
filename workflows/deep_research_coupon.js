@@ -26,6 +26,7 @@ const COUPON_MAX = A.couponMaxOdds || 3.0
 const MAX_PICKS = A.maxPicks || 2
 const MAX_MATCHES = A.maxMatches || 12
 const BOOKMAKER = A.bookmaker || "Betano"
+const DOMAIN = A.domain || "betano.de"  // Betano Allemagne
 
 const DISCLAIMER =
   "ESTIMATIONS statistiques, PAS des certitudes. Aucun pari n'est « sûr » : " +
@@ -46,13 +47,47 @@ const MARKETS = {
     "Props joueurs (points/rebonds/passes), Course aux X points",
 };
 
-// Spécialistes déployés sur chaque match
+// Grille de données par sport (chaque spécialiste récupère des données CONCRÈTES et chiffrées).
+const DATA_SPEC = {
+  football: {
+    forme: "Forme 5-10 derniers matchs (dom/ext), bilan V-N-D, buts marqués/encaissés, MOYENNE de buts/match, clean sheets, série/momentum en cours.",
+    effectif: "Blessures, suspensions, joueurs clés absents, forme des buteurs et du gardien, COMPO probable et FORMATION (4-3-3, 3-5-2...).",
+    avance: "STATS AVANCÉES chiffrées : xG et xGA, possession moyenne, tirs cadrés/match, grosses occasions créées, force offensive et défensive.",
+    h2h: "Confrontations directes récentes (scores, buts), style des duels (ouverts/fermés), tendances Over/Under et BTTS sur les H2H.",
+    tactique: "Style de jeu (offensif/défensif, pressing haut/bloc bas), ENJEU (maintien, qualif, derby, titre), motivation, FATIGUE (calendrier serré), voyage/déplacement.",
+    externe: "MÉTÉO (pluie/chaleur/vent), état du terrain, ARBITRE désigné et ses tendances (cartons/penalties).",
+    marche: "Cotes sur " + "Betano (betano.de)" + " si visibles + consensus public, cote d'ouverture vs actuelle, MOUVEMENTS de cotes, où va l'argent.",
+  },
+  tennis: {
+    forme: "Forme récente PAR SURFACE (bilan sur la surface du match), résultats des 5-10 derniers matchs, titres/finales récents, momentum.",
+    effectif: "Blessures/gênes physiques, abandons récents, FATIGUE (temps de jeu cumulé, matchs en 5 sets récents), calendrier/déplacements, décalage horaire.",
+    avance: "STATS chiffrées : % 1er service, points gagnés au service/retour, balles de break sauvées/converties, ratio jeux gagnés, niveau Elo par surface.",
+    h2h: "H2H global ET H2H sur cette surface, scénarios des duels (serrés/à sens unique), tendances total jeux/sets.",
+    tactique: "Style de jeu vs surface (attaquant/défenseur, service-volée, fond de court), matchup stylistique favorable/défavorable.",
+    externe: "Conditions : indoor/outdoor, altitude, chaleur/vent, type de balle, vitesse du court.",
+    marche: "Cotes sur " + "Betano (betano.de)" + " si visibles + consensus, mouvements de cotes, où va l'argent.",
+  },
+  basketball: {
+    forme: "Forme récente (bilan dom/ext), points marqués/encaissés par match, écarts, série en cours, contexte (saison régulière vs Summer League = plus bruité).",
+    effectif: "Blessures, REPOS/load management, rotation attendue, minutes des cadres, joueurs clés absents.",
+    avance: "STATS avancées : offensive/defensive rating, PACE, eFG%, 3P%, turnovers, rebonds ; force des bancs.",
+    h2h: "Confrontations directes récentes, écarts, tendances total points/handicap.",
+    tactique: "Style (rythme rapide/lent, adresse extérieure), matchups clés, profondeur de banc.",
+    externe: "Back-to-back / repos, voyage, terrain neutre, enjeu (seeding, match sans enjeu).",
+    marche: "Cotes sur " + "Betano (betano.de)" + " si visibles + consensus, mouvements de cotes.",
+  },
+};
+function spec(m, key) { return (DATA_SPEC[m.sport] && DATA_SPEC[m.sport][key]) || DATA_SPEC.football[key]; }
+
+// 7 spécialistes déployés sur CHAQUE match (couverture complète de la grille d'analyse).
 const SPECIALISTS = [
-  { key: 'forme', ask: (m) => `Forme récente des deux camps (5-10 derniers résultats, à domicile/extérieur ou par surface), dynamique, série en cours.` },
-  { key: 'compos', ask: (m) => `Compositions probables, blessures, suspensions, absences confirmées, rotations, repos. Vérifie les annonces les plus récentes.` },
-  { key: 'h2h', ask: (m) => `Confrontations directes (H2H) récentes, styles de jeu, matchups favorables/défavorables, tendances (over/under, BTTS, sets).` },
-  { key: 'experts', ask: (m) => `AVIS D'EXPERTS et pronostics : presse sportive, tipsters, réseaux sociaux (X/Twitter, YouTube), consensus et divergences. Distingue fait vérifié et opinion.` },
-  { key: 'marche', ask: (m) => `Cotes actuelles chez plusieurs bookmakers, mouvements de cotes, cote d'ouverture vs actuelle, où est l'argent, marchés où la cote a bougé.` },
+  { key: 'forme',    ask: (m) => spec(m, 'forme') },
+  { key: 'effectif', ask: (m) => spec(m, 'effectif') },
+  { key: 'avance',   ask: (m) => spec(m, 'avance') },
+  { key: 'h2h',      ask: (m) => spec(m, 'h2h') },
+  { key: 'tactique', ask: (m) => spec(m, 'tactique') },
+  { key: 'externe',  ask: (m) => spec(m, 'externe') },
+  { key: 'marche',   ask: (m) => spec(m, 'marche') },
 ];
 
 // ---------- Schémas ----------
@@ -170,8 +205,7 @@ const sports = [
 const discovered = await parallel(sports.map(s => () =>
   agent(
     `Recherche sur le web (WebSearch/WebFetch) les matchs de ${s.key} programmés ${DATE} ` +
-    `qui sont PROPOSÉS SUR ${BOOKMAKER} (vérifie le catalogue ${BOOKMAKER} : betano.com ou ` +
-    `le site régional betano.pt / betano.br / betano.de / betano.ng selon disponibilité). ` +
+    `qui sont PROPOSÉS SUR ${BOOKMAKER} Allemagne (${DOMAIN}). ` +
     `Couvre : ${s.hint}. Ne retiens que des matchs listés par ${BOOKMAKER}. ` +
     `Sources fiables (${BOOKMAKER}, sites officiels, agrégateurs, presse). ` +
     `Rends UNIQUEMENT des matchs réels et vérifiables avec l'URL source. ` +
