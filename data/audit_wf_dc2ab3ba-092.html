@@ -1,0 +1,49 @@
+<title>Audit du run — SportPredix</title>
+<style>
+:root { color-scheme: light dark; }
+body { font-family: system-ui, sans-serif; margin: 0; padding: 1.4rem; line-height: 1.45; }
+h1 { font-size: 1.35rem; margin: 0 0 .2rem; } h2 { font-size: 1.05rem; margin: 1.3rem 0 .5rem; }
+.sub { opacity: .65; font-size: .85rem; margin-bottom: 1rem; }
+.kpi { display:flex; gap:.6rem; flex-wrap:wrap; margin:.6rem 0 1rem; }
+.kpi div { background: rgba(127,127,127,.1); border-radius:8px; padding:.5rem .8rem; }
+.kpi b { font-size:1.3rem; display:block; }
+table { border-collapse: collapse; width:100%; }
+td { padding:.28rem .5rem; border-bottom:1px solid rgba(127,127,127,.18); font-size:.92rem; }
+.num { text-align:right; font-variant-numeric: tabular-nums; font-weight:700; width:3rem; }
+.desc { opacity:.6; font-size:.85rem; }
+.funnel div.row { display:grid; grid-template-columns: 15rem 1fr; align-items:center; gap:.6rem; margin:.25rem 0; }
+.bar { position:relative; background: rgba(127,127,127,.12); border-radius:6px; height:1.5rem; }
+.fill { height:100%; border-radius:6px; }
+.bar span { position:absolute; right:.5rem; top:0; line-height:1.5rem; font-size:.82rem; font-weight:700; }
+.howto { background: rgba(37,99,235,.1); border-radius:8px; padding:.8rem 1rem; font-size:.92rem; }
+ul { margin:.3rem 0; padding-left:1.1rem; } li { margin:.15rem 0; font-size:.9rem; }
+.disc { margin-top:1.2rem; font-size:.78rem; opacity:.6; }
+</style>
+<h1>🔍 Audit du run — <code>wf_dc2ab3ba-092</code></h1>
+<div class='sub'>Trace complète : agents, travail, flux d'information, construction du coupon.</div>
+<div class='kpi'>
+  <div><b>19</b>agents lancés</div>
+  <div><b>19</b>terminés</div>
+  <div><b>0</b>échec/incomplets</div>
+  <div><b>0</b>matchs</div>
+  <div><b>24</b>opportunités</div>
+  <div><b>4</b>vérifiées 🟢</div>
+</div>
+<h2>👥 Qui a travaillé (par rôle)</h2>
+<table><tr><td>🕵️ Vérificateur</td><td class='num'>10</td><td class='desc'>Contrôle adversarial (match à venir ? cote ? logique ?)</td></tr><tr><td>📊 Analyste marchés</td><td class='num'>8</td><td class='desc'>Tous les marchés → opportunités de value (modèle croisé)</td></tr><tr><td>📝 Synthèse/rédaction</td><td class='num'>1</td><td class='desc'>Construit le coupon + note finale</td></tr><tr><td>🔎 Découverte</td><td class='num'>0</td><td class='desc'>Trouve les vrais matchs du jour (Betano.de)</td></tr><tr><td>📚 Spécialiste recherche</td><td class='num'>0</td><td class='desc'>Collecte des données (forme, xG, H2H, cotes…)</td></tr><tr><td>🧩 Desk éditeur</td><td class='num'>0</td><td class='desc'>Réconcilie/vérifie les faits + stats chiffrées</td></tr></table>
+<h2>🔻 Flux d'information (entonnoir jusqu'au coupon)</h2>
+<div class='funnel'>
+  <div class='row'><span>🔎 Matchs découverts</span><div class='bar'><div class='fill' style='width:2%;background:#2563eb'></div><span>0</span></div></div>
+  <div class='row'><span>📚 Spécialistes (données)</span><div class='bar'><div class='fill' style='width:2%;background:#0891b2'></div><span>0</span></div></div>
+  <div class='row'><span>🧩 Fiches réconciliées</span><div class='bar'><div class='fill' style='width:2%;background:#7c3aed'></div><span>0</span></div></div>
+  <div class='row'><span>📊 Opportunités de value</span><div class='bar'><div class='fill' style='width:100%;background:#d97706'></div><span>24</span></div></div>
+  <div class='row'><span>🕵️ Gardées après vérif</span><div class='bar'><div class='fill' style='width:16%;background:#16a34a'></div><span>4</span></div></div>
+  <div class='row'><span>🔴 Écartées</span><div class='bar'><div class='fill' style='width:25%;background:#dc2626'></div><span>6</span></div></div>
+</div>
+<h2>🧮 Comment le coupon est créé</h2>
+<div class='howto'>COMMENT LE COUPON EST CRÉÉ (algorithme) :<br>1. Chaque opportunité a : cote (Betano.de/Flashscore) + proba finale = BLEND(modèle Poisson, recherche).<br>2. VALUE = proba × cote − 1. On ne garde que value > 0.<br>3. VÉRIFICATION adversariale : match encore à venir ? cote réelle ? raisonnement solide ? (sinon écarté)<br>4. Le solveur choisit la combinaison de jambes (matchs DISTINCTS) dont la cote totale<br>   tombe dans la fourchette (défaut 1,95–3) en MAXIMISANT la proba conjointe (le plus « sûr »).<br>5. COMBIEN : 1 coupon combiné par jour (+ jusqu'à 2 paris simples cote 5–7 en option).<br>   Rien n'est forcé : si aucune combi ne rentre ou si rien ne passe la vérif → « rien à parier ».</div>
+<h2>⚽ Matchs analysés</h2>
+<ul><li>(aucun)</li></ul>
+<h2>🔴 Pourquoi des paris ont été écartés (échantillon)</h2>
+<ul><li>🔴 <span class='desc'>(conf 0.78)</span> Odds implausible/unconfirmed: 1.80 for Schwaerzler +5.5 is inconsistent with the market moneyline Sonego 1.49 / Schwaerzler ~2.61-2.75 (Bet365 2.75, ~38%). In s</li><li>🔴 <span class='desc'>(conf 0.7)</span> Fixture confirmed upcoming: Pistons vs Knicks, NBA Summer League Las Vegas, July 13 2026 4:00PM ET (8:00PM UTC), Cox Pavilion. Today is July 12, so not started/</li><li>🔴 <span class='desc'>(conf 0.82)</span> Il s'agit d'un match de NBA Summer League (Las Vegas), pas de saison reguliere: echantillon minuscule et tres bruite (1-3 matchs), rotations experimentales, lim</li><li>🔴 <span class='desc'>(conf 0.7)</span> Fixture confirmee et A VENIR: Djurgardens IF vs Halmstads BK, Allsvenskan J12, 13 juillet 2026 19:00 CEST (17:00 UTC), Tele2/3Arena. Non commence, non termine (</li><li>🔴 <span class='desc'>(conf 0.8)</span> Odds inconsistency: the argument cites a documented reference ML of Detroit -118 (~1.85) but bets at 1.55. Betting the SHORTER price (1.55 = 64.5% implied) when</li><li>🔴 <span class='desc'>(conf 0.68)</span> Edge illusoire: estimation 40% placee AU-DESSUS de l'implicite marche (36.4% a 2.75 Bet365, 38.3% a 2.61 Melbet); l'edge revendique (~3.6 pts) est dans le bruit</li></ul>
+<div class='disc'>Audit généré depuis le journal du run. ESTIMATIONS — aucun pari n'est sûr.</div>
