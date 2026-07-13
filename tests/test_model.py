@@ -55,3 +55,22 @@ def test_blend_and_value():
     assert math.isclose(blended, 0.6, rel_tol=1e-9)
     assert M.value_vs_odds(0.60, 2.0) > 0
     assert M.value_vs_odds(0.40, 2.0) < 0
+
+
+def test_market_probabilities_dispatch():
+    home = F.TeamStats(is_home=True)
+    away = F.TeamStats()
+    foot = M.market_probabilities("football", home, away)
+    assert {"1", "X", "2"} <= set(foot)
+    tw = M.market_probabilities("tennis", home, away)
+    assert set(tw) == {"home", "away"}
+
+
+def test_blend_market_probs():
+    model = {"1": 0.6, "X": 0.25, "2": 0.15}
+    research = {"1": 0.4, "X": 0.25, "2": 0.35}
+    blended = M.blend_market_probs(model, research, weight_model=0.5)
+    assert math.isclose(blended["1"], 0.5, rel_tol=1e-9)
+    # clé absente d'un côté -> valeur disponible
+    b2 = M.blend_market_probs({"1": 0.6}, {"2": 0.4})
+    assert b2["1"] == 0.6 and b2["2"] == 0.4

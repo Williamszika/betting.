@@ -90,6 +90,58 @@ const SPECIALISTS = [
   { key: 'marche',   ask: (m) => spec(m, 'marche') },
 ];
 
+// ---------- Modèle Poisson/logistique (port JS de src/sportsbet/model.py) ----------
+function _clamp01(v) { return Math.max(0, Math.min(1, v)); }
+function _norm(v, lo, hi) { if (hi <= lo) return 0.5; return _clamp01((v - lo) / (hi - lo)); }
+function _num(v, d) { return (v === null || v === undefined || isNaN(Number(v))) ? d : Number(v); }
+function _poisPmf(k, lam) { let f = 1; for (let i = 2; i <= k; i++) f *= i; return Math.exp(-lam) * Math.pow(lam, k) / f; }
+function _footProbs(hx, ax, maxG = 10) {
+  const H = [], Aw = [];
+  for (let i = 0; i <= maxG; i++) { H[i] = _poisPmf(i, hx); Aw[i] = _poisPmf(i, ax); }
+  let pH = 0, pD = 0, pA = 0, over = 0, btts = 0;
+  for (let i = 0; i <= maxG; i++) for (let j = 0; j <= maxG; j++) {
+    const p = H[i] * Aw[j];
+    if (i > j) pH += p; else if (i === j) pD += p; else pA += p;
+    if (i + j > 2.5) over += p;
+    if (i > 0 && j > 0) btts += p;
+  }
+  return { "1": pH, "X": pD, "2": pA, "Over 2.5": over, "Under 2.5": 1 - over, "BTTS Yes": btts, "BTTS No": 1 - btts };
+}
+function _expGoals(h, a, avg = 1.35) {
+  const base = s => Math.max(0.2, (_num(s.goals_for, 1.3) + _num(s.xg, 1.3)) / 2);
+  const oppDef = o => Math.max(0.5, Math.min(1.6, ((_num(o.goals_against, 1.3) + _num(o.xga, 1.3)) / 2) / avg));
+  const form = s => 0.85 + 0.30 * _norm(_num(s.form_points, 7), 0, 15);
+  const avail = s => 0.80 + 0.20 * _clamp01(_num(s.availability, 1));
+  return [Math.max(0.2, base(h) * oppDef(a) * form(h) * avail(h) * 1.10),
+          Math.max(0.2, base(a) * oppDef(h) * form(a) * avail(a))];
+}
+function modelProbs(sport, stats) {
+  if (!stats || !stats.home || !stats.away) return null;
+  if (sport === 'football') { const g = _expGoals(stats.home, stats.away); return _footProbs(g[0], g[1]); }
+  const score = (t, home) => 0.45 * _norm(_num(t.form_points, 7), 0, 15) + 0.25 * _clamp01(_num(t.availability, 1))
+    + 0.15 * _clamp01(_num(t.h2h_score, 0.5)) + 0.15 * (home ? 1 : 0);
+  const diff = score(stats.home, true) - score(stats.away, false);
+  const pH = 1 / (1 + Math.exp(-6 * diff));
+  return { "home": pH, "away": 1 - pH };
+}
+function blendP(m, r, w) { return w * m + (1 - w) * r; }
+function modelKeyFor(sport, market, pick) {
+  const mk = (market || '').toLowerCase(), pk = (pick || '').toLowerCase();
+  if (sport !== 'football') return null;
+  if (mk.includes('1x2') || mk.includes('resultat') || mk.includes('résultat')) {
+    if (pk === '1' || pk.includes('domicile') || pk.includes('(1)')) return '1';
+    if (pk === 'x' || pk.includes('nul') || pk.includes('draw')) return 'X';
+    if (pk === '2' || pk.includes('exterieur') || pk.includes('extérieur') || pk.includes('(2)')) return '2';
+  }
+  if (pk.includes('over 2.5') || pk.includes('over 2,5') || (mk.includes('2.5') && pk.includes('over'))) return 'Over 2.5';
+  if (pk.includes('under 2.5') || pk.includes('moins de 2,5') || (mk.includes('2.5') && (pk.includes('under') || pk.includes('moins')))) return 'Under 2.5';
+  if (mk.includes('btts') || mk.includes('deux equipes') || mk.includes('deux équipes')) {
+    if (pk.includes('oui') || pk.includes('yes')) return 'BTTS Yes';
+    if (pk.includes('non') || pk.includes('no')) return 'BTTS No';
+  }
+  return null;
+}
+
 // ---------- Schémas ----------
 const FIXTURES_SCHEMA = {
   type: 'object',
@@ -126,6 +178,7 @@ const FACTSHEET_SCHEMA = {
     injuries_absences: { type: 'array', items: { type: 'string' } },
     form_summary: { type: 'string' },
     key_edges: { type: 'array', items: { type: 'string' } },
+    stats: { type: 'object', properties: { home: { type: 'object', properties: { goals_for: { type: 'number' }, goals_against: { type: 'number' }, xg: { type: 'number' }, xga: { type: 'number' }, form_points: { type: 'number' }, availability: { type: 'number' }, h2h_score: { type: 'number' } } }, away: { type: 'object', properties: { goals_for: { type: 'number' }, goals_against: { type: 'number' }, xg: { type: 'number' }, xga: { type: 'number' }, form_points: { type: 'number' }, availability: { type: 'number' }, h2h_score: { type: 'number' } } } } },
     data_quality: { type: 'string', enum: ['high', 'medium', 'low'] },
   }, required: ['verified_facts', 'form_summary', 'data_quality'],
 };
@@ -261,40 +314,67 @@ const perMatch = await pipeline(
     JSON.stringify(r.facts).slice(0, 6000) + `\n\n` +
     `Réconcilie-les : garde les faits corroborés (idéalement 2+ sources), signale les ` +
     `contradictions, isole blessures/absences, résume la forme, et dégage les vrais ` +
-    `angles (key_edges). Recoupe/vérifie sur le web les faits douteux mais décisifs.`,
+    `angles (key_edges). Recoupe/vérifie sur le web les faits douteux mais décisifs.\n` +
+    `Renseigne AUSSI 'stats' avec des estimations CHIFFRÉES par équipe (home/away) : ` +
+    `goals_for, goals_against, xg, xga (par match), form_points (0-15 sur 5 matchs), ` +
+    `availability (0-1, 1=effectif complet), h2h_score (0-1). Au tennis/basket, approxime : ` +
+    `form_points = niveau/forme, availability = fraîcheur physique, h2h_score = domination directe.`,
     { label: `desk:${r.m.home}-${r.m.away}`, phase: 'Consolidation', schema: FACTSHEET_SCHEMA }
   ).then(sheet => ({ m: r.m, sheet })),
 
-  // 4) Analyse de TOUS les marchés à partir de la fiche de faits partagée
-  (r) => agent(
-    `Tu es l'ANALYSTE MARCHÉS pour ${r.m.home} vs ${r.m.away} (${r.m.sport}). ` +
-    `Base-toi UNIQUEMENT sur cette fiche de faits vérifiés :\n` +
-    JSON.stringify(r.sheet).slice(0, 6000) + `\n\n` +
-    `Passe en revue TOUS les marchés pertinents : ${MARKETS[r.m.sport]}. ` +
-    `Pour chaque marché intéressant, récupère la COTE RÉELLE : d'abord ${BOOKMAKER} (${DOMAIN}) si visible, ` +
-    `SINON sur Flashscore / Flashresultats ou un comparateur de cotes (oddsportal, betexplorer, wincomparator). ` +
-    `Indique la source de la cote (le parieur confirmera le prix exact sur ${BOOKMAKER}). ` +
-    `Estime honnêtement la probabilité et ne garde que les opportunités de VALUE ` +
-    `(proba estimée > proba implicite de la cote). Privilégie les cotes exploitables ` +
-    `pour un simple (${SINGLE_MIN}-${SINGLE_MAX}) ou une jambe de combiné. ` +
-    `N'invente JAMAIS une cote : cite toujours une source réelle.`,
-    { label: `markets:${r.m.home}-${r.m.away}`, phase: 'Marchés', schema: MARKETS_SCHEMA }
-  ).then(mk => ({ m: r.m, sheet: r.sheet, markets: (mk && mk.opportunities) || [] }))
+  // 4) Analyse de TOUS les marchés à partir de la fiche partagée, ANCRÉE sur le modèle
+  (r) => {
+    const mm = modelProbs(r.m.sport, r.sheet && r.sheet.stats);
+    const rounded = mm ? Object.fromEntries(Object.entries(mm).map(([k, v]) => [k, Math.round(v * 100) / 100])) : null;
+    const grounding = mm
+      ? `\nMODÈLE (Poisson/logistique, ancré sur les stats de la fiche) : ${JSON.stringify(rounded)}. ` +
+        `CROISE ces probabilités avec ta recherche : ton est_probability doit être un compromis raisonné ` +
+        `entre le modèle et tes infos (ne t'en écarte pas sans raison forte et explicite).\n`
+      : '';
+    return agent(
+      `Tu es l'ANALYSTE MARCHÉS pour ${r.m.home} vs ${r.m.away} (${r.m.sport}). ` +
+      `Base-toi sur cette fiche de faits vérifiés :\n` +
+      JSON.stringify(r.sheet).slice(0, 5500) + `\n` + grounding + `\n` +
+      `Passe en revue TOUS les marchés pertinents : ${MARKETS[r.m.sport]}. ` +
+      `Pour chaque marché intéressant, récupère la COTE RÉELLE : d'abord ${BOOKMAKER} (${DOMAIN}) si visible, ` +
+      `SINON sur Flashscore / Flashresultats ou un comparateur (oddsportal, betexplorer, wincomparator). ` +
+      `Indique la source (le parieur confirmera sur ${BOOKMAKER}). ` +
+      `Garde uniquement les opportunités de VALUE (proba > implicite). ` +
+      `Privilégie les cotes exploitables (simple ${SINGLE_MIN}-${SINGLE_MAX} ou jambe de combiné). ` +
+      `N'invente JAMAIS une cote : cite toujours une source réelle.`,
+      { label: `markets:${r.m.home}-${r.m.away}`, phase: 'Marchés', schema: MARKETS_SCHEMA }
+    ).then(mk => ({ m: r.m, sheet: r.sheet, markets: (mk && mk.opportunities) || [], modelMap: mm }));
+  }
 );
 
 // Aplatir toutes les opportunités
 let opps = [];
 let idc = 0;
 for (const r of perMatch.filter(Boolean)) {
+  const mm = r.modelMap;
   for (const o of r.markets) {
-    const p = Number(o.est_probability) || 0;
+    const research = Number(o.est_probability) || 0;
     const d = Number(o.decimal_odds) || 0;
-    if (p <= 0 || d <= 1) continue;
+    if (research <= 0 || d <= 1) continue;
+    // Croisement modèle x recherche quand le marché est couvert par le modèle
+    let model_prob = null, prob = research;
+    if (mm) {
+      let key = modelKeyFor(r.m.sport, o.market, o.pick);
+      if (!key && r.m.sport !== 'football') {
+        const pk = (o.pick || '').toLowerCase();
+        const hw = (r.m.home || '').toLowerCase().split(' ')[0];
+        const aw = (r.m.away || '').toLowerCase().split(' ')[0];
+        if (hw && pk.includes(hw)) key = 'home';
+        else if (aw && pk.includes(aw)) key = 'away';
+      }
+      if (key && mm[key] != null) { model_prob = mm[key]; prob = blendP(model_prob, research, 0.5); }
+    }
     opps.push({
       id: idc++, matchKey: r.m.key, match: `${r.m.home} vs ${r.m.away}`,
       sport: r.m.sport, competition: r.m.competition,
-      market: o.market, pick: o.pick, odds: d, prob: p,
-      edge: p * d - 1, rationale: o.rationale || '',
+      market: o.market, pick: o.pick, odds: d,
+      prob, research_prob: research, model_prob,
+      edge: prob * d - 1, rationale: o.rationale || '',
       sources: o.sources || [], data_quality: (r.sheet && r.sheet.data_quality) || 'low',
     });
   }

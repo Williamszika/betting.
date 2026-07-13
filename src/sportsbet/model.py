@@ -87,3 +87,32 @@ def blend_probabilities(model_prob: float, research_prob: float,
 def value_vs_odds(prob: float, decimal_odds: float) -> float:
     """Value (edge) de la proba finale face à la cote : p * cote - 1."""
     return prob * decimal_odds - 1.0
+
+
+def market_probabilities(sport: str, home: TeamStats, away: TeamStats,
+                         league_avg: float = 1.35) -> Dict[str, float]:
+    """Dispatcher : renvoie les probabilités des marchés du modèle selon le sport.
+
+    - football : 1 / X / 2, Over/Under 2.5, BTTS (via Poisson).
+    - tennis / basket : home / away (via logistique).
+    """
+    if sport == "football":
+        return predict_football(home, away, league_avg)
+    return predict_two_way(home, away)
+
+
+def blend_market_probs(model_map: Dict[str, float], research_map: Dict[str, float],
+                       weight_model: float = 0.5) -> Dict[str, float]:
+    """Croise deux jeux de probabilités marché par marché.
+
+    Pour chaque clé présente des deux côtés, on blend ; sinon on garde la valeur
+    disponible. C'est le « comparer/vérifier modèle vs recherche » au niveau des
+    marchés.
+    """
+    out: Dict[str, float] = {}
+    for k in set(model_map) | set(research_map):
+        if k in model_map and k in research_map:
+            out[k] = blend_probabilities(model_map[k], research_map[k], weight_model)
+        else:
+            out[k] = model_map.get(k, research_map.get(k, 0.0))
+    return out
