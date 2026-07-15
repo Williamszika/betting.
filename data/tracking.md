@@ -1,6 +1,10 @@
 # Suivi des coupons — SportPredix
 
-**Bilan :** 0 🟢 · 1 🔴 · 1 ⏳ — réussite **0%**, ROI **-100.0%** (profit -1.00 u sur 1 u misées)
+**Bilan :** 0 🟢 · 1 🔴 · 2 ⏳ — réussite **0%**, ROI **-100.0%** (profit -1.00 u sur 1 u misées)
+
+### ⏳ 2026-07-15 — cote 2.54 (pending)
+- ⏳ Universitatea Craiova vs ML Vitebsk — Total buts O/U 1.5 / Over 1.5 buts @ 1.35
+- ⏳ Angleterre vs Argentine — BTTS / Oui (les deux marquent) @ 1.88
 
 ### ⏳ 2026-07-14 — cote 3.21 (pending)
 - ⏳ KuPS vs Vardar — Total buts O/U 2.5 / Over 2.5 buts @ 1.67

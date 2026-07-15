@@ -1,0 +1,49 @@
+<title>Audit du run — SportPredix</title>
+<style>
+:root { color-scheme: light dark; }
+body { font-family: system-ui, sans-serif; margin: 0; padding: 1.4rem; line-height: 1.45; }
+h1 { font-size: 1.35rem; margin: 0 0 .2rem; } h2 { font-size: 1.05rem; margin: 1.3rem 0 .5rem; }
+.sub { opacity: .65; font-size: .85rem; margin-bottom: 1rem; }
+.kpi { display:flex; gap:.6rem; flex-wrap:wrap; margin:.6rem 0 1rem; }
+.kpi div { background: rgba(127,127,127,.1); border-radius:8px; padding:.5rem .8rem; }
+.kpi b { font-size:1.3rem; display:block; }
+table { border-collapse: collapse; width:100%; }
+td { padding:.28rem .5rem; border-bottom:1px solid rgba(127,127,127,.18); font-size:.92rem; }
+.num { text-align:right; font-variant-numeric: tabular-nums; font-weight:700; width:3rem; }
+.desc { opacity:.6; font-size:.85rem; }
+.funnel div.row { display:grid; grid-template-columns: 15rem 1fr; align-items:center; gap:.6rem; margin:.25rem 0; }
+.bar { position:relative; background: rgba(127,127,127,.12); border-radius:6px; height:1.5rem; }
+.fill { height:100%; border-radius:6px; }
+.bar span { position:absolute; right:.5rem; top:0; line-height:1.5rem; font-size:.82rem; font-weight:700; }
+.howto { background: rgba(37,99,235,.1); border-radius:8px; padding:.8rem 1rem; font-size:.92rem; }
+ul { margin:.3rem 0; padding-left:1.1rem; } li { margin:.15rem 0; font-size:.9rem; }
+.disc { margin-top:1.2rem; font-size:.78rem; opacity:.6; }
+</style>
+<h1>🔍 Audit du run — <code>wf_c6150fd8-563</code></h1>
+<div class='sub'>Trace complète : agents, travail, flux d'information, construction du coupon.</div>
+<div class='kpi'>
+  <div><b>34</b>agents lancés</div>
+  <div><b>34</b>terminés</div>
+  <div><b>0</b>échec/incomplets</div>
+  <div><b>36</b>matchs</div>
+  <div><b>14</b>opportunités</div>
+  <div><b>7</b>vérifiées 🟢</div>
+</div>
+<h2>👥 Qui a travaillé (par rôle)</h2>
+<table><tr><td>📚 Spécialiste recherche</td><td class='num'>12</td><td class='desc'>Collecte des données (forme, xG, H2H, cotes…)</td></tr><tr><td>🕵️ Vérificateur</td><td class='num'>11</td><td class='desc'>Contrôle adversarial (match à venir ? cote ? logique ?)</td></tr><tr><td>🔎 Découverte</td><td class='num'>3</td><td class='desc'>Trouve les vrais matchs du jour (Betano.de)</td></tr><tr><td>🧩 Desk éditeur</td><td class='num'>3</td><td class='desc'>Réconcilie/vérifie les faits + stats chiffrées</td></tr><tr><td>📊 Analyste marchés</td><td class='num'>3</td><td class='desc'>Tous les marchés → opportunités de value (modèle croisé)</td></tr><tr><td>🎯 Coordinateur</td><td class='num'>1</td><td class='desc'>Classe et dé-corrèle les opportunités</td></tr><tr><td>📝 Synthèse/rédaction</td><td class='num'>1</td><td class='desc'>Construit le coupon + note finale</td></tr></table>
+<h2>🔻 Flux d'information (entonnoir jusqu'au coupon)</h2>
+<div class='funnel'>
+  <div class='row'><span>🔎 Matchs découverts</span><div class='bar'><div class='fill' style='width:100%;background:#2563eb'></div><span>36</span></div></div>
+  <div class='row'><span>📚 Spécialistes (données)</span><div class='bar'><div class='fill' style='width:33%;background:#0891b2'></div><span>12</span></div></div>
+  <div class='row'><span>🧩 Fiches réconciliées</span><div class='bar'><div class='fill' style='width:8%;background:#7c3aed'></div><span>3</span></div></div>
+  <div class='row'><span>📊 Opportunités de value</span><div class='bar'><div class='fill' style='width:38%;background:#d97706'></div><span>14</span></div></div>
+  <div class='row'><span>🕵️ Gardées après vérif</span><div class='bar'><div class='fill' style='width:19%;background:#16a34a'></div><span>7</span></div></div>
+  <div class='row'><span>🔴 Écartées</span><div class='bar'><div class='fill' style='width:11%;background:#dc2626'></div><span>4</span></div></div>
+</div>
+<h2>🧮 Comment le coupon est créé</h2>
+<div class='howto'>PIPELINE & COMMENT LE COUPON EST CRÉÉ (version optimisée après audit) :<br>0. PRÉ-FILTRE : on retire AVANT analyse les amicaux et les compétitions peu fiables<br>   (fiabilité < 0,35 : ex. NBA Summer League 0,30 ❌) → moins de bruit, moins d'agents.<br>1. RECHERCHE : 4 spécialistes consolidés/match (stats+xG, effectif+tactique, contexte+H2H, cotes).<br>2. FUSION : 1 fiche de faits vérifiés + STATS chiffrées par match (desk).<br>3. MODÈLE : proba finale = BLEND(modèle Poisson/logistique, recherche).<br>4. VALUE : edge = proba × cote − 1, AJUSTÉ par la fiabilité (edge × fiabilité).<br>   Seuils : safe > 5 %, combiné > 6 %, agressif > 8 %. En-dessous = rejeté (pas de value « fake »).<br>5. VÉRIFICATION adversariale (allégée) : match à venir ? cote réelle ? cohérence ?<br>6. SOLVEUR : combinaison de jambes (matchs DISTINCTS) dans la fourchette (défaut 1,95–3),<br>   en MAXIMISANT la proba conjointe (le plus « sûr »).<br>7. COMBIEN : 1 coupon combiné/jour (+ jusqu'à 2 simples cote 5–7). Rien n'est forcé :<br>   si aucune combi ne rentre ou si rien ne passe → « rien à parier ».</div>
+<h2>⚽ Matchs analysés</h2>
+<ul><li><b>football</b> — Angleterre vs Argentine <span class='desc'>(Coupe du Monde FIFA 2026 - Demi-finale)</span></li><li><b>football</b> — Universitatea Craiova vs ML Vitebsk <span class='desc'>(UEFA Champions League 2026-27 - 1er tour de qualification (retour))</span></li><li><b>football</b> — Atert Bissen vs KI Klaksvik <span class='desc'>(UEFA Champions League 2026-27 - 1er tour de qualification (retour))</span></li><li><b>football</b> — Egnatia vs Petrocub Hincesti <span class='desc'>(UEFA Champions League 2026-27 - 1er tour de qualification (retour))</span></li><li><b>football</b> — Sutjeska Niksic vs Kairat Almaty <span class='desc'>(UEFA Champions League 2026-27 - 1er tour de qualification (retour))</span></li><li><b>football</b> — Decic vs FK Liepaja <span class='desc'>(UEFA Conference League 2026-27 - 1er tour de qualification (retour))</span></li><li><b>tennis</b> — Tomas Martin Etcheverry vs Daniel Merida <span class='desc'>(ATP Umag (Croatia Open) - ATP 250)</span></li><li><b>tennis</b> — Federico Gomez vs Matteo Arnaldi <span class='desc'>(ATP Umag (Croatia Open) - ATP 250)</span></li><li><b>tennis</b> — Pablo Carreno Busta vs Camilo Ugo Carabelli <span class='desc'>(ATP Umag (Croatia Open) - ATP 250)</span></li><li><b>tennis</b> — Flavio Cobolli vs Roman Andres Burruchaga <span class='desc'>(ATP Umag (Croatia Open) - ATP 250)</span></li><li><b>tennis</b> — Marco Trungelliti vs Alejandro Davidovich Fokina <span class='desc'>(ATP Umag (Croatia Open) - ATP 250)</span></li><li><b>tennis</b> — Luca Van Assche vs Titouan Droguet <span class='desc'>(ATP Umag (Croatia Open) - ATP 250)</span></li><li><b>tennis</b> — Dino Prizmic vs Alex Molcan <span class='desc'>(ATP Umag (Croatia Open) - ATP 250)</span></li><li><b>tennis</b> — Raphael Collignon vs Lorenzo Sonego <span class='desc'>(ATP Gstaad (Swiss Open) - ATP 250)</span></li><li><b>tennis</b> — Arthur Rinderknech vs Clement Tabur <span class='desc'>(ATP Gstaad (Swiss Open) - ATP 250)</span></li><li><b>tennis</b> — Yannick Hanfmann vs Valentin Vacherot <span class='desc'>(ATP Gstaad (Swiss Open) - ATP 250)</span></li><li><b>tennis</b> — Jerome Kym vs Stefanos Tsitsipas <span class='desc'>(ATP Gstaad (Swiss Open) - ATP 250)</span></li><li><b>tennis</b> — Botic van de Zandschulp vs Adolfo Vallejo <span class='desc'>(ATP Bastad (Nordea Open) - ATP 250)</span></li><li><b>tennis</b> — Nuno Borges vs Grigor Dimitrov <span class='desc'>(ATP Bastad (Nordea Open) - ATP 250)</span></li><li><b>tennis</b> — Stefano Travaglia vs Mariano Navone <span class='desc'>(ATP Bastad (Nordea Open) - ATP 250)</span></li><li><b>tennis</b> — Daniel Altmaier vs Luciano Darderi <span class='desc'>(ATP Bastad (Nordea Open) - ATP 250)</span></li><li><b>tennis</b> — Yulia Putintseva vs Alina Charaeva <span class='desc'>(WTA Iasi (UniCredit Iasi Open) - WTA 250)</span></li><li><b>tennis</b> — Anna Bondar vs Tamara Zidansek <span class='desc'>(WTA Iasi (UniCredit Iasi Open) - WTA 250)</span></li><li><b>tennis</b> — Elina Avanesyan vs Petra Marcinko <span class='desc'>(WTA Iasi (UniCredit Iasi Open) - WTA 250)</span></li></ul>
+<h2>🔴 Pourquoi des paris ont été écartés (échantillon)</h2>
+<ul><li>🔴 <span class='desc'>(conf 0.9)</span> ODDS MISREPRESENTED: The real consensus market for Bellingham anytime goalscorer is ~3.60 (13/5) to 3.80 (1xBet), implied ~26-28%. The claimed Betano 4.65 (impl</li><li>🔴 <span class='desc'>(conf 0.68)</span> Match reel et bien programme mercredi 15 juillet 2026 (17:30 UTC / 20:30 local, Ion Oblemenco), statut 'Not started' confirme sur page live FOX -> encore a veni</li><li>🔴 <span class='desc'>(conf 0.82)</span> Match confirme et a venir: Universitatea Craiova vs ML Vitebsk, UCL 2026-27 1er tour qualif, MANCHE RETOUR, mercredi 15 juillet 2026 20:30 (heure locale) au sta</li><li>🔴 <span class='desc'>(conf 0.82)</span> Fixture is real and upcoming: England vs Argentina, WC 2026 semi-final, Wed 15 July 2026, Atlanta, KO 3pm ET / 8pm BST / 9pm CEST. Not yet played (only previews</li></ul>
+<div class='disc'>Audit généré depuis le journal du run. ESTIMATIONS — aucun pari n'est sûr.</div>
