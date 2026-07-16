@@ -462,18 +462,34 @@ phase('Vérification')
 // fiabilité dépasse le seuil combiné (élimine la value "fake" et le bruit Summer League).
 const toVerify = opps.filter(o => o.eff_edge >= MIN_EDGE.combine).sort((a, b) => b.eff_edge - a.eff_edge).slice(0, 12);
 log(`${toVerify.length} opportunité(s) au-dessus du seuil de value ajusté (>=${Math.round(MIN_EDGE.combine * 100)}%).`);
-const verified = (await parallel(toVerify.map(o => () =>
+const allVerdicts = (await parallel(toVerify.map(o => () =>
   agent(
     `Vérifie de façon ADVERSARIALE cette opportunité :\n` +
     `${o.match} (${o.competition}) — ${o.market} / ${o.pick} @ ${o.odds}.\n` +
     `Argument : ${o.rationale}\n` +
-    `Contrôle sur le web : (1) le match a-t-il lieu ${DATE} et est-il encore À VENIR (pas déjà commencé/fini) ? ` +
+    `Contrôle sur le web : (1) le match a-t-il lieu ${DATE} et est-il encore À VENIR ? ` +
+    `S'il est déjà commencé/terminé, ou surtout REPORTÉ / ANNULÉ / déplacé à une autre date, ` +
+    `mets fixture_confirmed=false (un pari sur un match reporté est nul). ` +
     `(2) la cote ${o.odds} est-elle réelle/plausible (${BOOKMAKER} si visible, sinon Flashscore/comparateur) ? ` +
     `(3) le raisonnement tient-il (blessure majeure ignorée ? enjeu ? piège ?). ` +
     `Sois sceptique : au moindre doute sérieux, verdict=drop.`,
     { label: `verify:${o.id}`, phase: 'Vérification', schema: VERDICT_SCHEMA }
   ).then(v => ({ ...o, verdict: v }))
-))).filter(Boolean).filter(o => o.verdict && o.verdict.verdict === 'keep')
+))).filter(Boolean);
+
+// VETO FIXTURE au niveau du MATCH (leçon 17/07 : Wings-Liberty reporté — panne
+// de l'avion charter du Liberty — mais gardé car le vérificateur DE CETTE
+// sélection avait raté le report). Un pari sur un match REPORTÉ/ANNULÉ est nul.
+// Donc si UN SEUL vérificateur signale fixture_confirmed=false sur un match, on
+// invalide TOUTES les sélections de ce match (sécurité d'abord).
+const fixtureVeto = new Set();
+for (const o of allVerdicts) {
+  if (o.verdict && o.verdict.fixture_confirmed === false) fixtureVeto.add(o.matchKey);
+}
+if (fixtureVeto.size) log(`⚠️ ${fixtureVeto.size} match(s) à fixture NON confirmée (report/annulation) : toutes leurs sélections écartées.`);
+
+const verified = allVerdicts
+  .filter(o => o.verdict && o.verdict.verdict === 'keep' && !fixtureVeto.has(o.matchKey))
   .map(o => ({ ...o, confidence: o.verdict.confidence || 0 }));
 log(`${verified.length} opportunité(s) survivante(s) après vérification.`);
 

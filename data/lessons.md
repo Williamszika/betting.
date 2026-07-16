@@ -22,4 +22,10 @@ Le foot (Ningbo @1.68) a gagné : le lean « forme écrasante + adversaire qui n
 
 **Constat transverse (0/3) :** le modèle **surestime les buts/corners** quand l'ÉTAT DE MATCH les supprime (équipe qui mène, tie décidé). Priorité : intégrer l'état de match / l'enjeu réel dans les marchés de buts et corners.
 
+## 2026-07-17 — Match REPORTÉ gardé par erreur (Wings-Liberty) → veto fixture
+Le seul pari de value du 17/07 (WNBA Dallas Wings-New York Liberty, Under 177.5 @1,91, edge +10,5 %) portait sur un match **REPORTÉ à lundi** (panne de l'avion charter du Liberty). Le vérificateur de CETTE sélection avait raté le report (`fixture_confirmed=true`, conf 0,78), alors que 2 autres vérificateurs du MÊME match l'avaient vu (`fixture_confirmed=false`, conf 0,96/0,97). La synthèse l'a quand même gardé.
+- ➕ **VETO FIXTURE au niveau du match** (implémenté dans `deep_research_coupon.js`) : si UN SEUL vérificateur signale `fixture_confirmed=false` (report/annulation/déplacement) sur un match, **écarter TOUTES les sélections de ce match**. La vérification se fait par sélection, mais un report est un fait de match : il doit se propager à toutes les sélections.
+- ➕ **Prompt de vérif** : demander explicitement de marquer REPORTÉ/ANNULÉ/déplacé comme `fixture_confirmed=false`.
+- ➕ **Décalage de fuseau** : un match US du jeudi soir (ET/CT) tombe la nuit en Europe → remonte comme « lendemain » côté Betano.de. Toujours vérifier le statut réel du match, pas seulement son existence.
+
 _(les prochaines leçons s'ajoutent ici automatiquement)_
