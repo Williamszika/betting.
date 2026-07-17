@@ -28,4 +28,10 @@ Le seul pari de value du 17/07 (WNBA Dallas Wings-New York Liberty, Under 177.5 
 - ➕ **Prompt de vérif** : demander explicitement de marquer REPORTÉ/ANNULÉ/déplacé comme `fixture_confirmed=false`.
 - ➕ **Décalage de fuseau** : un match US du jeudi soir (ET/CT) tombe la nuit en Europe → remonte comme « lendemain » côté Betano.de. Toujours vérifier le statut réel du match, pas seulement son existence.
 
+## 2026-07-17 — STRATÉGIE validée : SIMPLES par défaut (cap combinés)
+Décision validée par l'utilisateur après le bilan 0/3 (les combinés tombaient toujours sur UNE jambe faible ; 3 jambes/6 gagnées individuellement).
+- ✅ **Par défaut : présenter la MEILLEURE value du jour en pari SIMPLE** (la sélection vérifiée à plus haut edge/confiance), PAS de combiné forcé.
+- ✅ **Ne PAS construire de combiné** sauf demande explicite de l'utilisateur. Combiner ajoute du risque non maîtrisé quand une seule jambe faible fait tout tomber.
+- ✅ Rien n'est forcé : s'il n'y a aucune value nette (ou match reporté), **carton blanc** — mieux vaut ne pas parier.
+
 _(les prochaines leçons s'ajoutent ici automatiquement)_
