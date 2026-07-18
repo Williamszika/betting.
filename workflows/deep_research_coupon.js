@@ -331,10 +331,9 @@ if (SEED) {
   matches = SEED.map(m => ({ sport: m.sport, competition: m.competition || '', home: m.home, away: m.away, start_local: m.start_local || '' }));
   log(`${matches.length} match(s) fourni(s) — découverte web ignorée (ils passent par la vérification comme d'habitude).`);
 } else {
+  // FOOTBALL UNIQUEMENT (choix utilisateur 18/07) — TOUS les championnats couverts par Betano.de.
   const sports = [
-    { key: 'football', hint: "grand foot couvert par Betano.de : UEFA (C1/C3/C4), grands championnats européens, MLS, Brésil Série A, Scandinavie (Allsvenskan/Eliteserien), sélections, grandes coupes — PAS d'amicaux obscurs" },
-    { key: 'tennis', hint: "ATP / WTA / grands Challengers en cours, order of play du jour (Betano.de couvre largement le tennis principal)" },
-    { key: 'basketball', hint: "EuroLigue, NBA, grandes ligues nationales (Liga ACB, Lega A, BBL, etc.), compétitions FIBA — PAS de WNBA, PAS de Summer League, PAS de ligues mineures US" },
+    { key: 'football', hint: "TOUS les championnats de FOOTBALL couverts par Betano.de, le plus large possible : UEFA (C1/C3/C4 + qualifs), toutes les grandes ligues européennes ET leurs 2e/3e divisions, MLS, Liga MX, Brésil (Série A/B), Argentine, ligues nordiques (Allsvenskan, Eliteserien, Veikkausliiga, etc.), Europe de l'Est, ligues asiatiques (J-League, K-League...), Australie, Afrique, sélections et grandes coupes — du moment que c'est LISTÉ sur Betano.de. EXCLUS : amicaux obscurs, matchs de jeunes/U19/U21, équipes réserves, futsal/beach." },
   ];
   const discovered = await parallel(sports.map(s => () =>
     agent(

@@ -40,4 +40,9 @@ Le run a proposé une WNBA (GSV −8.5, handicap US) introuvable sur Betano.de. 
 - ➕ **Contrôle final Betano** : le vérificateur doit confirmer via un comparateur affichant les cotes Betano.de (Oddspedia) que le match ET le marché sont jouables sur Betano ; sinon `drop`.
 - ➕ **Conséquence assumée** : moins de paris (souvent 0-1/jour), mais 100 % jouables chez le parieur. Mieux vaut un carton blanc qu'un pari introuvable.
 
+## 2026-07-18 — FOCUS : FOOTBALL uniquement
+Choix utilisateur : se concentrer exclusivement sur le **football**, sur **TOUS les championnats couverts par Betano.de** (UEFA, grandes ligues + divisions inférieures, MLS, Amérique du Sud, ligues nordiques, Asie, Afrique, sélections, coupes). Tennis et basket retirés de la découverte.
+- ➕ Découverte football-only ; le plus large possible DANS le foot, du moment que c'est listé sur Betano.de.
+- ➕ Toujours EXCLURE : amicaux obscurs, jeunes/U19/U21, équipes réserves, futsal/beach.
+
 _(les prochaines leçons s'ajoutent ici automatiquement)_
