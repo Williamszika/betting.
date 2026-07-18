@@ -104,13 +104,35 @@ const COMP_RULES = [
 const SPORT_DEFAULT_REL = { football: 0.70, tennis: 0.85, basketball: 0.70 };
 const BLACKLIST = ["friendly", "amical", "testspiel", "exhibition", "pre-season", "preseason", "pré-saison"];
 const MIN_EDGE = { safe: 0.05, aggressive: 0.08, combine: 0.06 };
+
+// ---------- Catalogue Betano.de : ne cibler QUE des matchs/marchés jouables sur Betano Allemagne ----------
+// betano.de bloque le scraping direct (403, même en vrai navigateur). On cadre donc les
+// agents sur son OFFRE RÉELLE ; un contrôle final via comparateur Betano.de (Oddspedia)
+// confirme la dispo avant de présenter un pari. But : 0 pari « introuvable sur Betano ».
+const BETANO_EXCLUDE = [
+  "wnba",                                   // couverture absente/marginale sur Betano.de
+  "summer league",                          // offre pauvre + échantillon bruité
+  "g league", "g-league", "nba g",          // ligues mineures US
+  "ncaa", "cba", "wcba", "kbl", "wkbl",     // niches basket non couvertes
+  "liga femenina", "beach", "3x3", "indoor",// variantes non standard
+];
+function betanoExcluded(comp) { const c = (comp || '').toLowerCase(); return BETANO_EXCLUDE.some(k => c.includes(k)); }
+
+// Menu des marchés RÉELLEMENT proposés par Betano.de (par sport). Les agents ne doivent
+// proposer QUE ces marchés — pas de props US exotiques ni de handicaps introuvables chez Betano.
+const BETANO_MARKETS = {
+  football: "1X2 (Résultat), Double Chance, Over/Under buts (0.5/1.5/2.5/3.5), Les deux marquent (BTTS), Handicap européen, Mi-temps/Fin, Total corners O/U, Vainqueur",
+  tennis: "Vainqueur du match, Vainqueur du 1er set, Score en sets (2-0/2-1...), Handicap de jeux, Total de jeux O/U",
+  basketball: "Vainqueur (avec prolongations), Handicap de points, Total de points O/U, Vainqueur mi-temps, Handicap/total par quart-temps — AUCUN prop joueur exotique",
+};
+function betanoMarkets(sport) { return BETANO_MARKETS[sport] || BETANO_MARKETS.football; }
 function compReliability(comp, sport) {
   const c = (comp || '').toLowerCase();
   for (const [kws, coef] of COMP_RULES) if (kws.some(k => c.includes(k))) return coef;
   return SPORT_DEFAULT_REL[sport] || 0.70;
 }
 function isBlacklisted(comp) { const c = (comp || '').toLowerCase(); return BLACKLIST.some(k => c.includes(k)); }
-function passesPrefilter(comp, sport, floor) { if (isBlacklisted(comp)) return false; return compReliability(comp, sport) >= (floor || 0.35); }
+function passesPrefilter(comp, sport, floor) { if (isBlacklisted(comp) || betanoExcluded(comp)) return false; return compReliability(comp, sport) >= (floor || 0.35); }
 
 // ---------- Modèle Poisson/logistique (port JS de src/sportsbet/model.py) ----------
 function _clamp01(v) { return Math.max(0, Math.min(1, v)); }
@@ -310,18 +332,20 @@ if (SEED) {
   log(`${matches.length} match(s) fourni(s) — découverte web ignorée (ils passent par la vérification comme d'habitude).`);
 } else {
   const sports = [
-    { key: 'football', hint: "toutes ligues actives : championnats d'été, MLS, Brésil, Scandinavie, Asie, coupes, sélections, amicaux de préparation" },
-    { key: 'tennis', hint: "tournois ATP/WTA/Challenger/ITF en cours, order of play du jour" },
-    { key: 'basketball', hint: "NBA/Summer League, EuroLeague, ligues nationales, compétitions internationales" },
+    { key: 'football', hint: "grand foot couvert par Betano.de : UEFA (C1/C3/C4), grands championnats européens, MLS, Brésil Série A, Scandinavie (Allsvenskan/Eliteserien), sélections, grandes coupes — PAS d'amicaux obscurs" },
+    { key: 'tennis', hint: "ATP / WTA / grands Challengers en cours, order of play du jour (Betano.de couvre largement le tennis principal)" },
+    { key: 'basketball', hint: "EuroLigue, NBA, grandes ligues nationales (Liga ACB, Lega A, BBL, etc.), compétitions FIBA — PAS de WNBA, PAS de Summer League, PAS de ligues mineures US" },
   ];
   const discovered = await parallel(sports.map(s => () =>
     agent(
       `Recherche sur le web (WebSearch/WebFetch) les matchs de ${s.key} programmés ${DATE} ` +
-      `qui sont PROPOSÉS SUR ${BOOKMAKER} Allemagne (${DOMAIN}). ` +
-      `Couvre : ${s.hint}. Ne retiens que des matchs listés par ${BOOKMAKER}. ` +
-      `Sources fiables (${BOOKMAKER}, sites officiels, agrégateurs, presse). ` +
+      `qui sont RÉELLEMENT PROPOSÉS SUR ${BOOKMAKER} Allemagne (${DOMAIN}). ` +
+      `Couvre : ${s.hint}. Ne retiens que des matchs listés par ${BOOKMAKER} ET pour lesquels ` +
+      `${BOOKMAKER} propose les marchés standards (${betanoMarkets(s.key)}). ` +
+      `EXCLUS tout ce que Betano.de ne couvre pas de façon fiable (WNBA, ligues mineures US, exhibitions, variantes 3x3/beach). ` +
+      `Sources fiables (${BOOKMAKER}, comparateur affichant les cotes Betano.de type Oddspedia, sites officiels, presse). ` +
       `Rends UNIQUEMENT des matchs réels et vérifiables avec l'URL source. ` +
-      `En cas de doute sur l'existence d'un match ou son absence sur ${BOOKMAKER}, ne l'inclus pas.`,
+      `Au moindre doute sur la présence du match OU de ses marchés sur ${BOOKMAKER}, ne l'inclus pas.`,
       { label: `discover:${s.key}`, phase: 'Découverte', schema: FIXTURES_SCHEMA }
     )
   ));
@@ -400,10 +424,12 @@ const perMatch = await pipeline(
       `Tu es l'ANALYSTE MARCHÉS pour ${r.m.home} vs ${r.m.away} (${r.m.sport}). ` +
       `Base-toi sur cette fiche de faits vérifiés :\n` +
       JSON.stringify(r.sheet).slice(0, 5500) + `\n` + grounding + `\n` +
-      `Passe en revue TOUS les marchés pertinents : ${MARKETS[r.m.sport]}. ` +
+      `Passe en revue UNIQUEMENT les marchés RÉELLEMENT PROPOSÉS PAR ${BOOKMAKER} (${DOMAIN}) : ` +
+      `${betanoMarkets(r.m.sport)}. ` +
+      `INTERDIT : props joueur exotiques, handicaps/lignes US introuvables sur Betano.de. ` +
       `Pour chaque marché intéressant, récupère la COTE RÉELLE : d'abord ${BOOKMAKER} (${DOMAIN}) si visible, ` +
-      `SINON sur Flashscore / Flashresultats ou un comparateur (oddsportal, betexplorer, wincomparator). ` +
-      `Indique la source (le parieur confirmera sur ${BOOKMAKER}). ` +
+      `SINON un comparateur affichant les cotes Betano.de (Oddspedia) ou Flashscore / comparateur (oddsportal, betexplorer). ` +
+      `Indique la source ET confirme que le marché est bien listé par ${BOOKMAKER} (le parieur doit pouvoir le jouer). ` +
       `Garde uniquement les opportunités de VALUE (proba > implicite). ` +
       `Privilégie les cotes exploitables (simple ${SINGLE_MIN}-${SINGLE_MAX} ou jambe de combiné). ` +
       `N'invente JAMAIS une cote : cite toujours une source réelle. ` +
@@ -470,9 +496,10 @@ const allVerdicts = (await parallel(toVerify.map(o => () =>
     `Contrôle sur le web : (1) le match a-t-il lieu ${DATE} et est-il encore À VENIR ? ` +
     `S'il est déjà commencé/terminé, ou surtout REPORTÉ / ANNULÉ / déplacé à une autre date, ` +
     `mets fixture_confirmed=false (un pari sur un match reporté est nul). ` +
-    `(2) la cote ${o.odds} est-elle réelle/plausible (${BOOKMAKER} si visible, sinon Flashscore/comparateur) ? ` +
+    `(2) la cote ${o.odds} est-elle réelle/plausible, ET ce marché est-il RÉELLEMENT PROPOSÉ par ${BOOKMAKER} (${DOMAIN}) ? ` +
+    `Vérifie via un comparateur affichant les cotes Betano.de (Oddspedia) : si le match OU ce marché n'est PAS jouable sur ${BOOKMAKER}, verdict=drop (odds_plausible=false). ` +
     `(3) le raisonnement tient-il (blessure majeure ignorée ? enjeu ? piège ?). ` +
-    `Sois sceptique : au moindre doute sérieux, verdict=drop.`,
+    `Sois sceptique : au moindre doute sérieux, ou si non jouable sur ${BOOKMAKER}, verdict=drop.`,
     { label: `verify:${o.id}`, phase: 'Vérification', schema: VERDICT_SCHEMA }
   ).then(v => ({ ...o, verdict: v }))
 ))).filter(Boolean);

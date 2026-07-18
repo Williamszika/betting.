@@ -34,4 +34,10 @@ Décision validée par l'utilisateur après le bilan 0/3 (les combinés tombaien
 - ✅ **Ne PAS construire de combiné** sauf demande explicite de l'utilisateur. Combiner ajoute du risque non maîtrisé quand une seule jambe faible fait tout tomber.
 - ✅ Rien n'est forcé : s'il n'y a aucune value nette (ou match reporté), **carton blanc** — mieux vaut ne pas parier.
 
+## 2026-07-18 — EXIGENCE : le pari doit être JOUABLE sur Betano.de
+Le run a proposé une WNBA (GSV −8.5, handicap US) introuvable sur Betano.de. Cause : betano.de bloque le scraping (403, même en vrai navigateur headless) → le workflow ne partait PAS de l'offre réelle de Betano, mais de matchs/cotes de comparateurs US.
+- ➕ **CATALOGUE BETANO.de** (implémenté dans `deep_research_coupon.js`) : découverte + marchés + vérif cadrés sur ce que Betano.de propose vraiment. `BETANO_EXCLUDE` retire WNBA, Summer League, G League, NCAA, ligues mineures US, 3x3/beach. `BETANO_MARKETS` limite les marchés au menu Betano (foot : 1X2/DC/O-U/BTTS/handicap/corners ; tennis : vainqueur/set1/score sets/jeux ; basket : vainqueur/handicap pts/total pts/QT — PAS de props exotiques).
+- ➕ **Contrôle final Betano** : le vérificateur doit confirmer via un comparateur affichant les cotes Betano.de (Oddspedia) que le match ET le marché sont jouables sur Betano ; sinon `drop`.
+- ➕ **Conséquence assumée** : moins de paris (souvent 0-1/jour), mais 100 % jouables chez le parieur. Mieux vaut un carton blanc qu'un pari introuvable.
+
 _(les prochaines leçons s'ajoutent ici automatiquement)_
