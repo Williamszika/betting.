@@ -1,0 +1,49 @@
+<title>Audit du run — SportPredix</title>
+<style>
+:root { color-scheme: light dark; }
+body { font-family: system-ui, sans-serif; margin: 0; padding: 1.4rem; line-height: 1.45; }
+h1 { font-size: 1.35rem; margin: 0 0 .2rem; } h2 { font-size: 1.05rem; margin: 1.3rem 0 .5rem; }
+.sub { opacity: .65; font-size: .85rem; margin-bottom: 1rem; }
+.kpi { display:flex; gap:.6rem; flex-wrap:wrap; margin:.6rem 0 1rem; }
+.kpi div { background: rgba(127,127,127,.1); border-radius:8px; padding:.5rem .8rem; }
+.kpi b { font-size:1.3rem; display:block; }
+table { border-collapse: collapse; width:100%; }
+td { padding:.28rem .5rem; border-bottom:1px solid rgba(127,127,127,.18); font-size:.92rem; }
+.num { text-align:right; font-variant-numeric: tabular-nums; font-weight:700; width:3rem; }
+.desc { opacity:.6; font-size:.85rem; }
+.funnel div.row { display:grid; grid-template-columns: 15rem 1fr; align-items:center; gap:.6rem; margin:.25rem 0; }
+.bar { position:relative; background: rgba(127,127,127,.12); border-radius:6px; height:1.5rem; }
+.fill { height:100%; border-radius:6px; }
+.bar span { position:absolute; right:.5rem; top:0; line-height:1.5rem; font-size:.82rem; font-weight:700; }
+.howto { background: rgba(37,99,235,.1); border-radius:8px; padding:.8rem 1rem; font-size:.92rem; }
+ul { margin:.3rem 0; padding-left:1.1rem; } li { margin:.15rem 0; font-size:.9rem; }
+.disc { margin-top:1.2rem; font-size:.78rem; opacity:.6; }
+</style>
+<h1>🔍 Audit du run — <code>wf_37ac7f2b-d09</code></h1>
+<div class='sub'>Trace complète : agents, travail, flux d'information, construction du coupon.</div>
+<div class='kpi'>
+  <div><b>28</b>agents lancés</div>
+  <div><b>28</b>terminés</div>
+  <div><b>0</b>échec/incomplets</div>
+  <div><b>28</b>matchs</div>
+  <div><b>12</b>opportunités</div>
+  <div><b>4</b>vérifiées 🟢</div>
+</div>
+<h2>👥 Qui a travaillé (par rôle)</h2>
+<table><tr><td>📚 Spécialiste recherche</td><td class='num'>12</td><td class='desc'>Collecte des données (forme, xG, H2H, cotes…)</td></tr><tr><td>🕵️ Vérificateur</td><td class='num'>7</td><td class='desc'>Contrôle adversarial (match à venir ? cote ? logique ?)</td></tr><tr><td>🧩 Desk éditeur</td><td class='num'>3</td><td class='desc'>Réconcilie/vérifie les faits + stats chiffrées</td></tr><tr><td>📊 Analyste marchés</td><td class='num'>3</td><td class='desc'>Tous les marchés → opportunités de value (modèle croisé)</td></tr><tr><td>🔎 Découverte</td><td class='num'>1</td><td class='desc'>Trouve les vrais matchs du jour (Betano.de)</td></tr><tr><td>🎯 Coordinateur</td><td class='num'>1</td><td class='desc'>Classe et dé-corrèle les opportunités</td></tr><tr><td>📝 Synthèse/rédaction</td><td class='num'>1</td><td class='desc'>Construit le coupon + note finale</td></tr></table>
+<h2>🔻 Flux d'information (entonnoir jusqu'au coupon)</h2>
+<div class='funnel'>
+  <div class='row'><span>🔎 Matchs découverts</span><div class='bar'><div class='fill' style='width:100%;background:#2563eb'></div><span>28</span></div></div>
+  <div class='row'><span>📚 Spécialistes (données)</span><div class='bar'><div class='fill' style='width:42%;background:#0891b2'></div><span>12</span></div></div>
+  <div class='row'><span>🧩 Fiches réconciliées</span><div class='bar'><div class='fill' style='width:10%;background:#7c3aed'></div><span>3</span></div></div>
+  <div class='row'><span>📊 Opportunités de value</span><div class='bar'><div class='fill' style='width:42%;background:#d97706'></div><span>12</span></div></div>
+  <div class='row'><span>🕵️ Gardées après vérif</span><div class='bar'><div class='fill' style='width:14%;background:#16a34a'></div><span>4</span></div></div>
+  <div class='row'><span>🔴 Écartées</span><div class='bar'><div class='fill' style='width:10%;background:#dc2626'></div><span>3</span></div></div>
+</div>
+<h2>🧮 Comment le coupon est créé</h2>
+<div class='howto'>PIPELINE & COMMENT LE COUPON EST CRÉÉ (version optimisée après audit) :<br>0. PRÉ-FILTRE : on retire AVANT analyse les amicaux et les compétitions peu fiables<br>   (fiabilité < 0,35 : ex. NBA Summer League 0,30 ❌) → moins de bruit, moins d'agents.<br>1. RECHERCHE : 4 spécialistes consolidés/match (stats+xG, effectif+tactique, contexte+H2H, cotes).<br>2. FUSION : 1 fiche de faits vérifiés + STATS chiffrées par match (desk).<br>3. MODÈLE : proba finale = BLEND(modèle Poisson/logistique, recherche).<br>4. VALUE : edge = proba × cote − 1, AJUSTÉ par la fiabilité (edge × fiabilité).<br>   Seuils : safe > 5 %, combiné > 6 %, agressif > 8 %. En-dessous = rejeté (pas de value « fake »).<br>5. VÉRIFICATION adversariale (allégée) : match à venir ? cote réelle ? cohérence ?<br>6. SOLVEUR : combinaison de jambes (matchs DISTINCTS) dans la fourchette (défaut 1,95–3),<br>   en MAXIMISANT la proba conjointe (le plus « sûr »).<br>7. COMBIEN : 1 coupon combiné/jour (+ jusqu'à 2 simples cote 5–7). Rien n'est forcé :<br>   si aucune combi ne rentre ou si rien ne passe → « rien à parier ».</div>
+<h2>⚽ Matchs analysés</h2>
+<ul><li><b>football</b> — France vs Angleterre <span class='desc'>(Coupe du Monde 2026 - Match pour la 3e place)</span></li><li><b>football</b> — HamKam (Hamarkameratene) vs Tromsø <span class='desc'>(Eliteserien (Norvège))</span></li><li><b>football</b> — Kristiansund BK vs Sarpsborg 08 <span class='desc'>(Eliteserien (Norvège))</span></li><li><b>football</b> — Lillestrøm vs KFUM Oslo <span class='desc'>(Eliteserien (Norvège))</span></li><li><b>football</b> — IK Start vs Rosenborg <span class='desc'>(Eliteserien (Norvège))</span></li><li><b>football</b> — Molde FK vs SK Brann <span class='desc'>(Eliteserien (Norvège))</span></li><li><b>football</b> — Viking FK vs Sandefjord <span class='desc'>(Eliteserien (Norvège))</span></li><li><b>football</b> — AIK vs GAIS <span class='desc'>(Allsvenskan (Suède))</span></li><li><b>football</b> — HJK Helsinki vs VPS <span class='desc'>(Veikkausliiga (Finlande))</span></li><li><b>football</b> — AC Oulu vs IF Gnistan <span class='desc'>(Veikkausliiga (Finlande))</span></li><li><b>football</b> — SJK Seinäjoki vs KuPS <span class='desc'>(Veikkausliiga (Finlande))</span></li><li><b>football</b> — IK Oddevold vs Varbergs BoIS <span class='desc'>(Superettan (Suède, D2))</span></li><li><b>football</b> — Östersunds FK vs Landskrona BoIS <span class='desc'>(Superettan (Suède, D2))</span></li><li><b>football</b> — Östers IF vs IK Brage <span class='desc'>(Superettan (Suède, D2))</span></li><li><b>football</b> — Þór Akureyri vs Víkingur Reykjavík <span class='desc'>(Besta deild karla (Islande))</span></li><li><b>football</b> — Valur vs Fram Reykjavík <span class='desc'>(Besta deild karla (Islande))</span></li><li><b>football</b> — Pumas UNAM vs Pachuca <span class='desc'>(Liga MX - Apertura 2026, Jornada 1 (Mexique))</span></li><li><b>football</b> — Guadalajara (Chivas) vs Toluca <span class='desc'>(Liga MX - Apertura 2026, Jornada 1 (Mexique))</span></li><li><b>football</b> — Monterrey vs Santos Laguna <span class='desc'>(Liga MX - Apertura 2026, Jornada 1 (Mexique))</span></li><li><b>football</b> — Querétaro vs Club América <span class='desc'>(Liga MX - Apertura 2026, Jornada 1 (Mexique))</span></li><li><b>football</b> — Daejeon Hana Citizen vs Ulsan HD <span class='desc'>(K League 1 (Corée du Sud))</span></li><li><b>football</b> — Gangwon FC vs Gimcheon Sangmu <span class='desc'>(K League 1 (Corée du Sud))</span></li><li><b>football</b> — Incheon United vs Jeonbuk Hyundai Motors <span class='desc'>(K League 1 (Corée du Sud))</span></li><li><b>football</b> — Jeju SK vs Pohang Steelers <span class='desc'>(K League 1 (Corée du Sud))</span></li></ul>
+<h2>🔴 Pourquoi des paris ont été écartés (échantillon)</h2>
+<ul><li>🔴 <span class='desc'>(conf 0.9)</span> PREMISSE INVERSEE (fatal): l'argument prete a HamKam une prob de victoire de base (0,41) SUPERIEURE a Tromso (0,34), d'ou la conditionnelle 0,547. Toutes les so</li><li>🔴 <span class='desc'>(conf 0.82)</span> Fixture OK: France vs Angleterre, match pour la 3e place WM 2026, samedi 18/07/2026, Miami, coup d'envoi 21h00 GMT / 23h00 CEST. Statut FOX Sports 'Scheduled (n</li><li>🔴 <span class='desc'>(conf 0.7)</span> Fixture confirmed and still upcoming: France vs England, WC 2026 third-place playoff, Sat 18 July 2026, 5pm ET, Hard Rock Stadium Miami. oddschecker shows statu</li></ul>
+<div class='disc'>Audit généré depuis le journal du run. ESTIMATIONS — aucun pari n'est sûr.</div>
