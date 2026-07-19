@@ -45,4 +45,9 @@ Choix utilisateur : se concentrer exclusivement sur le **football**, sur **TOUS 
 - ➕ Découverte football-only ; le plus large possible DANS le foot, du moment que c'est listé sur Betano.de.
 - ➕ Toujours EXCLURE : amicaux obscurs, jeunes/U19/U21, équipes réserves, futsal/beach.
 
+## 2026-07-19 — Perte France (3e place) : NE PAS parier le favori dans un match SANS ENJEU
+France (1) @1,95 PERDU : Angleterre 6-4 France (match pour la 3e place), 4-0 à la MT, 10 buts au total. France favorite (~57%) balayée. **J'avais pourtant FLAGGÉ le bémol « match de classement / intensité réduite / variance » sur la carte — mais j'en ai quand même fait le PICK PRINCIPAL.** Erreur de jugement.
+- ➕ **DEAD RUBBER / MATCH SANS ENJEU** (3e place, match de classement, dernière journée sans enjeu…) : **NE PAS parier le favori en 1X2**. L'enjeu disparu → intensité défensive quasi nulle, variance maximale. Le favori bâti sur les métriques du tournoi n'a plus d'avantage. Si pari il y a, privilégier **OVER buts** (ici l'Over aurait explosé : 10 buts).
+- ➕ **Un bémol identifié doit DÉCLASSER le pari, pas juste l'annoter** : si un match a un drapeau « intensité réduite/variance/sans enjeu », il ne peut PAS être le pick principal. Le noter puis le jouer quand même = incohérent.
+
 _(les prochaines leçons s'ajoutent ici automatiquement)_
