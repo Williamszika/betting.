@@ -50,4 +50,13 @@ France (1) @1,95 PERDU : Angleterre 6-4 France (match pour la 3e place), 4-0 à 
 - ➕ **DEAD RUBBER / MATCH SANS ENJEU** (3e place, match de classement, dernière journée sans enjeu…) : **NE PAS parier le favori en 1X2**. L'enjeu disparu → intensité défensive quasi nulle, variance maximale. Le favori bâti sur les métriques du tournoi n'a plus d'avantage. Si pari il y a, privilégier **OVER buts** (ici l'Over aurait explosé : 10 buts).
 - ➕ **Un bémol identifié doit DÉCLASSER le pari, pas juste l'annoter** : si un match a un drapeau « intensité réduite/variance/sans enjeu », il ne peut PAS être le pick principal. Le noter puis le jouer quand même = incohérent.
 
+## 2026-07-20 — Perte Espagne (finale) : le 1X2 90 min est un PIÈGE en finale
+Espagne (1) @2,45 « résultat 90 min » PERDU : Espagne championne 1-0 MAIS but en **prolongation** → **0-0 à 90 min = nul**. L'Espagne gagne le trophée, pas notre pari. La « finale fermée » flaggée sur la carte s'est réalisée.
+- ➕ **FINALE / MATCH À ÉLIMINATION DIRECTE TENDU** : NE PAS parier le favori en **1X2 90 min** (risque de nul à 90 min très élevé, décision en prolongation/tab). Si on veut le favori : marché **« qualification / vainqueur INCL. prolongations »**, jamais le 90 min. Sinon éviter.
+
+## 2026-07-20 — CONSTAT TRANSVERSE (2/2 pertes) : méthode de jeu
+Les 2 premiers paris du nouveau suivi PERDUS, tous deux des **favoris 1X2 dans des matchs ATYPIQUES** : dead rubber France-Angleterre (6-4) puis finale Espagne (0-0 à 90). Le modèle aimait la value, mais le **CONTEXTE du match** (sans enjeu OU finale tendue) a produit nul/chaos.
+- ➕ **ÉVITER les paris « favori 1X2 » sur des matchs hors-norme** (finale, dead rubber, match sans enjeu, derby explosif). Le 1X2 favori marche sur des matchs de **championnat à enjeu NORMAL**.
+- ➕ **Privilégier les matchs de championnat réguliers** et, quand c'est cohérent, les **marchés BUTS (Over/Under)** — moins exposés au scénario 1X2 (nul/CSC/rouge). Les 2 pertes auraient été évitées en s'abstenant sur ces affiches atypiques.
+
 _(les prochaines leçons s'ajoutent ici automatiquement)_
