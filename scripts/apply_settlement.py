@@ -24,6 +24,11 @@ def main(argv):
         e["settled"] = s.get("settled", "")
         if s.get("retro"):
             e["retro"] = s["retro"]
+        # Cote de CLÔTURE optionnelle (pour le CLV) : liste alignée sur les jambes.
+        co = s.get("closing_odds") or []
+        for i, lg in enumerate(e.get("legs", [])):
+            if i < len(co) and co[i]:
+                lg["closing_odds"] = float(co[i])
     L.save_all(entries, LEDGER)
     print(L.render_text(entries))
 
