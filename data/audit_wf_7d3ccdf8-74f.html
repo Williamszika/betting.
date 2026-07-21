@@ -1,0 +1,49 @@
+<title>Audit du run — SportPredix</title>
+<style>
+:root { color-scheme: light dark; }
+body { font-family: system-ui, sans-serif; margin: 0; padding: 1.4rem; line-height: 1.45; }
+h1 { font-size: 1.35rem; margin: 0 0 .2rem; } h2 { font-size: 1.05rem; margin: 1.3rem 0 .5rem; }
+.sub { opacity: .65; font-size: .85rem; margin-bottom: 1rem; }
+.kpi { display:flex; gap:.6rem; flex-wrap:wrap; margin:.6rem 0 1rem; }
+.kpi div { background: rgba(127,127,127,.1); border-radius:8px; padding:.5rem .8rem; }
+.kpi b { font-size:1.3rem; display:block; }
+table { border-collapse: collapse; width:100%; }
+td { padding:.28rem .5rem; border-bottom:1px solid rgba(127,127,127,.18); font-size:.92rem; }
+.num { text-align:right; font-variant-numeric: tabular-nums; font-weight:700; width:3rem; }
+.desc { opacity:.6; font-size:.85rem; }
+.funnel div.row { display:grid; grid-template-columns: 15rem 1fr; align-items:center; gap:.6rem; margin:.25rem 0; }
+.bar { position:relative; background: rgba(127,127,127,.12); border-radius:6px; height:1.5rem; }
+.fill { height:100%; border-radius:6px; }
+.bar span { position:absolute; right:.5rem; top:0; line-height:1.5rem; font-size:.82rem; font-weight:700; }
+.howto { background: rgba(37,99,235,.1); border-radius:8px; padding:.8rem 1rem; font-size:.92rem; }
+ul { margin:.3rem 0; padding-left:1.1rem; } li { margin:.15rem 0; font-size:.9rem; }
+.disc { margin-top:1.2rem; font-size:.78rem; opacity:.6; }
+</style>
+<h1>🔍 Audit du run — <code>wf_7d3ccdf8-74f</code></h1>
+<div class='sub'>Trace complète : agents, travail, flux d'information, construction du coupon.</div>
+<div class='kpi'>
+  <div><b>28</b>agents lancés</div>
+  <div><b>28</b>terminés</div>
+  <div><b>0</b>échec/incomplets</div>
+  <div><b>19</b>matchs</div>
+  <div><b>10</b>opportunités</div>
+  <div><b>2</b>vérifiées 🟢</div>
+</div>
+<h2>👥 Qui a travaillé (par rôle)</h2>
+<table><tr><td>📚 Spécialiste recherche</td><td class='num'>12</td><td class='desc'>Collecte des données (forme, xG, H2H, cotes…)</td></tr><tr><td>🕵️ Vérificateur</td><td class='num'>7</td><td class='desc'>Contrôle adversarial (match à venir ? cote ? logique ?)</td></tr><tr><td>🧩 Desk éditeur</td><td class='num'>3</td><td class='desc'>Réconcilie/vérifie les faits + stats chiffrées</td></tr><tr><td>📊 Analyste marchés</td><td class='num'>3</td><td class='desc'>Tous les marchés → opportunités de value (modèle croisé)</td></tr><tr><td>🔎 Découverte</td><td class='num'>1</td><td class='desc'>Trouve les vrais matchs du jour (Betano.de)</td></tr><tr><td>🎯 Coordinateur</td><td class='num'>1</td><td class='desc'>Classe et dé-corrèle les opportunités</td></tr><tr><td>📝 Synthèse/rédaction</td><td class='num'>1</td><td class='desc'>Construit le coupon + note finale</td></tr></table>
+<h2>🔻 Flux d'information (entonnoir jusqu'au coupon)</h2>
+<div class='funnel'>
+  <div class='row'><span>🔎 Matchs découverts</span><div class='bar'><div class='fill' style='width:100%;background:#2563eb'></div><span>19</span></div></div>
+  <div class='row'><span>📚 Spécialistes (données)</span><div class='bar'><div class='fill' style='width:63%;background:#0891b2'></div><span>12</span></div></div>
+  <div class='row'><span>🧩 Fiches réconciliées</span><div class='bar'><div class='fill' style='width:15%;background:#7c3aed'></div><span>3</span></div></div>
+  <div class='row'><span>📊 Opportunités de value</span><div class='bar'><div class='fill' style='width:52%;background:#d97706'></div><span>10</span></div></div>
+  <div class='row'><span>🕵️ Gardées après vérif</span><div class='bar'><div class='fill' style='width:10%;background:#16a34a'></div><span>2</span></div></div>
+  <div class='row'><span>🔴 Écartées</span><div class='bar'><div class='fill' style='width:26%;background:#dc2626'></div><span>5</span></div></div>
+</div>
+<h2>🧮 Comment le coupon est créé</h2>
+<div class='howto'>PIPELINE & COMMENT LE COUPON EST CRÉÉ (version optimisée après audit) :<br>0. PRÉ-FILTRE : on retire AVANT analyse les amicaux et les compétitions peu fiables<br>   (fiabilité < 0,35 : ex. NBA Summer League 0,30 ❌) → moins de bruit, moins d'agents.<br>1. RECHERCHE : 4 spécialistes consolidés/match (stats+xG, effectif+tactique, contexte+H2H, cotes).<br>2. FUSION : 1 fiche de faits vérifiés + STATS chiffrées par match (desk).<br>3. MODÈLE : proba finale = BLEND(modèle Poisson/logistique, recherche).<br>4. VALUE : edge = proba × cote − 1, AJUSTÉ par la fiabilité (edge × fiabilité).<br>   Seuils : safe > 5 %, combiné > 6 %, agressif > 8 %. En-dessous = rejeté (pas de value « fake »).<br>5. VÉRIFICATION adversariale (allégée) : match à venir ? cote réelle ? cohérence ?<br>6. SOLVEUR : combinaison de jambes (matchs DISTINCTS) dans la fourchette (défaut 1,95–3),<br>   en MAXIMISANT la proba conjointe (le plus « sûr »).<br>7. COMBIEN : 1 coupon combiné/jour (+ jusqu'à 2 simples cote 5–7). Rien n'est forcé :<br>   si aucune combi ne rentre ou si rien ne passe → « rien à parier ».</div>
+<h2>⚽ Matchs analysés</h2>
+<ul><li><b>football</b> — Levski Sofia vs Universitatea Craiova <span class='desc'>(UEFA Champions League - 2e tour de qualification (aller))</span></li><li><b>football</b> — Egnatia Rrogozhinë vs Celje <span class='desc'>(UEFA Champions League - 2e tour de qualification (aller))</span></li><li><b>football</b> — Omonia Nicosie vs Kairat Almaty <span class='desc'>(UEFA Champions League - 2e tour de qualification (aller))</span></li><li><b>football</b> — Coritiba vs Palmeiras <span class='desc'>(Brésil - Série A (Brasileirão Betano))</span></li><li><b>football</b> — São Paulo vs Athletico Paranaense <span class='desc'>(Brésil - Série A (Brasileirão Betano))</span></li><li><b>football</b> — Internacional vs Cruzeiro <span class='desc'>(Brésil - Série A (Brasileirão Betano))</span></li><li><b>football</b> — Chapecoense vs Flamengo <span class='desc'>(Brésil - Série A (Brasileirão Betano))</span></li><li><b>football</b> — Operário-PR vs Ponte Preta <span class='desc'>(Brésil - Série B)</span></li><li><b>football</b> — Ceará vs CRB <span class='desc'>(Brésil - Série B)</span></li><li><b>football</b> — Goiás vs Sport Recife <span class='desc'>(Brésil - Série B)</span></li><li><b>football</b> — FC Cincinnati vs Vancouver Whitecaps <span class='desc'>(États-Unis - MLS)</span></li><li><b>football</b> — Charlotte FC vs Atlanta United <span class='desc'>(États-Unis - MLS)</span></li><li><b>football</b> — Sporting Kansas City vs Minnesota United <span class='desc'>(États-Unis - MLS)</span></li><li><b>football</b> — LA Galaxy vs St. Louis City <span class='desc'>(États-Unis - MLS)</span></li><li><b>football</b> — FC Seoul vs Pohang Steelers <span class='desc'>(Corée du Sud - K League 1 (19e journée))</span></li><li><b>football</b> — Gwangju FC vs Gimcheon Sangmu <span class='desc'>(Corée du Sud - K League 1 (19e journée))</span></li><li><b>football</b> — Bodø/Glimt vs HamKam <span class='desc'>(Norvège - Eliteserien (match reprogrammé))</span></li><li><b>football</b> — Lillestrøm vs Viking <span class='desc'>(Norvège - Eliteserien (match reprogrammé))</span></li><li><b>football</b> — Independiente del Valle vs Técnico Universitario <span class='desc'>(Équateur - LigaPro Serie A (21e journée))</span></li></ul>
+<h2>🔴 Pourquoi des paris ont été écartés (échantillon)</h2>
+<ul><li>🔴 <span class='desc'>(conf 0.6)</span> Fixture OK: Omonia vs Kairat Almaty confirmed for Wed 22 July 2026, 17:00 UTC, Neo GSP Nicosia, CL 2026/27 QR2 first leg; status NOT STARTED, no postponement (O</li><li>🔴 <span class='desc'>(conf 0.8)</span> Fixture confirmed and upcoming: Omonia Nicosia vs Kairat Almaty, GSP Stadium, 22 July 2026 17:00 UTC, CL 2026/27 Q2 first leg (UEFA match 2048720; BetExplorer '</li><li>🔴 <span class='desc'>(conf 0.62)</span> Fixture CONFIRMED: Omonia Nicosia vs Kairat Almaty, Wed 22 July 2026 17:00 UTC, GSP Stadium Nicosia, UCL 2nd qualifying round first leg. Oddslot shows STATUS: N</li><li>🔴 <span class='desc'>(conf 0.6)</span> Fixture confirmee: Egnatia vs Celje, UCL 2e tour qualif. aller, mercredi 22/07/2026 19:00 UTC / 21:00 CEST au stade d'Egnatia. A venir (aujourd'hui 21/07/2026),</li><li>🔴 <span class='desc'>(conf 0.8)</span> Value illusoire: le +10% a 2.20 provient uniquement du modele qui note Kairat a 32% alors que le marche sharp (Pinnacle/consensus) le place a 18-19% - un ecart </li></ul>
+<div class='disc'>Audit généré depuis le journal du run. ESTIMATIONS — aucun pari n'est sûr.</div>
