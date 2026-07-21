@@ -16,6 +16,9 @@ Le foot (Ningbo @1.68) a gagné : le lean « forme écrasante + adversaire qui n
 ## 2026-07-16 — Règlement 14/07 & 15/07 : 2 coupons perdus (bilan 0/3)
 **Coupon 14/07 perdu sur les CORNERS** (KuPS Over 2.5 ✅ mais Espagne Over 4.5 corners ❌ : Espagne gagne 2-0 en dominant la possession... mais la France menait les corners 3-1 à la MT).
 - ➕ **CORNERS ≠ POSSESSION** : ne PAS déduire les corners de la possession. Utiliser le **taux de corners réel** de l'équipe + l'**état du match** (l'équipe qui mène prend MOINS de corners ; celle qui court après en prend plus).
+```rule
+{"pattern": ".*", "field": "always", "market": "Corner", "action": "warn", "severity": "soft", "note": "Ne jamais deduire les corners de la possession : utiliser le taux de corners reel + l'etat du match"}
+```
 
 **Coupon 15/07 perdu sur un TIE DÉJÀ DÉCIDÉ** (Angleterre-Argentine BTTS ✅ mais Craiova-Vitebsk Over 1.5 ❌ : Craiova gagne 1-0, tie plié 4-1 → match fermé). Le pari « le plus sûr » (~82 %) est tombé.
 - ➕ **TIE DÉJÀ DÉCIDÉ** (gros écart agrégé, remontée quasi impossible) : **discount la thèse Over/match ouvert**. Les 2es manches pliées sont souvent **fermées et basses** → prudence/éviter les marchés de buts dans les ties décidés (même famille que la leçon « game management »).
@@ -58,5 +61,8 @@ Espagne (1) @2,45 « résultat 90 min » PERDU : Espagne championne 1-0 MAIS but
 Les 2 premiers paris du nouveau suivi PERDUS, tous deux des **favoris 1X2 dans des matchs ATYPIQUES** : dead rubber France-Angleterre (6-4) puis finale Espagne (0-0 à 90). Le modèle aimait la value, mais le **CONTEXTE du match** (sans enjeu OU finale tendue) a produit nul/chaos.
 - ➕ **ÉVITER les paris « favori 1X2 » sur des matchs hors-norme** (finale, dead rubber, match sans enjeu, derby explosif). Le 1X2 favori marche sur des matchs de **championnat à enjeu NORMAL**.
 - ➕ **Privilégier les matchs de championnat réguliers** et, quand c'est cohérent, les **marchés BUTS (Over/Under)** — moins exposés au scénario 1X2 (nul/CSC/rouge). Les 2 pertes auraient été évitées en s'abstenant sur ces affiches atypiques.
+```rule
+{"pattern": "finale|barrage", "field": "context_flag", "market": "1X2|R[eé]sultat|Vainqueur", "action": "exclude", "severity": "hard", "note": "Match atypique (finale / 3e place / barrage) : favori 1X2 interdit — nul/chaos tres probables (pertes France 6-4 et Espagne 0-0 a 90)"}
+```
 
 _(les prochaines leçons s'ajoutent ici automatiquement)_

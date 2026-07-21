@@ -29,6 +29,37 @@ const BOOKMAKER = A.bookmaker || "Betano"
 const DOMAIN = A.domain || "betano.de"  // Betano Allemagne
 const PREFILTER_FLOOR = A.prefilterFloor || 0.35  // fiabilité minimale d'une compétition (audit)
 
+// ---------- MÉMOIRE branchée sur le moteur (correction Faille n°1) ----------
+// Le script du workflow n'a PAS accès au disque : l'orchestrateur lit data/lessons.md,
+// le parse (scripts/lessons_rules.py) et passe les règles via args.
+//   hardRules : [{pattern, field, market, action:'exclude', note}] -> FILTRE en code
+//   softBlock : texte injecté dans les prompts analyste-marchés & vérificateur
+const HARD_RULES = Array.isArray(A.hardRules) ? A.hardRules : [];
+const SOFT_BLOCK = A.softBlock ? `\n${String(A.softBlock)}\n` : '';
+
+// Détecte le contexte d'un match par mots-clés sur la compétition (robuste, sans agent).
+function detectContext(competition) {
+  const c = (competition || '').toLowerCase();
+  if (/finale|\bfinal\b|3e place|3rd place|troisi[eè]me place|classement|third place/.test(c)) return 'finale';
+  if (/barrage|play-?off|playoff/.test(c)) return 'barrage';
+  if (/derby|clasico|cl[aá]sico/.test(c)) return 'derby';
+  return 'normal';
+}
+
+// Une opportunité est-elle interdite par une règle HARD ? Renvoie la raison, sinon null.
+function droppedByHardRule(opp) {
+  for (const r of HARD_RULES) {
+    if (!r || r.action !== 'exclude') continue;
+    const field = r.field === 'context_flag' ? (opp.context_flag || 'normal')
+      : r.field === 'always' ? 'always' : String(opp[r.field] || '');
+    let patOk = true, mktOk = true;
+    try { patOk = new RegExp(r.pattern || '.*', 'i').test(field); } catch (e) { patOk = false; }
+    if (r.market) { try { mktOk = new RegExp(r.market, 'i').test(opp.market || ''); } catch (e) { mktOk = false; } }
+    if (patOk && mktOk) return r.note || r.pattern || 'règle mémoire';
+  }
+  return null;
+}
+
 const DISCLAIMER =
   "ESTIMATIONS statistiques, PAS des certitudes. Aucun pari n'est « sûr » : " +
   "un simple à cote 5 reste ~1 chance sur 5, un combiné cote 5 encore moins. " +
@@ -373,7 +404,10 @@ while (inter.length < MAX_MATCHES && added) {
     }
   }
 }
-matches = inter.map((m, i) => ({ ...m, key: `${i}:${m.home} vs ${m.away}` }));
+matches = inter.map((m, i) => ({ ...m, key: `${i}:${m.home} vs ${m.away}`, context_flag: detectContext(m.competition) }));
+log(`Mémoire : ${HARD_RULES.length} règle(s) hard chargée(s)${SOFT_BLOCK ? ' + bloc soft actif' : ''}.`);
+const _atyp = matches.filter(m => m.context_flag !== 'normal');
+if (_atyp.length) log(`Contexte : ${_atyp.length} match(s) atypique(s) -> ${_atyp.map(m => m.context_flag + ':' + m.home).join(', ')}`);
 log(`${matches.length} match(s) réel(s) retenu(s) pour analyse approfondie.`);
 if (matches.length === 0) {
   return { picks: [], coupon: null, disclaimer: DISCLAIMER,
@@ -423,8 +457,10 @@ const perMatch = await pipeline(
       `Tu es l'ANALYSTE MARCHÉS pour ${r.m.home} vs ${r.m.away} (${r.m.sport}). ` +
       `Base-toi sur cette fiche de faits vérifiés :\n` +
       JSON.stringify(r.sheet).slice(0, 5500) + `\n` + grounding + `\n` +
-      `Passe en revue UNIQUEMENT les marchés RÉELLEMENT PROPOSÉS PAR ${BOOKMAKER} (${DOMAIN}) : ` +
+      `CONSULTE TOUS les marchés RÉELLEMENT PROPOSÉS PAR ${BOOKMAKER} (${DOMAIN}) pour ce match : ` +
       `${betanoMarkets(r.m.sport)}. ` +
+      `Puis PROPOSE LE(S) MEILLEUR(S) — celui/ceux avec la value la plus FIABLE, PAS forcément le 1X2 ` +
+      `(souvent un marché buts, double chance ou handicap est plus solide qu'un vainqueur sec). ` +
       `INTERDIT : props joueur exotiques, handicaps/lignes US introuvables sur Betano.de. ` +
       `Pour chaque marché intéressant, récupère la COTE RÉELLE : d'abord ${BOOKMAKER} (${DOMAIN}) si visible, ` +
       `SINON un comparateur affichant les cotes Betano.de (Oddspedia) ou Flashscore / comparateur (oddsportal, betexplorer). ` +
@@ -432,7 +468,8 @@ const perMatch = await pipeline(
       `Garde uniquement les opportunités de VALUE (proba > implicite). ` +
       `Privilégie les cotes exploitables (simple ${SINGLE_MIN}-${SINGLE_MAX} ou jambe de combiné). ` +
       `N'invente JAMAIS une cote : cite toujours une source réelle. ` +
-      `Compare aussi à un book SHARP (Pinnacle) et au consensus : un écart net = possible erreur de marché (value réelle) ou piège.`,
+      `Compare aussi à un book SHARP (Pinnacle) et au consensus : un écart net = possible erreur de marché (value réelle) ou piège.` +
+      `\nCONTEXTE du match : ${r.m.context_flag || 'normal'}.` + SOFT_BLOCK,
       { label: `markets:${r.m.home}-${r.m.away}`, phase: 'Marchés', schema: MARKETS_SCHEMA }
     ).then(mk => ({ m: r.m, sheet: r.sheet, markets: (mk && mk.opportunities) || [], modelMap: mm }));
   }
@@ -471,6 +508,7 @@ for (const r of perMatch.filter(Boolean)) {
     opps.push({
       id: idc++, matchKey: r.m.key, match: `${r.m.home} vs ${r.m.away}`,
       sport: r.m.sport, competition: r.m.competition, reliability: rel,
+      context_flag: r.m.context_flag || 'normal',
       market: o.market, pick: o.pick, odds: d,
       prob, research_prob: research, model_prob,
       edge: edgeRaw, eff_edge: edgeRaw * rel, rationale: o.rationale || '',
@@ -479,6 +517,20 @@ for (const r of perMatch.filter(Boolean)) {
   }
 }
 log(`${opps.length} opportunité(s) de marché détectée(s) sur ${perMatch.length} match(s).`);
+
+// FILTRE HARD (mémoire) : retire AVANT vérification les opportunités interdites par une
+// leçon exécutable (ex. favori 1X2 sur finale/dead rubber). Économise des agents ET
+// applique enfin la mémoire dans le moteur (correction Faille n°1).
+if (HARD_RULES.length) {
+  const _before = opps.length;
+  const _kept = [], _dropped = [];
+  for (const o of opps) { const why = droppedByHardRule(o); if (why) _dropped.push({ o, why }); else _kept.push(o); }
+  opps = _kept;
+  if (_dropped.length) {
+    log(`Règles hard : ${_dropped.length}/${_before} opportunité(s) EXCLUE(S) par la mémoire :`);
+    for (const d of _dropped) log(`  ✂ ${d.o.match} — ${d.o.market} / ${d.o.pick} [${d.why}]`);
+  }
+}
 
 // ================= PHASE 5 : Vérification adversariale =================
 phase('Vérification')
@@ -498,6 +550,9 @@ const allVerdicts = (await parallel(toVerify.map(o => () =>
     `(2) la cote ${o.odds} est-elle réelle/plausible, ET ce marché est-il RÉELLEMENT PROPOSÉ par ${BOOKMAKER} (${DOMAIN}) ? ` +
     `Vérifie via un comparateur affichant les cotes Betano.de (Oddspedia) : si le match OU ce marché n'est PAS jouable sur ${BOOKMAKER}, verdict=drop (odds_plausible=false). ` +
     `(3) le raisonnement tient-il (blessure majeure ignorée ? enjeu ? piège ?). ` +
+    `CONTEXTE du match : ${o.context_flag || 'normal'}.` + SOFT_BLOCK +
+    `\nQUESTION OBLIGATOIRE : une des leçons ci-dessus s'applique-t-elle à cette prédiction ? ` +
+    `Si oui et que l'argument ne la traite pas, verdict=drop. ` +
     `Sois sceptique : au moindre doute sérieux, ou si non jouable sur ${BOOKMAKER}, verdict=drop.`,
     { label: `verify:${o.id}`, phase: 'Vérification', schema: VERDICT_SCHEMA }
   ).then(v => ({ ...o, verdict: v }))
