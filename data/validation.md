@@ -3,7 +3,7 @@
 > Mode **PAPER** : 0 € misé. On mesure si les prédictions sont crédibles.
 > Ce rapport ne dit jamais « miser » — au mieux « REVIEW » (à analyser à froid).
 
-**Porte : `PAPER`** — PAPER : 3/100 prédictions, 3/80 réglées, CLV inconnu (requis > 0.0).
+**Porte : `PAPER`** — PAPER : 4/100 prédictions, 3/80 réglées, CLV inconnu (requis > 0.0).
 
 - Prédictions réglées : **3**
 - Réussite globale : **1/3** (33.3%)

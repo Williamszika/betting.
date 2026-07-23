@@ -1,6 +1,9 @@
 # Suivi des coupons — SportPredix
 
-**Bilan :** 1 🟢 · 2 🔴 · 0 ⏳ — réussite **33%**, ROI **-38.3%** (profit -1.15 u sur 3 u misées)
+**Bilan :** 1 🟢 · 2 🔴 · 1 ⏳ — réussite **33%**, ROI **-38.3%** (profit -1.15 u sur 3 u misées)
+
+### ⏳ 2026-07-24 — cote 2.60 (pending)
+- ⏳ Radomiak Radom vs Wieczysta Krakow — 1X2 - Resultat / Radomiak Radom (1) @ 2.6
 
 ### 🟢 2026-07-22 — cote 1.85 (won)
 - 🟢 Egnatia Rrogozhine vs Celje — Les deux equipes marquent (BTTS) / Oui @ 1.85
