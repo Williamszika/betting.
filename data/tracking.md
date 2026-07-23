@@ -1,9 +1,9 @@
 # Suivi des coupons — SportPredix
 
-**Bilan :** 0 🟢 · 2 🔴 · 1 ⏳ — réussite **0%**, ROI **-100.0%** (profit -2.00 u sur 2 u misées)
+**Bilan :** 1 🟢 · 2 🔴 · 0 ⏳ — réussite **33%**, ROI **-38.3%** (profit -1.15 u sur 3 u misées)
 
-### ⏳ 2026-07-22 — cote 1.85 (pending)
-- ⏳ Egnatia Rrogozhine vs Celje — Les deux equipes marquent (BTTS) / Oui @ 1.85
+### 🟢 2026-07-22 — cote 1.85 (won)
+- 🟢 Egnatia Rrogozhine vs Celje — Les deux equipes marquent (BTTS) / Oui @ 1.85
 
 ### 🔴 2026-07-19 — cote 2.45 (lost)
 - 🔴 Espagne vs Argentine — 1X2 (Resultat 90 min) / Espagne victoire (1) @ 2.45
