@@ -1,6 +1,9 @@
 # Suivi des coupons — SportPredix
 
-**Bilan :** 2 🟢 · 2 🔴 · 0 ⏳ — réussite **50%**, ROI **+11.3%** (profit +0.45 u sur 4 u misées)
+**Bilan :** 2 🟢 · 2 🔴 · 1 ⏳ — réussite **50%**, ROI **+11.3%** (profit +0.45 u sur 4 u misées)
+
+### ⏳ 2026-07-25 — cote 3.65 (pending)
+- ⏳ Vasco da Gama vs Mirassol — 1X2 - Resultat / Mirassol (2) @ 3.65
 
 ### 🟢 2026-07-24 — cote 2.60 (won)
 - 🟢 Radomiak Radom vs Wieczysta Krakow — 1X2 - Resultat / Radomiak Radom (1) @ 2.6
