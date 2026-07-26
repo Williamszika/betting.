@@ -1,9 +1,12 @@
 # Suivi des coupons — SportPredix
 
-**Bilan :** 2 🟢 · 2 🔴 · 1 ⏳ — réussite **50%**, ROI **+11.3%** (profit +0.45 u sur 4 u misées)
+**Bilan :** 2 🟢 · 3 🔴 · 0 ⏳ — réussite **40%**, ROI **-11.0%** (profit -0.55 u sur 5 u misées)
 
-### ⏳ 2026-07-25 — cote 3.65 (pending)
-- ⏳ Vasco da Gama vs Mirassol — 1X2 - Resultat / Mirassol (2) @ 3.65
+### 🔴 2026-07-25 — cote 3.65 (lost)
+- 🔴 Vasco da Gama vs Mirassol — 1X2 - Resultat / Mirassol (2) @ 3.65
+  - 🧠 **Rétro :** Vasco 1-1 Mirassol. Mirassol menait 1-0 (Formiga 30e) mais encaisse l'egalisation a la 80e (Gomez). Le nul fait perdre le pick Mirassol (2) @3.65. Les DEUX risques flagues sur la carte se sont materialises : rebond du nouveau coach de Vasco (egalisation tardive a domicile) et incapacite de Mirassol a tenir a l'exterieur (bilan 4pts/24 connu).
+    - ➕ à ajouter : VICTOIRE EXTERIEURE (pick 2 sec) : exiger un bilan exterieur au moins correct ; si bilan exterieur tres faible (ex. <30% des pts en deplacement), preferer Double Chance X2 / DNB ou s'abstenir — ne pas laisser H2H et forme domicile surponderer.
+    - ➕ à ajouter : Quand l'edge repose uniquement sur le modele (consensus serre, pas de sharp accessible), appliquer un discount supplementaire ou baisser la confiance sous le seuil de publication.
 
 ### 🟢 2026-07-24 — cote 2.60 (won)
 - 🟢 Radomiak Radom vs Wieczysta Krakow — 1X2 - Resultat / Radomiak Radom (1) @ 2.6
