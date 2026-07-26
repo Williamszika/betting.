@@ -65,4 +65,12 @@ Les 2 premiers paris du nouveau suivi PERDUS, tous deux des **favoris 1X2 dans d
 {"pattern": "finale|barrage", "field": "context_flag", "market": "1X2|R[eé]sultat|Vainqueur", "action": "exclude", "severity": "hard", "note": "Match atypique (finale / 3e place / barrage) : favori 1X2 interdit — nul/chaos tres probables (pertes France 6-4 et Espagne 0-0 a 90)"}
 ```
 
+## 2026-07-26 — Perte Mirassol (Vasco 1-1) : victoire extérieure sèche = mauvais véhicule
+Pick « Mirassol (2) » @3,65 perdu sur le nul (mené 1-0, Vasco égalise 80ᵉ). Les deux risques flaggés se sont réalisés (rebond nouveau coach, bilan extérieur 4 pts/24 incapable de tenir). La thèse « Mirassol supérieur » était correcte 80 minutes — le **véhicule** (2 sec) était le mauvais : un **X2/DNB** capturait la même thèse sans perdre sur le nul.
+- ➕ **VICTOIRE EXTÉRIEURE (pick 2 sec)** : exiger un bilan extérieur au moins correct ; si bilan extérieur très faible (<~30 % des points pris dehors), préférer **Double Chance X2 / DNB** ou s'abstenir — ne pas laisser H2H et forme surpondérer.
+```rule
+{"pattern": ".*", "field": "always", "market": "1X2|Vainqueur|R[eé]sultat", "action": "warn", "severity": "soft", "note": "Pick victoire EXTERIEURE seche : verifier le bilan exterieur reel de l'equipe ; s'il est tres faible (<30% des points pris dehors), preferer Double Chance X2 / Draw No Bet ou s'abstenir — H2H et forme ne compensent pas un bilan exterieur catastrophique (lecon Mirassol 1-1)"}
+```
+- ➕ **Edge « modèle seul »** : quand l'écart modèle/marché n'est corroboré par AUCUNE dislocation de cotes ni ligne sharp (Pinnacle inaccessible), appliquer un discount supplémentaire ou baisser la confiance sous le seuil de publication.
+
 _(les prochaines leçons s'ajoutent ici automatiquement)_
