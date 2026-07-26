@@ -1,0 +1,49 @@
+<title>Audit du run — SportPredix</title>
+<style>
+:root { color-scheme: light dark; }
+body { font-family: system-ui, sans-serif; margin: 0; padding: 1.4rem; line-height: 1.45; }
+h1 { font-size: 1.35rem; margin: 0 0 .2rem; } h2 { font-size: 1.05rem; margin: 1.3rem 0 .5rem; }
+.sub { opacity: .65; font-size: .85rem; margin-bottom: 1rem; }
+.kpi { display:flex; gap:.6rem; flex-wrap:wrap; margin:.6rem 0 1rem; }
+.kpi div { background: rgba(127,127,127,.1); border-radius:8px; padding:.5rem .8rem; }
+.kpi b { font-size:1.3rem; display:block; }
+table { border-collapse: collapse; width:100%; }
+td { padding:.28rem .5rem; border-bottom:1px solid rgba(127,127,127,.18); font-size:.92rem; }
+.num { text-align:right; font-variant-numeric: tabular-nums; font-weight:700; width:3rem; }
+.desc { opacity:.6; font-size:.85rem; }
+.funnel div.row { display:grid; grid-template-columns: 15rem 1fr; align-items:center; gap:.6rem; margin:.25rem 0; }
+.bar { position:relative; background: rgba(127,127,127,.12); border-radius:6px; height:1.5rem; }
+.fill { height:100%; border-radius:6px; }
+.bar span { position:absolute; right:.5rem; top:0; line-height:1.5rem; font-size:.82rem; font-weight:700; }
+.howto { background: rgba(37,99,235,.1); border-radius:8px; padding:.8rem 1rem; font-size:.92rem; }
+ul { margin:.3rem 0; padding-left:1.1rem; } li { margin:.15rem 0; font-size:.9rem; }
+.disc { margin-top:1.2rem; font-size:.78rem; opacity:.6; }
+</style>
+<h1>🔍 Audit du run — <code>wf_e900970e-261</code></h1>
+<div class='sub'>Trace complète : agents, travail, flux d'information, construction du coupon.</div>
+<div class='kpi'>
+  <div><b>20</b>agents lancés</div>
+  <div><b>20</b>terminés</div>
+  <div><b>0</b>échec/incomplets</div>
+  <div><b>19</b>matchs</div>
+  <div><b>7</b>opportunités</div>
+  <div><b>0</b>vérifiées 🟢</div>
+</div>
+<h2>👥 Qui a travaillé (par rôle)</h2>
+<table><tr><td>📚 Spécialiste recherche</td><td class='num'>12</td><td class='desc'>Collecte des données (forme, xG, H2H, cotes…)</td></tr><tr><td>🧩 Desk éditeur</td><td class='num'>3</td><td class='desc'>Réconcilie/vérifie les faits + stats chiffrées</td></tr><tr><td>📊 Analyste marchés</td><td class='num'>3</td><td class='desc'>Tous les marchés → opportunités de value (modèle croisé)</td></tr><tr><td>🔎 Découverte</td><td class='num'>1</td><td class='desc'>Trouve les vrais matchs du jour (Betano.de)</td></tr><tr><td>🕵️ Vérificateur</td><td class='num'>1</td><td class='desc'>Contrôle adversarial (match à venir ? cote ? logique ?)</td></tr></table>
+<h2>🔻 Flux d'information (entonnoir jusqu'au coupon)</h2>
+<div class='funnel'>
+  <div class='row'><span>🔎 Matchs découverts</span><div class='bar'><div class='fill' style='width:100%;background:#2563eb'></div><span>19</span></div></div>
+  <div class='row'><span>📚 Spécialistes (données)</span><div class='bar'><div class='fill' style='width:63%;background:#0891b2'></div><span>12</span></div></div>
+  <div class='row'><span>🧩 Fiches réconciliées</span><div class='bar'><div class='fill' style='width:15%;background:#7c3aed'></div><span>3</span></div></div>
+  <div class='row'><span>📊 Opportunités de value</span><div class='bar'><div class='fill' style='width:36%;background:#d97706'></div><span>7</span></div></div>
+  <div class='row'><span>🕵️ Gardées après vérif</span><div class='bar'><div class='fill' style='width:2%;background:#16a34a'></div><span>0</span></div></div>
+  <div class='row'><span>🔴 Écartées</span><div class='bar'><div class='fill' style='width:5%;background:#dc2626'></div><span>1</span></div></div>
+</div>
+<h2>🧮 Comment le coupon est créé</h2>
+<div class='howto'>PIPELINE & COMMENT LE COUPON EST CRÉÉ (version optimisée après audit) :<br>0. PRÉ-FILTRE : on retire AVANT analyse les amicaux et les compétitions peu fiables<br>   (fiabilité < 0,35 : ex. NBA Summer League 0,30 ❌) → moins de bruit, moins d'agents.<br>1. RECHERCHE : 4 spécialistes consolidés/match (stats+xG, effectif+tactique, contexte+H2H, cotes).<br>2. FUSION : 1 fiche de faits vérifiés + STATS chiffrées par match (desk).<br>3. MODÈLE : proba finale = BLEND(modèle Poisson/logistique, recherche).<br>4. VALUE : edge = proba × cote − 1, AJUSTÉ par la fiabilité (edge × fiabilité).<br>   Seuils : safe > 5 %, combiné > 6 %, agressif > 8 %. En-dessous = rejeté (pas de value « fake »).<br>5. VÉRIFICATION adversariale (allégée) : match à venir ? cote réelle ? cohérence ?<br>6. SOLVEUR : combinaison de jambes (matchs DISTINCTS) dans la fourchette (défaut 1,95–3),<br>   en MAXIMISANT la proba conjointe (le plus « sûr »).<br>7. COMBIEN : 1 coupon combiné/jour (+ jusqu'à 2 simples cote 5–7). Rien n'est forcé :<br>   si aucune combi ne rentre ou si rien ne passe → « rien à parier ».</div>
+<h2>⚽ Matchs analysés</h2>
+<ul><li><b>football</b> — CFR Cluj vs FC Voluntari <span class='desc'>(Roumanie – SuperLiga (J2))</span></li><li><b>football</b> — SK Artis Brno vs FK Mladá Boleslav <span class='desc'>(Tchéquie – Chance Liga (J1, match reporté))</span></li><li><b>football</b> — Dunav Ruse vs Ludogorets Razgrad <span class='desc'>(Bulgarie – efbet Liga (J1))</span></li><li><b>football</b> — Randers FC vs Silkeborg IF <span class='desc'>(Danemark – 3F Superliga (J1))</span></li><li><b>football</b> — Rosenborg BK vs Fredrikstad FK <span class='desc'>(Norvège – Eliteserien (J15))</span></li><li><b>football</b> — BK Häcken vs AIK <span class='desc'>(Suède – Allsvenskan (J14))</span></li><li><b>football</b> — Zagłębie Lubin vs Piast Gliwice <span class='desc'>(Pologne – PKO BP Ekstraklasa (J1))</span></li><li><b>football</b> — Miedź Legnica vs Podbeskidzie Bielsko-Biała <span class='desc'>(Pologne – Betclic 1. Liga / D2 (J1))</span></li><li><b>football</b> — Stabæk Fotball vs IL Hødd <span class='desc'>(Norvège – OBOS-ligaen / D2)</span></li><li><b>football</b> — MTK Budapest vs Zalaegerszegi TE <span class='desc'>(Hongrie – NB I / OTP Bank Liga (J1))</span></li><li><b>football</b> — Breiðablik vs ÍBV Vestmannaeyjar <span class='desc'>(Islande – Besta deild karla)</span></li><li><b>football</b> — CSKA Sofia vs Botev Plovdiv <span class='desc'>(Bulgarie – efbet Liga (J1))</span></li><li><b>football</b> — FC Botoșani vs FC Rapid București <span class='desc'>(Roumanie – SuperLiga (J2))</span></li><li><b>football</b> — KA Akureyri vs Þór Akureyri <span class='desc'>(Islande – Besta deild karla)</span></li><li><b>football</b> — Palmeiras vs Atlético Mineiro <span class='desc'>(Brésil – Brasileirão Betano Série A (20e journée))</span></li><li><b>football</b> — Clube do Remo vs EC Vitória <span class='desc'>(Brésil – Brasileirão Betano Série A (20e journée))</span></li><li><b>football</b> — Deportivo Riestra vs Boca Juniors <span class='desc'>(Argentine – Liga Profesional, Torneo Clausura (fecha 1))</span></li><li><b>football</b> — Necaxa vs CF Monterrey <span class='desc'>(Mexique – Liga MX, Apertura 2026 (J2))</span></li><li><b>football</b> — CF Pachuca vs Querétaro FC <span class='desc'>(Mexique – Liga MX, Apertura 2026 (J2))</span></li></ul>
+<h2>🔴 Pourquoi des paris ont été écartés (échantillon)</h2>
+<ul><li>🔴 <span class='desc'>(conf 0.82)</span> BETANO NON VERIFIE (motif principal de drop) : Oddspedia renvoie 403 sur tous les chemins testes (/football/czech-republic/1-liga, /de/fussball/tschechien/1-lig</li></ul>
+<div class='disc'>Audit généré depuis le journal du run. ESTIMATIONS — aucun pari n'est sûr.</div>
