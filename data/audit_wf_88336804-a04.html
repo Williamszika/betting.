@@ -1,0 +1,49 @@
+<title>Audit du run — SportPredix</title>
+<style>
+:root { color-scheme: light dark; }
+body { font-family: system-ui, sans-serif; margin: 0; padding: 1.4rem; line-height: 1.45; }
+h1 { font-size: 1.35rem; margin: 0 0 .2rem; } h2 { font-size: 1.05rem; margin: 1.3rem 0 .5rem; }
+.sub { opacity: .65; font-size: .85rem; margin-bottom: 1rem; }
+.kpi { display:flex; gap:.6rem; flex-wrap:wrap; margin:.6rem 0 1rem; }
+.kpi div { background: rgba(127,127,127,.1); border-radius:8px; padding:.5rem .8rem; }
+.kpi b { font-size:1.3rem; display:block; }
+table { border-collapse: collapse; width:100%; }
+td { padding:.28rem .5rem; border-bottom:1px solid rgba(127,127,127,.18); font-size:.92rem; }
+.num { text-align:right; font-variant-numeric: tabular-nums; font-weight:700; width:3rem; }
+.desc { opacity:.6; font-size:.85rem; }
+.funnel div.row { display:grid; grid-template-columns: 15rem 1fr; align-items:center; gap:.6rem; margin:.25rem 0; }
+.bar { position:relative; background: rgba(127,127,127,.12); border-radius:6px; height:1.5rem; }
+.fill { height:100%; border-radius:6px; }
+.bar span { position:absolute; right:.5rem; top:0; line-height:1.5rem; font-size:.82rem; font-weight:700; }
+.howto { background: rgba(37,99,235,.1); border-radius:8px; padding:.8rem 1rem; font-size:.92rem; }
+ul { margin:.3rem 0; padding-left:1.1rem; } li { margin:.15rem 0; font-size:.9rem; }
+.disc { margin-top:1.2rem; font-size:.78rem; opacity:.6; }
+</style>
+<h1>🔍 Audit du run — <code>wf_88336804-a04</code></h1>
+<div class='sub'>Trace complète : agents, travail, flux d'information, construction du coupon.</div>
+<div class='kpi'>
+  <div><b>25</b>agents lancés</div>
+  <div><b>25</b>terminés</div>
+  <div><b>0</b>échec/incomplets</div>
+  <div><b>35</b>matchs</div>
+  <div><b>7</b>opportunités</div>
+  <div><b>0</b>vérifiées 🟢</div>
+</div>
+<h2>👥 Qui a travaillé (par rôle)</h2>
+<table><tr><td>📚 Spécialiste recherche</td><td class='num'>12</td><td class='desc'>Collecte des données (forme, xG, H2H, cotes…)</td></tr><tr><td>🕵️ Vérificateur</td><td class='num'>6</td><td class='desc'>Contrôle adversarial (match à venir ? cote ? logique ?)</td></tr><tr><td>🧩 Desk éditeur</td><td class='num'>3</td><td class='desc'>Réconcilie/vérifie les faits + stats chiffrées</td></tr><tr><td>📊 Analyste marchés</td><td class='num'>3</td><td class='desc'>Tous les marchés → opportunités de value (modèle croisé)</td></tr><tr><td>🔎 Découverte</td><td class='num'>1</td><td class='desc'>Trouve les vrais matchs du jour (Betano.de)</td></tr></table>
+<h2>🔻 Flux d'information (entonnoir jusqu'au coupon)</h2>
+<div class='funnel'>
+  <div class='row'><span>🔎 Matchs découverts</span><div class='bar'><div class='fill' style='width:100%;background:#2563eb'></div><span>35</span></div></div>
+  <div class='row'><span>📚 Spécialistes (données)</span><div class='bar'><div class='fill' style='width:34%;background:#0891b2'></div><span>12</span></div></div>
+  <div class='row'><span>🧩 Fiches réconciliées</span><div class='bar'><div class='fill' style='width:8%;background:#7c3aed'></div><span>3</span></div></div>
+  <div class='row'><span>📊 Opportunités de value</span><div class='bar'><div class='fill' style='width:20%;background:#d97706'></div><span>7</span></div></div>
+  <div class='row'><span>🕵️ Gardées après vérif</span><div class='bar'><div class='fill' style='width:2%;background:#16a34a'></div><span>0</span></div></div>
+  <div class='row'><span>🔴 Écartées</span><div class='bar'><div class='fill' style='width:17%;background:#dc2626'></div><span>6</span></div></div>
+</div>
+<h2>🧮 Comment le coupon est créé</h2>
+<div class='howto'>PIPELINE & COMMENT LE COUPON EST CRÉÉ (version optimisée après audit) :<br>0. PRÉ-FILTRE : on retire AVANT analyse les amicaux et les compétitions peu fiables<br>   (fiabilité < 0,35 : ex. NBA Summer League 0,30 ❌) → moins de bruit, moins d'agents.<br>1. RECHERCHE : 4 spécialistes consolidés/match (stats+xG, effectif+tactique, contexte+H2H, cotes).<br>2. FUSION : 1 fiche de faits vérifiés + STATS chiffrées par match (desk).<br>3. MODÈLE : proba finale = BLEND(modèle Poisson/logistique, recherche).<br>4. VALUE : edge = proba × cote − 1, AJUSTÉ par la fiabilité (edge × fiabilité).<br>   Seuils : safe > 5 %, combiné > 6 %, agressif > 8 %. En-dessous = rejeté (pas de value « fake »).<br>5. VÉRIFICATION adversariale (allégée) : match à venir ? cote réelle ? cohérence ?<br>6. SOLVEUR : combinaison de jambes (matchs DISTINCTS) dans la fourchette (défaut 1,95–3),<br>   en MAXIMISANT la proba conjointe (le plus « sûr »).<br>7. COMBIEN : 1 coupon combiné/jour (+ jusqu'à 2 simples cote 5–7). Rien n'est forcé :<br>   si aucune combi ne rentre ou si rien ne passe → « rien à parier ».</div>
+<h2>⚽ Matchs analysés</h2>
+<ul><li><b>football</b> — Kairat Almaty vs Omonia Nicosie <span class='desc'>(UEFA Champions League – 2e tour de qualification (retour), Voie des champions)</span></li><li><b>football</b> — FK Kauno Zalgiris vs KI Klaksvik <span class='desc'>(UEFA Champions League – 2e tour de qualification (retour), Voie des champions)</span></li><li><b>football</b> — Lech Poznan vs AGF Aarhus <span class='desc'>(UEFA Champions League – 2e tour de qualification (retour), Voie des champions)</span></li><li><b>football</b> — Universitatea Craiova vs Levski Sofia <span class='desc'>(UEFA Champions League – 2e tour de qualification (retour), Voie des champions)</span></li><li><b>football</b> — Hapoel Beer-Sheva vs Vikingur Reykjavik <span class='desc'>(UEFA Champions League – 2e tour de qualification (retour), Voie des champions)</span></li><li><b>football</b> — Crvena Zvezda Belgrade vs Larne FC <span class='desc'>(UEFA Champions League – 2e tour de qualification (retour), Voie des champions)</span></li><li><b>football</b> — Gornik Zabrze vs Fenerbahce <span class='desc'>(UEFA Champions League – 2e tour de qualification (retour), Voie de la Ligue)</span></li><li><b>football</b> — Slovan Bratislava vs FC Iberia 1999 Tbilissi <span class='desc'>(UEFA Champions League – 2e tour de qualification (retour), Voie des champions)</span></li><li><b>football</b> — KF Dukagjini vs FC Lugano <span class='desc'>(UEFA Conference League – 2e tour de qualification (retour))</span></li><li><b>football</b> — FC Copenhague vs Polissya Jytomyr <span class='desc'>(UEFA Conference League – 2e tour de qualification (retour))</span></li><li><b>football</b> — Rapid Vienne vs FC Santa Coloma <span class='desc'>(UEFA Conference League – 2e tour de qualification (retour))</span></li><li><b>football</b> — Banfield vs Sarmiento de Junin <span class='desc'>(Argentine – Liga Profesional (Clausura, J2))</span></li><li><b>football</b> — San Lorenzo vs Gimnasia y Esgrima Mendoza <span class='desc'>(Argentine – Liga Profesional (Clausura, J2))</span></li><li><b>football</b> — Argentinos Juniors vs Estudiantes de Rio Cuarto <span class='desc'>(Argentine – Liga Profesional (Clausura, J2))</span></li><li><b>football</b> — Rosario Central vs Racing Club <span class='desc'>(Argentine – Liga Profesional (Clausura, J2))</span></li><li><b>football</b> — Barracas Central vs Aldosivi <span class='desc'>(Argentine – Liga Profesional (Clausura, J2))</span></li><li><b>football</b> — Defensa y Justicia vs Deportivo Riestra <span class='desc'>(Argentine – Liga Profesional (Clausura, J2))</span></li><li><b>football</b> — Club Atletico Tigre vs Nacional (Uruguay) <span class='desc'>(CONMEBOL Copa Sudamericana – barrages des huitiemes (play-offs))</span></li><li><b>football</b> — Santos FC vs Universidad Central (Venezuela) <span class='desc'>(CONMEBOL Copa Sudamericana – barrages des huitiemes (play-offs))</span></li><li><b>football</b> — EC Juventude vs Avai <span class='desc'>(Bresil – Serie B (J20))</span></li><li><b>football</b> — Ponte Preta vs Athletic Club (MG) <span class='desc'>(Bresil – Serie B (J20))</span></li><li><b>football</b> — Fortaleza vs Botafogo-SP <span class='desc'>(Bresil – Serie B (J20))</span></li><li><b>football</b> — Sportivo Luqueno vs Sportivo Trinidense <span class='desc'>(Paraguay – Copa de Primera (Clausura, J2))</span></li><li><b>football</b> — Club Nacional (Asuncion) vs Olimpia Asuncion <span class='desc'>(Paraguay – Copa de Primera (Clausura, J2))</span></li></ul>
+<h2>🔴 Pourquoi des paris ont été écartés (échantillon)</h2>
+<ul><li>🔴 <span class='desc'>(conf 0.82)</span> EDGE INVERSE AU SIGNE ANNONCE: overround verifie 7,29% sur 2.20/3.27/3.20 => fair domicile = 0,45455/1,07286 = 42,4%. Reconstruction sur meilleures lignes (2.26</li><li>🔴 <span class='desc'>(conf 0.82)</span> EDGE FABRIQUE PAR UN MODELE AUTO-DISQUALIFIE (motif principal du drop, LECON 3 partie 2). Le consensus fair O2.5 sur 8 books verifies en direct (Betano.de, bet-</li><li>🔴 <span class='desc'>(conf 0.82)</span> ERREUR FATALE - ajustement de correlation a l'envers : l'argument part de 0.82 x 0.70 = 0.574 (independance) puis MAJORE a 0.60-0.62 'pour la correlation positi</li><li>🔴 <span class='desc'>(conf 0.78)</span> THESE CENTRALE INVERSEE : 'le 1X2 bouge, le total ne bouge pas' n'est PAS une inefficience, c'est le comportement de marche le plus standard qui soit. Retirer l</li><li>🔴 <span class='desc'>(conf 0.78)</span> INVERSION LOGIQUE FATALE : l'argument central ('7 tirs cadres a 0' dans un 0-0) est un signal OVER, pas UNDER. 7 tirs cadres representent ~1.8-2.2 xG pour une s</li><li>🔴 <span class='desc'>(conf 0.78)</span> FIXTURE CONFIRMEE (le seul point solide). Wikipedia 2026-27 UCL qualifying + Oddsportal + Betexplorer concordent : Q2 Voie des champions, match 8. ALLER : Omoni</li></ul>
+<div class='disc'>Audit généré depuis le journal du run. ESTIMATIONS — aucun pari n'est sûr.</div>
