@@ -112,11 +112,16 @@ const DATA_SPEC = {
 function spec(m, key) { return (DATA_SPEC[m.sport] && DATA_SPEC[m.sport][key]) || DATA_SPEC.football[key]; }
 
 // 4 spécialistes CONSOLIDÉS (audit anti-surcollecte : moins d'agents, mêmes données).
+// 2 spécialistes FUSIONNÉS (option B) : 4 agents/match au lieu de 6 -> on peut analyser
+// ~50 % de matchs en plus à budget égal, sans perdre de rubrique (elles sont regroupées).
 const SPECIALISTS = [
-  { key: 'stats',    ask: (m) => spec(m, 'forme') + ' ' + spec(m, 'avance') },
-  { key: 'effectif', ask: (m) => spec(m, 'effectif') + ' ' + spec(m, 'tactique') },
-  { key: 'contexte', ask: (m) => spec(m, 'h2h') + ' ' + spec(m, 'externe') },
-  { key: 'marche',   ask: (m) => spec(m, 'marche') },
+  // Tout ce qui nourrit le MODÈLE (buts, xG, forme, effectif) : c'est de là que sortent
+  // les λ Poisson calculés EN CODE — d'où l'exigence de chiffres réels et sourcés.
+  { key: 'equipe', ask: (m) => spec(m, 'forme') + ' ' + spec(m, 'avance') + ' ' + spec(m, 'effectif') + ' ' + spec(m, 'tactique') +
+      ' CHIFFRE IMPÉRATIVEMENT (avec sources) : buts marqués/encaissés par match, xG/xGA, forme sur 5 (0-15), disponibilité (0-1), ELO estimé.' },
+  // Tout le contexte + le marché (cotes réelles, H2H, enjeu, conditions).
+  { key: 'contexte_marche', ask: (m) => spec(m, 'h2h') + ' ' + spec(m, 'externe') + ' ' + spec(m, 'marche') +
+      ' IMPORTANT : dans une confrontation ALLER-RETOUR, donne le score de l\'ALLER (une qualification déjà pliée change tout).' },
 ];
 
 // ---------- Fiabilité par compétition + seuils (port JS de src/sportsbet/reliability.py) ----------
@@ -170,17 +175,32 @@ function _clamp01(v) { return Math.max(0, Math.min(1, v)); }
 function _norm(v, lo, hi) { if (hi <= lo) return 0.5; return _clamp01((v - lo) / (hi - lo)); }
 function _num(v, d) { return (v === null || v === undefined || isNaN(Number(v))) ? d : Number(v); }
 function _poisPmf(k, lam) { let f = 1; for (let i = 2; i <= k; i++) f *= i; return Math.exp(-lam) * Math.pow(lam, k) / f; }
-function _footProbs(hx, ax, maxG = 10) {
+function _footProbs(hx, ax, maxG = 15) {
   const H = [], Aw = [];
   for (let i = 0; i <= maxG; i++) { H[i] = _poisPmf(i, hx); Aw[i] = _poisPmf(i, ax); }
-  let pH = 0, pD = 0, pA = 0, over = 0, btts = 0;
+  let pH = 0, pD = 0, pA = 0, btts = 0;
+  let o05 = 0, o15 = 0, o25 = 0, o35 = 0;
   for (let i = 0; i <= maxG; i++) for (let j = 0; j <= maxG; j++) {
-    const p = H[i] * Aw[j];
+    const p = H[i] * Aw[j], tot = i + j;
     if (i > j) pH += p; else if (i === j) pD += p; else pA += p;
-    if (i + j > 2.5) over += p;
+    if (tot > 0.5) o05 += p;
+    if (tot > 1.5) o15 += p;
+    if (tot > 2.5) o25 += p;
+    if (tot > 3.5) o35 += p;
     if (i > 0 && j > 0) btts += p;
   }
-  return { "1": pH, "X": pD, "2": pA, "Over 2.5": over, "Under 2.5": 1 - over, "BTTS Yes": btts, "BTTS No": 1 - btts };
+  // Marchés dérivés EN CODE (plus aucune proba « à la main » des agents).
+  const dnbH = pH + pA > 0 ? pH / (pH + pA) : 0.5;
+  return {
+    "1": pH, "X": pD, "2": pA,
+    "Over 0.5": o05, "Under 0.5": 1 - o05,
+    "Over 1.5": o15, "Under 1.5": 1 - o15,
+    "Over 2.5": o25, "Under 2.5": 1 - o25,
+    "Over 3.5": o35, "Under 3.5": 1 - o35,
+    "BTTS Yes": btts, "BTTS No": 1 - btts,
+    "DC 1X": pH + pD, "DC X2": pD + pA, "DC 12": pH + pA,
+    "DNB 1": dnbH, "DNB 2": 1 - dnbH,
+  };
 }
 function _expGoals(h, a, avg = 1.35) {
   const base = s => Math.max(0.2, (_num(s.goals_for, 1.3) + _num(s.xg, 1.3)) / 2);
@@ -232,19 +252,49 @@ function calibrateToMarket(model, implied, reliability, levelGap) {
 }
 function modelKeyFor(sport, market, pick) {
   const mk = (market || '').toLowerCase(), pk = (pick || '').toLowerCase();
+  const t = mk + ' | ' + pk;
   if (sport !== 'football') return null;
-  if (mk.includes('1x2') || mk.includes('resultat') || mk.includes('résultat')) {
-    if (pk === '1' || pk.includes('domicile') || pk.includes('(1)')) return '1';
-    if (pk === 'x' || pk.includes('nul') || pk.includes('draw')) return 'X';
-    if (pk === '2' || pk.includes('exterieur') || pk.includes('extérieur') || pk.includes('(2)')) return '2';
-  }
-  if (pk.includes('over 2.5') || pk.includes('over 2,5') || (mk.includes('2.5') && pk.includes('over'))) return 'Over 2.5';
-  if (pk.includes('under 2.5') || pk.includes('moins de 2,5') || (mk.includes('2.5') && (pk.includes('under') || pk.includes('moins')))) return 'Under 2.5';
-  if (mk.includes('btts') || mk.includes('deux equipes') || mk.includes('deux équipes')) {
+  // BTTS (avant 1X2 : "les deux équipes marquent" ne doit pas être pris pour un résultat)
+  if (mk.includes('btts') || t.includes('deux equipes marquent') || t.includes('deux équipes marquent')) {
     if (pk.includes('oui') || pk.includes('yes')) return 'BTTS Yes';
     if (pk.includes('non') || pk.includes('no')) return 'BTTS No';
   }
+  // Draw No Bet / handicap européen 0 (remboursé si nul)
+  if (t.includes('draw no bet') || t.includes('dnb') || t.includes('rembours') ||
+      (t.includes('handicap') && (t.includes(' 0') || t.includes('européen 0') || t.includes('europeen 0')))) {
+    if (pk.includes('1') || pk.includes('domicile')) return 'DNB 1';
+    if (pk.includes('2') || pk.includes('exterieur') || pk.includes('extérieur')) return 'DNB 2';
+  }
+  // Double Chance
+  if (mk.includes('double chance') || t.includes('double chance')) {
+    if (t.includes('1x') || (t.includes('nul') && (t.includes('domicile') || t.includes('(1)')))) return 'DC 1X';
+    if (t.includes('x2') || (t.includes('nul') && (t.includes('exterieur') || t.includes('extérieur') || t.includes('(2)')))) return 'DC X2';
+    if (t.includes('12')) return 'DC 12';
+  }
+  // Totaux de buts (0.5 / 1.5 / 2.5 / 3.5)
+  for (const line of ['0.5', '1.5', '2.5', '3.5']) {
+    const fr = line.replace('.', ',');
+    if (t.includes(line) || t.includes(fr)) {
+      if (pk.includes('over') || pk.includes('plus de') || pk.includes('+')) return `Over ${line}`;
+      if (pk.includes('under') || pk.includes('moins de') || pk.includes('-')) return `Under ${line}`;
+    }
+  }
+  // 1X2 en dernier
+  if (mk.includes('1x2') || mk.includes('resultat') || mk.includes('résultat') || mk.includes('vainqueur')) {
+    if (pk === 'x' || pk.includes('nul') || pk.includes('draw')) return 'X';
+    if (pk === '1' || pk.includes('domicile') || pk.includes('(1)')) return '1';
+    if (pk === '2' || pk.includes('exterieur') || pk.includes('extérieur') || pk.includes('(2)')) return '2';
+  }
   return null;
+}
+
+// Probabilité implicite DÉ-MARGÉE quand la cote adverse est fournie (corrige la
+// « value » née d'un overround ignoré — leçon 29/07 « edge inversé au signe annoncé »).
+function fairImplied(odds, oppositeOdds) {
+  const a = 1 / odds;
+  if (!oppositeOdds || oppositeOdds <= 1) return a;      // pas de dé-margeage possible
+  const b = 1 / oppositeOdds;
+  return a / (a + b);
 }
 
 // ---------- Schémas ----------
@@ -294,6 +344,7 @@ const MARKETS_SCHEMA = {
     opportunities: { type: 'array', items: { type: 'object', properties: {
       market: { type: 'string' }, pick: { type: 'string' },
       bookmaker: { type: 'string' }, decimal_odds: { type: 'number' },
+      opposite_odds: { type: 'number' },   // cote de l'issue OPPOSÉE -> dé-margeage en code
       est_probability: { type: 'number' }, rationale: { type: 'string' },
       based_on: { type: 'array', items: { type: 'string' } },
       sources: { type: 'array', items: { type: 'string' } },
@@ -465,6 +516,14 @@ const perMatch = await pipeline(
       `Pour chaque marché intéressant, récupère la COTE RÉELLE : d'abord ${BOOKMAKER} (${DOMAIN}) si visible, ` +
       `SINON un comparateur affichant les cotes Betano.de (Oddspedia) ou Flashscore / comparateur (oddsportal, betexplorer). ` +
       `Indique la source ET confirme que le marché est bien listé par ${BOOKMAKER} (le parieur doit pouvoir le jouer). ` +
+      `RÈGLE ABSOLUE (anti-edge fabriqué, leçons 28-29/07) : n'invente JAMAIS de paramètre ` +
+      `(pas de λ Poisson « choisi », pas de probabilité posée à la main pour arriver au résultat voulu). ` +
+      `C'est le MODÈLE DU CODE qui calcule la probabilité finale à partir des stats de la fiche — ` +
+      `ton est_probability n'est qu'un appoint (30 %) et doit être justifié par des DONNÉES CITÉES. ` +
+      `Ne propose QUE des marchés calculables par le modèle : 1X2, Double Chance, Draw No Bet, ` +
+      `Over/Under 0.5/1.5/2.5/3.5, BTTS. Tout autre marché sera rejeté automatiquement. ` +
+      `Fournis OBLIGATOIREMENT « opposite_odds » (la cote de l'issue opposée chez le même book) ` +
+      `pour que le code retire la marge du bookmaker : sans elle, un « edge » peut être un pur artefact d'overround. ` +
       `Garde uniquement les opportunités de VALUE (proba > implicite). ` +
       `Privilégie les cotes exploitables (simple ${SINGLE_MIN}-${SINGLE_MAX} ou jambe de combiné). ` +
       `N'invente JAMAIS une cote : cite toujours une source réelle. ` +
@@ -478,31 +537,39 @@ const perMatch = await pipeline(
 // Aplatir toutes les opportunités
 let opps = [];
 let idc = 0;
+const unmodeled = [];   // marchés non couverts par le modèle => rejetés (anti-edge fabriqué)
 for (const r of perMatch.filter(Boolean)) {
   const mm = r.modelMap;
   for (const o of r.markets) {
     const research = Number(o.est_probability) || 0;
     const d = Number(o.decimal_odds) || 0;
     if (research <= 0 || d <= 1) continue;
-    // Croisement modèle x recherche quand le marché est couvert par le modèle
+    // ANCRAGE MODÈLE (correctif « edges fabriqués », leçons 28-29/07) : la probabilité
+    // vient du MODÈLE calculé EN CODE à partir des stats de la fiche. La proba de l'agent
+    // ne pèse qu'en appoint (30 %). Un marché NON couvert par le modèle est REJETÉ :
+    // c'est là que naissaient les λ inventés et les edges au mauvais signe.
     let model_prob = null, prob = research;
-    if (mm) {
-      let key = modelKeyFor(r.m.sport, o.market, o.pick);
-      if (!key && r.m.sport !== 'football') {
-        const pk = (o.pick || '').toLowerCase();
-        const hw = (r.m.home || '').toLowerCase().split(' ')[0];
-        const aw = (r.m.away || '').toLowerCase().split(' ')[0];
-        if (hw && pk.includes(hw)) key = 'home';
-        else if (aw && pk.includes(aw)) key = 'away';
-      }
-      if (key && mm[key] != null) { model_prob = mm[key]; prob = blendP(model_prob, research, 0.5); }
+    let key = modelKeyFor(r.m.sport, o.market, o.pick);
+    if (!key && r.m.sport !== 'football') {
+      const pk = (o.pick || '').toLowerCase();
+      const hw = (r.m.home || '').toLowerCase().split(' ')[0];
+      const aw = (r.m.away || '').toLowerCase().split(' ')[0];
+      if (hw && pk.includes(hw)) key = 'home';
+      else if (aw && pk.includes(aw)) key = 'away';
     }
-    // CALIBRAGE marché : considérer la compétition (fiabilité) + l'écart de niveau (ELO).
+    if (!mm || !key || mm[key] == null) {
+      unmodeled.push(`${r.m.home} vs ${r.m.away} — ${o.market} / ${o.pick}`);
+      continue;                                   // pas de modèle => pas de prédiction
+    }
+    model_prob = mm[key];
+    prob = blendP(model_prob, research, 0.7);     // 70 % modèle / 30 % recherche
+    // CALIBRAGE marché : proba implicite DÉ-MARGÉE si la cote adverse est fournie.
     const rel0 = compReliability(r.m.competition, r.m.sport);
     const st = r.sheet && r.sheet.stats;
     let eloGap = 0;
     if (st && st.home && st.away && st.home.elo && st.away.elo) eloGap = Math.abs(Number(st.home.elo) - Number(st.away.elo));
-    prob = calibrateToMarket(prob, 1 / d, rel0, eloGap);
+    const implied = fairImplied(d, Number(o.opposite_odds) || 0);
+    prob = calibrateToMarket(prob, implied, rel0, eloGap);
     const rel = compReliability(r.m.competition, r.m.sport);
     const edgeRaw = prob * d - 1;
     opps.push({
@@ -517,6 +584,10 @@ for (const r of perMatch.filter(Boolean)) {
   }
 }
 log(`${opps.length} opportunité(s) de marché détectée(s) sur ${perMatch.length} match(s).`);
+if (unmodeled.length) {
+  log(`Ancrage modèle : ${unmodeled.length} proposition(s) REJETÉE(S) (marché non calculable par le modèle -> proba « à la main » refusée) :`);
+  for (const u of unmodeled.slice(0, 8)) log(`  ✂ ${u}`);
+}
 
 // FILTRE HARD (mémoire) : retire AVANT vérification les opportunités interdites par une
 // leçon exécutable (ex. favori 1X2 sur finale/dead rubber). Économise des agents ET
