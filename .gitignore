@@ -8,3 +8,5 @@ venv/
 .mypy_cache/
 data/cache/
 *.log
+node_modules/
+package-lock.json
