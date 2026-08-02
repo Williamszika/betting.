@@ -26,6 +26,11 @@ from .features import (
 from .probability import elo as elo_mod, poisson
 
 
+#: Avantage du terrain en log-espace (γ). ~0.20 = +10,5 % domicile / −9,5 % extérieur.
+#: Valeur post-2020 (l'avantage du terrain a baissé depuis les huis clos).
+HOME_ADV_GAMMA = 0.20
+
+
 def elo_1x2(home_elo: float, away_elo: float, home_adv: float = 65.0) -> Dict[str, float]:
     """1X2 dérivé des notes ELO (avec un modèle de nul).
 
@@ -61,10 +66,18 @@ def expected_goals(home: TeamStats, away: TeamStats,
     def avail_factor(s: TeamStats) -> float:
         return 0.80 + 0.20 * max(0.0, min(1.0, s.availability))  # 0.80 – 1.00
 
+    # AVANTAGE DU TERRAIN — SYMÉTRIQUE (correctif majeur, audit 02/08).
+    # L'ancien code multipliait le domicile par 1.10 SANS rien retirer à l'extérieur,
+    # alors que base_attack mélange déjà domicile et extérieur : λ_extérieur était
+    # gonflé de ~12,5 %, soit +6,25 pts de proba sur toutes les victoires à
+    # l'extérieur (explique les pertes Mirassol, Espagne, France).
+    # Forme standard de la littérature : exp(+γ/2) domicile, exp(-γ/2) extérieur.
+    h_adv = math.exp(HOME_ADV_GAMMA / 2.0)      # ≈ 1.105 pour γ = 0.20
+    a_adv = math.exp(-HOME_ADV_GAMMA / 2.0)     # ≈ 0.905
     home_xg = (base_attack(home) * opp_def_factor(away)
-               * form_factor(home) * avail_factor(home) * 1.10)  # bonus domicile
+               * form_factor(home) * avail_factor(home) * h_adv)
     away_xg = (base_attack(away) * opp_def_factor(home)
-               * form_factor(away) * avail_factor(away))
+               * form_factor(away) * avail_factor(away) * a_adv)
     return max(0.2, home_xg), max(0.2, away_xg)
 
 
