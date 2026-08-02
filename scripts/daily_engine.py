@@ -55,18 +55,30 @@ LABELS = {
 }
 
 
-def fetch_fixtures(retries: int = 4) -> list[dict]:
-    """ClubElo renvoie parfois 503 : on réessaie."""
-    for _ in range(retries):
+CACHE = ROOT / "data" / "cache" / "clubelo_fixtures.csv"
+
+
+def fetch_fixtures(retries: int = 6) -> list[dict]:
+    """ClubElo renvoie fréquemment 503 : on réessaie, puis on retombe sur le
+    cache disque. Le workflow ne doit jamais dépendre d'un appel unique."""
+    import time
+    for attempt in range(retries):
         try:
             out = subprocess.run(
                 ["curl", "-sS", "-m", "30", "-A", "Mozilla/5.0", FIXTURES_URL],
                 capture_output=True, timeout=45,
             ).stdout.decode("utf-8", "replace")
-            if len(out) > 1000:
+            if len(out) > 1000 and out.startswith("Date,"):
+                CACHE.parent.mkdir(parents=True, exist_ok=True)
+                CACHE.write_text(out, encoding="utf-8")
                 return list(csv.DictReader(io.StringIO(out)))
         except Exception:
             pass
+        time.sleep(1.5 * (attempt + 1))
+    if CACHE.exists():                       # repli : dernier téléchargement réussi
+        print(f"[info] ClubElo indisponible — utilisation du cache {CACHE.name}",
+              file=sys.stderr)
+        return list(csv.DictReader(io.StringIO(CACHE.read_text(encoding="utf-8"))))
     return []
 
 
@@ -147,8 +159,33 @@ def main(argv: list[str]) -> None:
         date = datetime.date.today().isoformat()
     omin = float(argv[argv.index("--min") + 1]) if "--min" in argv else 1.75
     omax = float(argv[argv.index("--max") + 1]) if "--max" in argv else 3.00
+    n_short = int(argv[argv.index("--shortlist") + 1]) if "--shortlist" in argv else 3
 
     res = build(date, omin, omax)
+
+    # --json : sortie machine pour l'ÉTAGE 2 (agents de vérification contextuelle).
+    # On ne transmet que la SHORTLIST : les agents ne travaillent que sur ces lignes.
+    if "--json" in argv:
+        import json
+        short, used = [], set()
+        for c in res["candidates"]:
+            if c["match"] in used:
+                continue
+            used.add(c["match"])
+            short.append({
+                "country": c["country"], "home": c["home"], "away": c["away"],
+                "market": c["market"], "label": c["label"],
+                "prob": round(c["prob"], 4), "fair_odds": round(c["fair"], 2),
+                "min_odds": round(c["need"], 2),
+                "lambda_home": round(c["lh"], 2), "lambda_away": round(c["la"], 2),
+                "clubelo_gap": round(c["gap"], 4),
+            })
+            if len(short) >= n_short:
+                break
+        print(json.dumps({"date": date, "matches": res["matches"],
+                          "candidates": len(res["candidates"]),
+                          "shortlist": short}, ensure_ascii=False, indent=2))
+        return
     print(f"=== MOTEUR SPORTPREDIX — {date} ===")
     print(f"Matchs ClubElo : {res['matches']} | candidats dans [{omin}–{omax}] : {len(res['candidates'])}\n")
 
