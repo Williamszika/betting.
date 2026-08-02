@@ -113,8 +113,17 @@ PYTHONPATH=src python3 scripts/coupon.py --date 2026-08-03 --combine
 PYTHONPATH=src python3 scripts/coupon.py --date 2026-08-03
 ```
 
-Sortie : `data/coupons/coupon_<date>.html`, fichier autonome (aucune dépendance
-externe), lisible en clair et en sombre, imprimable.
+Deux fichiers sont produits à chaque fois :
+
+| Fichier | Usage |
+|---|---|
+| `data/coupons/coupon_<date>.html` | consultation, impression, clair/sombre |
+| `data/coupons/coupon_<date>.png` | **partage WhatsApp / Telegram / SMS** |
+
+Le PNG est capturé par Chromium en mode headless puis **recadré à la hauteur du
+contenu** (sans ce recadrage, le coupon flotterait au sommet d'une image trois
+fois trop haute). Largeur 1400 px, lisible sur téléphone.
+`--no-png` saute la capture si seule la version HTML est voulue.
 
 | Statut | Signification |
 |---|---|

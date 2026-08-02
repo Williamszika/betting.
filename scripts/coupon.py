@@ -110,6 +110,16 @@ def rendu(st: dict, sels: list[dict], date: str, combine: bool) -> str:
         recap = ""
         gain = sum(s["stake"] * s["eff_odds"] for s in joues)
 
+    # Une fois le coupon réglé, le retour n'est plus « potentiel » : il vaut ce
+    # qui a réellement été encaissé. Un combiné perdu rapporte zéro, même si le
+    # produit des cotes reste affiché plus haut.
+    regle = lib != "EN ATTENTE"
+    if regle:
+        if combine and len(joues) > 1:
+            gain = gain if lib == "GAGNÉ" else 0.0
+        else:
+            gain = sum(s.get("payout", 0.0) for s in joues)
+
     d0 = datetime.date.fromisoformat(st["start"])
     jour = (datetime.date.fromisoformat(date) - d0).days + 1
 
@@ -195,6 +205,52 @@ def rendu(st: dict, sels: list[dict], date: str, combine: bool) -> str:
 </div>"""
 
 
+CHROME = "/opt/pw-browsers/chromium-1194/chrome-linux/chrome"
+FOND_CLAIR = (241, 245, 249)      # #f1f5f9, le fond de page
+
+
+def en_image(html_path: Path, png_path: Path, largeur: int = 700) -> bool:
+    """Capture le coupon en PNG partageable (WhatsApp, Telegram, SMS).
+
+    Chromium ne sait pas ajuster sa fenêtre à la hauteur du contenu : on
+    capture large, puis on recadre sur le contenu réel. Sans ce recadrage, le
+    coupon flotte au sommet d'une image trois fois trop haute.
+    """
+    import subprocess
+    ch = Path(CHROME)
+    if not ch.exists():
+        print(f"[info] Chromium introuvable ({CHROME}) — PNG non généré", file=sys.stderr)
+        return False
+    png_path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        subprocess.run(
+            [str(ch), "--headless", "--disable-gpu", "--no-sandbox", "--hide-scrollbars",
+             "--force-device-scale-factor=2", f"--window-size={largeur},2400",
+             f"--screenshot={png_path}", f"file://{html_path.resolve()}"],
+            capture_output=True, timeout=120,
+        )
+    except Exception as e:
+        print(f"[info] capture impossible : {e}", file=sys.stderr)
+        return False
+    if not png_path.exists():
+        return False
+
+    try:
+        from PIL import Image
+    except ImportError:
+        return True                     # image brute, sans recadrage
+    im = Image.open(png_path).convert("RGB")
+    w, h = im.size
+    bas = h
+    for y in range(h - 1, 0, -1):       # remonter jusqu'au dernier pixel de contenu
+        ligne = im.crop((0, y, w, y + 1)).getcolors(w) or []
+        if not (len(ligne) == 1 and ligne[0][1] == FOND_CLAIR):
+            bas = min(h, y + 48)        # marge sous le ticket
+            break
+    im.crop((0, 0, w, bas)).save(png_path, "PNG", optimize=True)
+    return True
+
+
 def main(argv: list[str]) -> None:
     etat = Path(argv[argv.index("--state") + 1]) if "--state" in argv \
         else ROOT / "data" / "protocol.json"
@@ -221,6 +277,11 @@ def main(argv: list[str]) -> None:
     print(f"Coupon écrit : {out}")
     print(f"  {len(sels)} sélection(s) · {len(joues)} jouée(s) · "
           f"mise {mise:.2f} € · statut {lib if joues else 'AUCUNE MISE'}")
+
+    if "--no-png" not in argv:
+        png = out.with_suffix(".png")
+        if en_image(out, png):
+            print(f"Image partageable : {png}")
 
 
 if __name__ == "__main__":
