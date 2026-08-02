@@ -82,9 +82,14 @@ def fetch_fixtures(retries: int = 6) -> list[dict]:
     return []
 
 
-def lambdas(row: dict) -> tuple[float, float]:
-    """λ domicile / extérieur déduits de la distribution de scores ClubElo."""
-    lh = la = tot = 0.0
+def score_cells(row: dict) -> dict[tuple[int, int], float]:
+    """Distribution de scores exacts publiée par ClubElo (28 cellules, ~97,8 %).
+
+    On l'utilise TELLE QUELLE. La collapser en λ puis la reconstruire en Poisson
+    déformait ClubElo de 5 points sur la victoire domicile et de 2 points sur
+    « les deux équipes marquent » — assez pour fabriquer de faux avantages.
+    """
+    cells = {}
     for k, v in row.items():
         if not k.startswith("R:"):
             continue
@@ -92,7 +97,14 @@ def lambdas(row: dict) -> tuple[float, float]:
             p = float(v)
         except (TypeError, ValueError):
             continue
-        i, j = map(int, k[2:].split("-"))
+        cells[tuple(map(int, k[2:].split("-")))] = p
+    return cells
+
+
+def lambdas(row: dict) -> tuple[float, float]:
+    """λ domicile / extérieur — sert à compléter la QUEUE de la distribution."""
+    lh = la = tot = 0.0
+    for (i, j), p in score_cells(row).items():
         lh += p * i
         la += p * j
         tot += p
@@ -110,15 +122,42 @@ def clubelo_1x2(row: dict) -> tuple[float, float, float]:
     return (h / s, d / s, a / s) if s else (0.34, 0.33, 0.33)
 
 
+def drop_duplicate_fixtures(rows: list[dict]) -> tuple[list[dict], list[str]]:
+    """Écarte les matchs listés DEUX FOIS avec domicile/extérieur inversés.
+
+    Constaté le 03/08/2026 : ClubElo publiait « Shakhtar – Kudrivka » ET
+    « Kudrivka – Shakhtar », avec des probabilités identiques. Au moins une des
+    deux lignes attribue donc l'avantage du terrain à la mauvaise équipe, et on
+    ne peut pas savoir laquelle. Pire : sans ce contrôle, le moteur pouvait
+    proposer les deux lignes comme un combiné à deux jambes — le MÊME match
+    deux fois, parfaitement corrélé, présenté comme une diversification.
+
+    On ne devine pas : on écarte les deux.
+    """
+    vues: dict[tuple, list[dict]] = {}
+    for r in rows:
+        vues.setdefault(tuple(sorted((r.get("Home", ""), r.get("Away", "")))), []).append(r)
+    gardes, ecartes = [], []
+    for paire, lignes in vues.items():
+        if len(lignes) > 1:
+            ecartes.append(" / ".join(f"{x['Home']} – {x['Away']}" for x in lignes))
+        else:
+            gardes.extend(lignes)
+    return gardes, ecartes
+
+
 def build(date: str, odds_min: float, odds_max: float, max_legs: int = 2) -> dict:
     rows = [r for r in fetch_fixtures() if r.get("Date") == date]
+    rows, doublons = drop_duplicate_fixtures(rows)
+    for d in doublons:
+        print(f"[alerte] match listé deux fois par ClubElo, écarté : {d}", file=sys.stderr)
     if not rows:
         return {"date": date, "matches": 0, "candidates": [], "coupon": []}
 
     cands = []
     for r in rows:
         lh, la = lambdas(r)
-        mk = M.all_goal_markets(lh, la, rho=-0.10)
+        mk = M.all_goal_markets(lh, la, rho=-0.10, cells=score_cells(r))
         ch, cd, ca = clubelo_1x2(r)
         # [3] CONTRÔLE : désaccord fort avec la référence => on écarte le match
         gap = max(abs(mk["1"] - ch), abs(mk["X"] - cd), abs(mk["2"] - ca))

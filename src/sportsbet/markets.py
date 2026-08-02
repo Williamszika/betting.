@@ -68,11 +68,62 @@ def score_matrix(lh: float, la: float, rho: float = -0.10,
     return m
 
 
+def matrix_from_cells(cells: Dict[tuple[int, int], float],
+                      lh: float, la: float, rho: float = -0.10,
+                      max_goals: int = MAX_GOALS) -> list[list[float]]:
+    """Matrice de scores construite sur une distribution RÉELLE fournie.
+
+    ClubElo publie 28 cellules de score exact couvrant ~97,8 % de la masse.
+    Les collapser en un simple λ puis les reconstruire en Poisson **détruit de
+    l'information** : la corrélation entre les buts des deux équipes disparaît.
+    Mesuré sur Celtic – Dundee (03/08/2026), cela sous-estimait « les deux
+    équipes marquent » de 2,1 points — assez pour fabriquer un faux avantage
+    de moitié et déclencher une mise sur du vide.
+
+    On garde donc les cellules réelles telles quelles, et on ne complète que la
+    QUEUE non couverte (scores élevés) avec Poisson–Dixon-Coles, remise à
+    l'échelle de la masse résiduelle.
+    """
+    if not cells:
+        return score_matrix(lh, la, rho, max_goals)
+
+    m = [[0.0] * (max_goals + 1) for _ in range(max_goals + 1)]
+    couvert = 0.0
+    for (i, j), p in cells.items():
+        if 0 <= i <= max_goals and 0 <= j <= max_goals and p > 0:
+            m[i][j] = p
+            couvert += p
+
+    reste = max(0.0, 1.0 - couvert)
+    if reste > 1e-9:
+        pois = score_matrix(lh, la, rho, max_goals)
+        masse = sum(pois[i][j] for i in range(max_goals + 1)
+                    for j in range(max_goals + 1) if (i, j) not in cells)
+        if masse > 0:
+            for i in range(max_goals + 1):
+                for j in range(max_goals + 1):
+                    if (i, j) not in cells:
+                        m[i][j] = pois[i][j] / masse * reste
+
+    tot = sum(sum(r) for r in m)
+    if tot > 0:
+        for i in range(max_goals + 1):
+            for j in range(max_goals + 1):
+                m[i][j] /= tot
+    return m
+
+
 # ────────────────────────── Tous les marchés « buts » ──────────────────────────
 
-def all_goal_markets(lh: float, la: float, rho: float = -0.10) -> Dict[str, float]:
-    """TOUS les marchés dérivables de la matrice de scores."""
-    m = score_matrix(lh, la, rho)
+def all_goal_markets(lh: float, la: float, rho: float = -0.10,
+                     cells: Dict[tuple[int, int], float] | None = None
+                     ) -> Dict[str, float]:
+    """TOUS les marchés dérivables de la matrice de scores.
+
+    ``cells`` : distribution de scores réelle (ClubElo). Fournie, elle prime sur
+    la reconstruction Poisson — voir ``matrix_from_cells``.
+    """
+    m = matrix_from_cells(cells, lh, la, rho) if cells else score_matrix(lh, la, rho)
     n = len(m)
     out: Dict[str, float] = {}
 
