@@ -83,6 +83,18 @@ def cmd_add(argv: list[str]) -> None:
         plan = BK.plan_stake(st["bankroll"], prob, odds,
                              fraction=st.get("kelly_fraction", 0.20),
                              mode=st.get("tax_mode", "gross"))
+
+    # VETO CONTEXTUEL — le calcul dit oui, le terrain dit non.
+    # Quand notre probabilité repose sur une donnée que le marché a déjà
+    # dépassée (effondrement récent, changement d'entraîneur, cascade de
+    # blessures), l'écart au marché n'est pas un avantage : c'est notre
+    # retard. On enregistre la prédiction pour la calibration, mise à zéro.
+    veto = argv[argv.index("--veto") + 1] if "--veto" in argv else ""
+    if veto:
+        plan = BK.StakePlan(0.0, False, f"VETO CONTEXTUEL — {veto}",
+                            prob=prob, odds=odds, eff_odds=plan.eff_odds,
+                            min_odds=plan.min_odds, edge=plan.edge,
+                            kelly_full=plan.kelly_full, bankroll=st["bankroll"])
     rec = {
         "id": p["id"], "date": p["date"], "match": p["match"],
         "competition": p.get("competition", ""), "market": p["market"],

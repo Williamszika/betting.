@@ -52,6 +52,28 @@
       "result": "pending",
       "settled": null,
       "payout": 0.0
+    },
+    {
+      "id": "2026-08-03-3",
+      "date": "2026-08-03",
+      "match": "FCSB – Farul",
+      "competition": "ROU Superliga J3",
+      "market": "1",
+      "label": "Victoire FCSB",
+      "prob": 0.606,
+      "odds": 1.82,
+      "market_prob": 0.535,
+      "market_ref": "Betano 1.82/3.75/4.40, marge 4,3 % retiree (methode puissance)",
+      "eff_odds": 1.724,
+      "min_odds": 1.74,
+      "edge": 0.0445,
+      "kelly_full": 0.0615,
+      "stake": 0.0,
+      "playable": false,
+      "stake_reason": "VETO CONTEXTUEL — FCSB elimine 7-3 par Auda le 30/07, quatre jours avant. Elo ClubElo perime : le marche a integre l'effondrement, pas notre modele.",
+      "result": "pending",
+      "settled": null,
+      "payout": 0.0
     }
   ],
   "bankroll_history": [

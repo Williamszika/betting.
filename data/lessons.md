@@ -74,3 +74,21 @@ Pick « Mirassol (2) » @3,65 perdu sur le nul (mené 1-0, Vasco égalise 80ᵉ)
 - ➕ **Edge « modèle seul »** : quand l'écart modèle/marché n'est corroboré par AUCUNE dislocation de cotes ni ligne sharp (Pinnacle inaccessible), appliquer un discount supplémentaire ou baisser la confiance sous le seuil de publication.
 
 _(les prochaines leçons s'ajoutent ici automatiquement)_
+
+## 03/08/2026 — Un fort désaccord avec le marché est d'abord une alerte, pas une opportunité
+
+Le moteur donnait FCSB vainqueur à 60,6 % contre 53,5 % pour le marché : +7,1 points,
+cote Betano 1,82 au-dessus du seuil de rentabilité (1,74). Premier pari mathématiquement
+jouable du protocole.
+
+Vérification du contexte : **FCSB avait été éliminé 7-3 par FK Auda (Lettonie) le
+30 juillet**, quatre jours avant — 2-3 à domicile puis 1-4 en Lettonie, club en crise
+ouverte. L'Elo de ClubElo bouge de quelques points après un match ; le marché, lui,
+avait intégré l'effondrement immédiatement.
+
+L'écart de 7 points ne mesurait pas un avantage : il mesurait **notre retard
+d'information**. Le pari a été enregistré pour la calibration, mise 0 €.
+
+```rule
+{"pattern": ".*", "field": "market_gap", "market": ".*", "action": "exclude", "severity": "hard", "note": "Ecart >5 points entre le modele et le marche : chercher OBLIGATOIREMENT un evenement recent sur les 10 derniers jours (elimination europeenne, changement d'entraineur, cascade de blessures, crise interne). Sans explication trouvee ET verifiee, la ligne n'est PAS jouable — le marche integre l'information plus vite qu'un classement Elo (lecon FCSB elimine 7-3 par Auda quatre jours avant : ecart de 7 points qui mesurait notre retard, pas un avantage)"}
+```
