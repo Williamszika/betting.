@@ -95,3 +95,35 @@ l'enregistre quand même comme prédiction (pour la calibration) mais avec
 
 Conséquence : avec 10 €, seules les lignes à **fort edge** (>12 %) ou à **cote
 élevée** franchissent le minimum. C'est une contrainte du capital, pas du modèle.
+
+---
+
+## 🎟️ Le coupon téléchargeable
+
+Généré juste après le workflow, régénéré après les résultats :
+
+```bash
+# après la prédiction (20h) — statut « en attente »
+PYTHONPATH=src python3 scripts/coupon.py --date 2026-08-03
+
+# combiné plutôt que simples séparés
+PYTHONPATH=src python3 scripts/coupon.py --date 2026-08-03 --combine
+
+# après la vérification (8h) — MÊME commande, le statut se met à jour
+PYTHONPATH=src python3 scripts/coupon.py --date 2026-08-03
+```
+
+Sortie : `data/coupons/coupon_<date>.html`, fichier autonome (aucune dépendance
+externe), lisible en clair et en sombre, imprimable.
+
+| Statut | Signification |
+|---|---|
+| ⏳ EN ATTENTE | match(s) pas encore joué(s) |
+| 🟢 GAGNÉ | toutes les sélections passent |
+| 🔴 PERDU | au moins une sélection tombe |
+| ⚪ ANNULÉ | match annulé, mise rendue |
+| 🚫 AUCUNE MISE | prédictions émises mais aucune jouable |
+
+**Simple ou combiné.** En combiné, les cotes se multiplient — les probabilités
+aussi. Deux paris à 55 % font un combiné à 30 %, pas à 55 %. Le coupon l'affiche
+en toutes lettres pour que ce ne soit jamais une surprise.
