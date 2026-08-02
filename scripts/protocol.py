@@ -68,14 +68,31 @@ def cmd_add(argv: list[str]) -> None:
     if any(x["id"] == p["id"] for x in st["predictions"]):
         print(f"La prédiction {p['id']} existe déjà."); return
 
-    plan = BK.plan_stake(st["bankroll"], float(p["prob"]), float(p["odds"]),
-                         fraction=st.get("kelly_fraction", 0.20),
-                         mode=st.get("tax_mode", "gross"))
+    prob = float(p["prob"])
+    odds = float(p.get("odds") or 0.0)
+
+    # Cote non relevée : on enregistre quand même. La prédiction ne rapporte
+    # rien mais elle compte pour la CALIBRATION, qui ne dépend pas du prix.
+    if odds <= 1.0:
+        plan = BK.StakePlan(
+            0.0, False, "cote Betano non relevée — enregistré pour la calibration",
+            prob=prob, odds=0.0, eff_odds=0.0,
+            min_odds=BK.min_odds_for_breakeven(prob, st.get("tax_mode", "gross")),
+            bankroll=st["bankroll"])
+    else:
+        plan = BK.plan_stake(st["bankroll"], prob, odds,
+                             fraction=st.get("kelly_fraction", 0.20),
+                             mode=st.get("tax_mode", "gross"))
     rec = {
         "id": p["id"], "date": p["date"], "match": p["match"],
         "competition": p.get("competition", ""), "market": p["market"],
         "label": p.get("label", p["market"]),
-        "prob": round(float(p["prob"]), 4), "odds": float(p["odds"]),
+        "prob": round(prob, 4), "odds": odds,
+        # Probabilité IMPLICITE DU MARCHÉ, marge retirée. C'est la seule
+        # référence qui dise si le modèle apporte quelque chose ou s'il
+        # récite le consensus. Facultative : souvent introuvable.
+        "market_prob": round(float(p["market_prob"]), 4) if p.get("market_prob") else None,
+        "market_ref": p.get("market_ref", ""),
         "eff_odds": round(plan.eff_odds, 3), "min_odds": round(plan.min_odds, 2),
         "edge": round(plan.edge, 4), "kelly_full": round(plan.kelly_full, 4),
         "stake": plan.stake, "playable": plan.playable, "stake_reason": plan.reason,
@@ -88,9 +105,14 @@ def cmd_add(argv: list[str]) -> None:
                                        "amount": -plan.stake, "balance": st["bankroll"]})
     _save(st)
     flag = f"MISE {plan.stake:.2f} €" if plan.playable else "NON JOUABLE"
+    cote = f"cote {rec['odds']:.2f}" if rec["odds"] > 1 else "cote non relevée"
     print(f"[{rec['id']}] {rec['match']} — {rec['label']}")
-    print(f"  proba {rec['prob']*100:.1f}% | cote {rec['odds']:.2f} (min {rec['min_odds']:.2f}) "
+    print(f"  proba {rec['prob']*100:.1f}% | {cote} (min {rec['min_odds']:.2f}) "
           f"| edge {rec['edge']*100:+.1f}% | {flag}")
+    if rec["market_prob"]:
+        d = (rec["prob"] - rec["market_prob"]) * 100
+        print(f"  marché {rec['market_prob']*100:.1f}% ({rec['market_ref']}) "
+              f"→ écart {d:+.1f} pts")
     print(f"  {plan.reason}")
 
 
@@ -158,8 +180,10 @@ def cmd_report(argv: list[str]) -> None:
     if settled:
         print(f"  Résultats    : {len(won)} 🟢 / {len(settled)-len(won)} 🔴  "
               f"({len(won)/len(settled)*100:.0f} % de réussite)")
+    sans_cote = [p for p in preds if p["odds"] <= 1]
+    sous_seuil = [p for p in preds if not p["playable"] and p["odds"] > 1]
     print(f"  Jouables     : {len(played)} misées sur {len(settled)} réglées "
-          f"({len([p for p in preds if not p['playable']])} sous le seuil de rentabilité)")
+          f"| {len(sous_seuil)} sous le seuil | {len(sans_cote)} sans cote relevée")
 
     if settled:
         print("\n  ── CALIBRATION (le modèle dit-il vrai ?) ──")
@@ -174,13 +198,40 @@ def cmd_report(argv: list[str]) -> None:
             print(f"    {b}-{b+10}% | n={len(g):3d} | prédit {pred:5.1f}% | "
                   f"réel {real:5.1f}% | écart {real-pred:+5.1f} pts")
 
+    # ── LE MODÈLE BAT-IL LE MARCHÉ ? ───────────────────────────────────────
+    # Une calibration parfaite ne prouve RIEN si elle ne fait que recopier les
+    # cotes. La seule question qui compte : notre probabilité s'écarte-t-elle
+    # du marché, et quand elle s'en écarte, a-t-elle raison ?
+    vs = [p for p in preds if p.get("market_prob")]
+    if vs:
+        gaps = [abs(p["prob"] - p["market_prob"]) for p in vs]
+        moy = sum(gaps) / len(gaps) * 100
+        print(f"\n  ── FACE AU MARCHÉ (n={len(vs)}) ──")
+        print(f"    Écart absolu moyen : {moy:.1f} pts")
+        if moy < 1.5:
+            print("    → le modèle RÉCITE le marché. Aucun avantage possible :")
+            print("      on paie la marge du bookmaker pour la même information.")
+        vs_reg = [p for p in vs if p["result"] in ("won", "lost")]
+        if vs_reg:
+            desac = [p for p in vs_reg if abs(p["prob"] - p["market_prob"]) >= 0.03]
+            if desac:
+                gagne = sum(1 for p in desac
+                            if (p["result"] == "won") == (p["prob"] > p["market_prob"]))
+                print(f"    Désaccords ≥3 pts : {len(desac)} | "
+                      f"le modèle a eu raison {gagne}/{len(desac)} fois "
+                      f"({gagne/len(desac)*100:.0f} %)")
+                print("      (50 % = le désaccord est du bruit ; il faut nettement plus)")
+            else:
+                print("    Aucun désaccord ≥3 pts encore réglé.")
+
     if preds:
         print("\n  ── 10 DERNIÈRES ──")
         for p in preds[-10:]:
             ic = {"won": "🟢", "lost": "🔴", "void": "⚪", "pending": "⏳"}[p["result"]]
             st_txt = f"{p['stake']:.2f}€" if p["playable"] else "  —  "
+            cote = f"@{p['odds']:5.2f}" if p["odds"] > 1 else "  n/d "
             print(f"    {ic} {p['date']} {p['match'][:34]:34s} {p['label'][:24]:24s} "
-                  f"@{p['odds']:.2f} {st_txt}")
+                  f"{cote} {st_txt}")
 
 
 def main(argv: list[str]) -> None:

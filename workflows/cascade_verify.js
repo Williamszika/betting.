@@ -43,6 +43,10 @@ const VERDICT_SCHEMA = {
     betano_odds: { type: 'number' },          // cote relevée (0 si introuvable)
     odds_source: { type: 'string' },
     beats_min_odds: { type: 'boolean' },      // cote relevée >= min_odds du moteur ?
+    // Probabilité IMPLICITE DU MARCHÉ, marge retirée. C'est le seul chiffre qui
+    // dise si le modèle apporte une information ou s'il récite le consensus.
+    market_prob: { type: 'number' },          // 0 si aucune cote de référence
+    market_ref: { type: 'string' },           // bookmaker + cotes brutes + marge
     context_notes: { type: 'array', items: { type: 'string' } },
     issues: { type: 'array', items: { type: 'string' } },
   },
@@ -79,6 +83,16 @@ const checked = (await parallel(SHORTLIST.map((s) => () =>
     `Si la cote est INTROUVABLE, mets betano_odds=0 et signale-le — ne devine pas.\n` +
     `4) COHÉRENCE : le marché « ${s.label} » est-il bien proposé par ${BOOK} sur cette compétition ? ` +
     `(sur les petits championnats, l'offre se limite souvent à 1X2/DC/O-U/BTTS).\n` +
+    `5) RÉFÉRENCE DE MARCHÉ — LE CONTRÔLE LE PLUS IMPORTANT. Relève les cotes 1X2 ` +
+    `d'un bookmaker à faible marge (Pinnacle en priorité, sinon Bet365) sur ce match. ` +
+    `RETIRE LA MARGE : somme des probabilités brutes (1/cote), puis divise chaque ` +
+    `probabilité par cette somme. Déduis-en la probabilité de marché du marché « ${s.label} » ` +
+    `si elle est déductible du 1X2 (1, X, 2, doubles chances, DNB le sont ; ` +
+    `BTTS et Over/Under ne le sont PAS — dans ce cas relève directement la cote de ce marché). ` +
+    `Renseigne market_prob (0 si aucune référence trouvée) et market_ref ` +
+    `(bookmaker + cotes brutes + marge calculée). NE DEVINE JAMAIS ce chiffre : ` +
+    `un market_prob inventé est pire qu'un market_prob absent, car il ferait croire ` +
+    `à un avantage inexistant. Sans cote de référence : market_prob=0.\n` +
     SOFT +
     `\nSois sceptique et FACTUEL. Au moindre doute sérieux sur la tenue du match ou sur ` +
     `l'existence du marché : verdict=drop. Une cote sous le minimum n'est PAS un drop en soi ` +
@@ -110,6 +124,7 @@ const writeup = await agent(
     proba: `${(k.prob * 100).toFixed(1)}%`, cote_min: k.min_odds,
     cote_betano: k.check.betano_odds || 'introuvable',
     au_dessus_du_seuil: k.check.beats_min_odds === true,
+    proba_marche: k.check.market_prob || 'non relevée', reference: k.check.market_ref || '',
     contexte: k.check.context_flag, notes: (k.check.context_notes || []).slice(0, 3),
   }))).slice(0, 4000)}\n` +
   `Lignes ÉCARTÉES : ${JSON.stringify(dropped.map((d) => ({
@@ -123,6 +138,10 @@ const writeup = await agent(
   `- Si aucune cote ne dépasse son seuil, dis-le franchement : « rien de jouable aujourd'hui, ` +
   `les cotes offertes sont sous le seuil de rentabilité » — c'est un résultat utile.\n` +
   `- Rappelle que la cote minimale intègre la taxe allemande de 5,3 %.\n` +
+  `- ÉCART AU MARCHÉ : quand une proba de marché a été relevée, compare-la à celle du ` +
+  `moteur et dis-le franchement. Moins de 1,5 point d'écart = le modèle récite le ` +
+  `consensus, il ne peut structurellement pas battre la marge. C'est le constat le ` +
+  `plus utile de la journée, ne l'enterre pas.\n` +
   `- Mode PAPER, 0 € misé. ESTIMATIONS, pas des certitudes. Pas d'incitation à miser.`,
   { label: 'redaction', phase: 'Verdict' }
 )
@@ -136,6 +155,11 @@ return {
     prob: k.prob, fair_odds: k.fair_odds, min_odds: k.min_odds,
     betano_odds: k.check.betano_odds || null,
     beats_min_odds: k.check.beats_min_odds === true,
+    market_prob: k.check.market_prob || null,
+    market_ref: k.check.market_ref || '',
+    // Écart au consensus : < 1,5 pt = le modèle récite le marché.
+    market_gap: k.check.market_prob
+      ? Math.round((k.prob - k.check.market_prob) * 1000) / 10 : null,
     context_flag: k.check.context_flag || 'normal',
     confidence: k.check.confidence,
     notes: k.check.context_notes || [],
