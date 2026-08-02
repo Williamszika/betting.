@@ -18,6 +18,7 @@ import datetime
 import json
 import sys
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
@@ -26,6 +27,43 @@ from sportsbet import bankroll as BK  # noqa: E402
 
 STATE = ROOT / "data" / "protocol.json"
 DAYS = 100
+
+#: Fuseau de référence — celui du parieur, pas celui du stade.
+TZ = ZoneInfo("Europe/Berlin")
+
+#: Durée d'un match, coup d'envoi → coup de sifflet final.
+#: 45 + 15 + 45 minutes, plus les arrêts de jeu : 2 h couvre largement.
+DUREE_MATCH = datetime.timedelta(hours=2)
+
+
+def fin_de_match(kickoff_iso: str) -> datetime.datetime | None:
+    """Heure de FIN du match, dans le fuseau du parieur."""
+    if not kickoff_iso:
+        return None
+    try:
+        ko = datetime.datetime.fromisoformat(kickoff_iso)
+    except ValueError:
+        return None
+    if ko.tzinfo is None:                     # sans fuseau : on suppose l'heure locale
+        ko = ko.replace(tzinfo=TZ)
+    return (ko + DUREE_MATCH).astimezone(TZ)
+
+
+def date_de_verification(kickoff_iso: str, date_repli: str) -> str:
+    """Le LENDEMAIN de la fin du match — pas le lendemain du coup d'envoi.
+
+    Un match à 21h30 finit vers 23h30 : vérification le lendemain. Mais un match
+    à 22h45 finit APRÈS MINUIT, donc un jour calendaire plus tard — le vérifier
+    « le lendemain de la date affichée » reviendrait à le contrôler quelques
+    heures seulement après le coup de sifflet, parfois avant.
+    """
+    fin = fin_de_match(kickoff_iso)
+    base = fin.date() if fin else datetime.date.fromisoformat(date_repli)
+    return (base + datetime.timedelta(days=1)).isoformat()
+
+
+def maintenant() -> datetime.datetime:
+    return datetime.datetime.now(TZ)
 
 
 def _load() -> dict:
@@ -95,10 +133,18 @@ def cmd_add(argv: list[str]) -> None:
                             prob=prob, odds=odds, eff_odds=plan.eff_odds,
                             min_odds=plan.min_odds, edge=plan.edge,
                             kelly_full=plan.kelly_full, bankroll=st["bankroll"])
+    ko = p.get("kickoff", "")
+    fin = fin_de_match(ko)
     rec = {
         "id": p["id"], "date": p["date"], "match": p["match"],
         "competition": p.get("competition", ""), "market": p["market"],
         "label": p.get("label", p["market"]),
+        # Heure du coup d'envoi telle que fournie (avec son fuseau d'origine),
+        # convertie chez le parieur, plus la date à laquelle on pourra vérifier.
+        "kickoff": ko,
+        "kickoff_local": fin and (fin - DUREE_MATCH).isoformat(timespec="minutes") or "",
+        "fin_local": fin.isoformat(timespec="minutes") if fin else "",
+        "verifiable_le": date_de_verification(ko, p["date"]),
         "prob": round(prob, 4), "odds": odds,
         # Probabilité IMPLICITE DU MARCHÉ, marge retirée. C'est la seule
         # référence qui dise si le modèle apporte quelque chose ou s'il
@@ -141,6 +187,19 @@ def cmd_settle(argv: list[str]) -> None:
     if rec["result"] != "pending":
         print(f"{pid} déjà réglée ({rec['result']})."); return
 
+    # GARDE-FOU HORAIRE — ne jamais régler un match qui n'est pas fini.
+    # Un score relevé en cours de match est un score faux : c'est exactement
+    # ainsi qu'on enregistre une victoire sur un match qui finit 2-2.
+    fin = fin_de_match(rec.get("kickoff", ""))
+    if fin and maintenant() < fin and "--force" not in argv:
+        reste = fin - maintenant()
+        h, m = divmod(int(reste.total_seconds() // 60), 60)
+        print(f"⛔ {pid} — {rec['match']} n'est pas terminé "
+              f"(fin prévue {fin:%d/%m à %Hh%M}, dans {h}h{m:02d}).")
+        print("   Le régler maintenant enregistrerait un score en cours. "
+              "Utiliser --force uniquement si le match est réellement fini.")
+        return
+
     rec["result"] = res
     rec["settled"] = datetime.date.today().isoformat()
     rec["score"] = score
@@ -164,6 +223,42 @@ def cmd_settle(argv: list[str]) -> None:
     _save(st)
     icon = {"won": "🟢", "lost": "🔴", "void": "⚪"}.get(res, "?")
     print(f"{icon} {pid} {rec['match']} — {res} {score} | bankroll {st['bankroll']:.2f} €")
+
+
+def cmd_pending(argv: list[str]) -> None:
+    """Ce qui est PRÊT à être vérifié — et ce qui doit encore attendre.
+
+    La règle : on vérifie le lendemain de la FIN du match. Cette commande
+    répond donc à la seule question utile au rendez-vous de 8h : sur quoi
+    puis-je travailler ce matin ?
+    """
+    st = _load()
+    if not st:
+        print("Protocole non initialisé."); return
+    now = maintenant()
+    aujourdhui = now.date().isoformat()
+    prets, attente = [], []
+    for p in st["predictions"]:
+        if p["result"] != "pending":
+            continue
+        (prets if p.get("verifiable_le", p["date"]) <= aujourdhui else attente).append(p)
+
+    print(f"── {now:%A %d/%m %Hh%M} (heure de Berlin) ──\n")
+    if prets:
+        print(f"✅ PRÊT À VÉRIFIER ({len(prets)}) :")
+        for p in prets:
+            fin = p.get("fin_local", "")[:16].replace("T", " ")
+            print(f"   {p['id']}  {p['match'][:34]:34s} {p['label'][:26]:26s}"
+                  + (f"  fini {fin}" if fin else ""))
+    else:
+        print("✅ PRÊT À VÉRIFIER : rien.")
+    if attente:
+        print(f"\n⏳ PAS ENCORE ({len(attente)}) :")
+        for p in attente:
+            ko = p.get("kickoff_local", "")[:16].replace("T", " ")
+            print(f"   {p['id']}  {p['match'][:34]:34s} "
+                  + (f"coup d'envoi {ko}  " if ko else "")
+                  + f"→ vérifiable le {p.get('verifiable_le', p['date'])}")
 
 
 def cmd_report(argv: list[str]) -> None:
@@ -249,7 +344,7 @@ def cmd_report(argv: list[str]) -> None:
 def main(argv: list[str]) -> None:
     cmd = argv[1] if len(argv) > 1 else "report"
     {"init": cmd_init, "add": cmd_add, "settle": cmd_settle,
-     "report": cmd_report}.get(cmd, cmd_report)(argv)
+     "pending": cmd_pending, "report": cmd_report}.get(cmd, cmd_report)(argv)
 
 
 if __name__ == "__main__":

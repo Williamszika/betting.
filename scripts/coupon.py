@@ -48,6 +48,16 @@ def statut_coupon(sels: list[dict]) -> tuple[str, str, str, str]:
     return STATUTS["pending"]
 
 
+def heure_txt(s: dict) -> str:
+    """Coup d'envoi À L'HEURE DU PARIEUR, pas à celle du stade.
+
+    Un match roumain à 21h30 se joue à 20h30 en Allemagne : afficher l'heure
+    locale du stade ferait rater le coup d'envoi.
+    """
+    ko = (s.get("kickoff_local") or "")[11:16]
+    return f"· <b>{ko}</b>" if ko else ""
+
+
 def ligne_html(s: dict, i: int, n: int) -> str:
     lib, coul, fond, ico = STATUTS.get(s["result"], STATUTS["pending"])
     veto = "VETO" in (s.get("stake_reason") or "").upper()
@@ -68,6 +78,7 @@ def ligne_html(s: dict, i: int, n: int) -> str:
         <span class="badge" style="color:{coul};background:{fond}">{ico} {lib}</span>
       </div>
       <div class="compet">{html.escape(s.get('competition', ''))}
+        {heure_txt(s)}
         {('· ' + html.escape(s.get('score', ''))) if s.get('score') else ''}</div>
       <div class="pari">{html.escape(s['label'])}</div>
       <div class="chiffres">

@@ -29,7 +29,11 @@
       "stake_reason": "cote Betano non relevée — enregistré pour la calibration",
       "result": "pending",
       "settled": null,
-      "payout": 0.0
+      "payout": 0.0,
+      "kickoff": "2026-08-03T19:30:00+01:00",
+      "kickoff_local": "2026-08-03T20:30+02:00",
+      "fin_local": "2026-08-03T22:30+02:00",
+      "verifiable_le": "2026-08-04"
     },
     {
       "id": "2026-08-03-2",
@@ -51,7 +55,11 @@
       "stake_reason": "cote Betano non relevée — enregistré pour la calibration",
       "result": "pending",
       "settled": null,
-      "payout": 0.0
+      "payout": 0.0,
+      "kickoff": "2026-08-03T21:15:00+03:00",
+      "kickoff_local": "2026-08-03T20:15+02:00",
+      "fin_local": "2026-08-03T22:15+02:00",
+      "verifiable_le": "2026-08-04"
     },
     {
       "id": "2026-08-03-3",
@@ -73,7 +81,11 @@
       "stake_reason": "VETO CONTEXTUEL — FCSB elimine 7-3 par Auda le 30/07, quatre jours avant. Elo ClubElo perime : le marche a integre l'effondrement, pas notre modele.",
       "result": "pending",
       "settled": null,
-      "payout": 0.0
+      "payout": 0.0,
+      "kickoff": "2026-08-03T21:30:00+03:00",
+      "kickoff_local": "2026-08-03T20:30+02:00",
+      "fin_local": "2026-08-03T22:30+02:00",
+      "verifiable_le": "2026-08-04"
     }
   ],
   "bankroll_history": [

@@ -35,7 +35,10 @@
    Une ligne validée mais dont la cote Betano est SOUS la cote minimale reste enregistrée —
    elle sera marquée non jouable par le calcul de mise. C'est voulu : la calibration
    se mesure sur toutes les prédictions, la bankroll seulement sur les jouables.
-7) ENREGISTREMENT — pour chaque ligne, écris un JSON {id, date, match, competition, market, label, prob, odds}
+7) ENREGISTREMENT — pour chaque ligne, écris un JSON {id, date, match, competition, market,
+   label, prob, odds, kickoff}. `kickoff` = coup d'envoi en ISO AVEC SON FUSEAU D'ORIGINE
+   (ex. "2026-08-03T21:30:00+03:00" pour un match roumain) — il détermine la date de
+   vérification. Sans lui, un match de fin de soirée serait contrôlé un jour trop tôt.
    (id = "<AAAA-MM-JJ>-<n>", odds = cote Betano relevée, à défaut la cote juste), puis :
    `PYTHONPATH=src python3 scripts/protocol.py add --file <fichier>`
    La mise est calculée automatiquement (Kelly 1/5, taxe 5,3 %, plafond 5 %, minimum 0,20 €).
@@ -51,8 +54,11 @@
 [RENDEZ-VOUS 8h — PROTOCOLE 100 JOURS] Vérifie les résultats des prédictions dont le match est terminé. Mode PAPER. Tu es dans /home/user/betting..
 
 1) git fetch origin && git checkout claude/sports-prediction-agents-wcwmiw && git pull
-2) Ouvre data/protocol.json. Prends les prédictions result="pending" dont la date est
-   ANTÉRIEURE à aujourd'hui. Si aucune → « rien à vérifier », stop.
+2) `PYTHONPATH=src python3 scripts/protocol.py pending` — la commande liste ce qui est
+   PRÊT à vérifier et ce qui doit encore attendre. On vérifie le lendemain de la FIN du
+   match (coup d'envoi + 2 h), PAS le lendemain de la date affichée : un match à 22h45
+   se termine après minuit, donc un jour calendaire plus tard. Si rien n'est prêt →
+   « rien à vérifier », stop.
 3) Vérifie le VRAI résultat sur le web (score final, source nommée). Détermine
    won / lost / void pour le marché exact. En cas de doute sur le score : ne règle pas,
    redemande demain. Ne devine jamais.
