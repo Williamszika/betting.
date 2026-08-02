@@ -167,21 +167,37 @@ def main(argv: list[str]) -> None:
     # On ne transmet que la SHORTLIST : les agents ne travaillent que sur ces lignes.
     if "--json" in argv:
         import json
-        short, used = [], set()
-        for c in res["candidates"]:
-            if c["match"] in used:
-                continue
-            used.add(c["match"])
-            short.append({
-                "country": c["country"], "home": c["home"], "away": c["away"],
-                "market": c["market"], "label": c["label"],
-                "prob": round(c["prob"], 4), "fair_odds": round(c["fair"], 2),
-                "min_odds": round(c["need"], 2),
-                "lambda_home": round(c["lh"], 2), "lambda_away": round(c["la"], 2),
-                "clubelo_gap": round(c["gap"], 4),
-            })
+        # DIVERSIFICATION DES PRIX (correctif 02/08).
+        # Trier par probabilité décroissante donnait 3 lignes au MÊME point de
+        # prix (cote juste ~1,77). Or une ligne n'est jouable que si Betano paie
+        # au-dessus de fair / 0,947 — jamais le cas sur un favori. En balayant
+        # des tranches de cote distinctes, l'étage 2 échantillonne plusieurs
+        # niveaux de prix et a une vraie chance de tomber sur un décalage.
+        bands = [(omin, 2.0), (2.0, 2.4), (2.4, omax)]
+        short, used, seen_band = [], set(), set()
+        pool = sorted(res["candidates"], key=lambda c: -c["prob"])
+        for lo, hi in bands:
+            for c in pool:
+                if c["match"] in used or not (lo <= c["fair"] < hi):
+                    continue
+                used.add(c["match"])
+                seen_band.add((lo, hi))
+                short.append(c)
+                break
+        for c in pool:                       # compléter si une tranche est vide
             if len(short) >= n_short:
                 break
+            if c["match"] not in used:
+                used.add(c["match"])
+                short.append(c)
+        short = [{
+            "country": c["country"], "home": c["home"], "away": c["away"],
+            "market": c["market"], "label": c["label"],
+            "prob": round(c["prob"], 4), "fair_odds": round(c["fair"], 2),
+            "min_odds": round(c["need"], 2),
+            "lambda_home": round(c["lh"], 2), "lambda_away": round(c["la"], 2),
+            "clubelo_gap": round(c["gap"], 4),
+        } for c in short[:n_short]]
         print(json.dumps({"date": date, "matches": res["matches"],
                           "candidates": len(res["candidates"]),
                           "shortlist": short}, ensure_ascii=False, indent=2))
