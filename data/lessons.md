@@ -132,3 +132,22 @@ d'information — pas un avantage.
 
 Un cas ne prouve rien statistiquement. Mais le mécanisme est validé : la règle
 `desaccord-fort-vaut-alerte` a fait exactement ce pour quoi elle a été écrite.
+
+## 04/08/2026 — Le banc d'essai réfute le nul et mesure l'avantage du marché
+
+Rejeu de 35 000 matchs sur 11 championnats, calibration apprise sur 2015-2020 et
+appliquée hors échantillon sur 2021-2025.
+
+**Acquis** : la calibration ramène l'erreur de 5,3 pts à **0,8 pt**. Le modèle
+compressait ses probabilités vers le milieu (75 % annoncé pour 89,5 % réel).
+
+**Réfuté** : le nul semblait rentable sur les 5 grands (ROI +1,40 %, CLV +0,89 %,
+z = 2,60) — il donne **−11,40 %** sur six championnats jamais utilisés. Trois issues
+testées, une positive : c'est le résultat attendu du hasard.
+
+**Mesuré** : 0,8 pt d'erreur sur toutes les prédictions, ~12 pts sur les paris
+sélectionnés. Cet écart est l'avantage informationnel du marché.
+
+```rule
+{"pattern": ".*", "field": "always", "market": ".*", "action": "warn", "severity": "soft", "note": "Un resultat positif trouve en testant plusieurs variantes doit etre reteste sur des donnees JAMAIS utilisees avant d'etre cru. Le nul ressortait a +1,40 % de ROI et +0,89 % de CLV sur les 5 grands championnats, avec z = 2,60 : il donne -11,40 % sur six championnats independants. Tester trois issues et en garder la meilleure produit un faux positif par construction"}
+```
