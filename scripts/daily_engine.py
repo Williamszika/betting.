@@ -27,7 +27,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from sportsbet import markets as M  # noqa: E402
+from sportsbet import fetch as F, markets as M  # noqa: E402
 
 TAX_FACTOR = 0.947          # Betano répercute 5,3 % sur le gain
 FIXTURES_URL = "http://api.clubelo.com/Fixtures"   # HTTP obligatoire (pas de HTTPS)
@@ -72,26 +72,21 @@ def fetch_fixtures(retries: int = 4) -> list[dict]:
     échoué faute d'accès — pas faute de matchs. Jina Reader résout ce cas
     structurellement : il interroge ClubElo en HTTP depuis SES serveurs et nous
     répond en HTTPS.
+
+    La chaîne d'accès vit dans ``sportsbet.fetch`` (14 tests) et n'est PAS
+    réécrite ici : dupliquer la logique reviendrait à faire tourner en
+    production une version que les tests ne couvrent pas.
     """
     import time
-    voies = [("direct", FIXTURES_URL),
-             ("jina", "https://r.jina.ai/" + FIXTURES_URL)]
     for attempt in range(retries):
-        for nom, url in voies:
-            try:
-                out = subprocess.run(
-                    ["curl", "-sSL", "-m", "40", "-A", "Mozilla/5.0", url],
-                    capture_output=True, timeout=60,
-                ).stdout.decode("utf-8", "replace")
-            except Exception:
-                continue
-            csv_txt = _csv_utile(out)
-            if len(csv_txt) > 1000:
-                if nom != "direct":
-                    print(f"[info] ClubElo atteint via {nom}", file=sys.stderr)
-                CACHE.parent.mkdir(parents=True, exist_ok=True)
-                CACHE.write_text(csv_txt, encoding="utf-8")
-                return list(csv.DictReader(io.StringIO(csv_txt)))
+        page = F.lire(FIXTURES_URL, timeout=40)      # chaîne testée : Jina puis curl
+        csv_txt = _csv_utile(page.contenu)
+        if len(csv_txt) > 1000:
+            if page.backend != "curl":
+                print(f"[info] ClubElo atteint via {page.backend}", file=sys.stderr)
+            CACHE.parent.mkdir(parents=True, exist_ok=True)
+            CACHE.write_text(csv_txt, encoding="utf-8")
+            return list(csv.DictReader(io.StringIO(csv_txt)))
         time.sleep(1.5 * (attempt + 1))
     if CACHE.exists():                       # repli : dernier téléchargement réussi
         print(f"[info] ClubElo indisponible sur toutes les voies — cache {CACHE.name}",
