@@ -92,3 +92,34 @@ d'information**. Le pari a été enregistré pour la calibration, mise 0 €.
 ```rule
 {"pattern": ".*", "field": "market_gap", "market": ".*", "action": "exclude", "severity": "hard", "note": "Ecart >5 points entre le modele et le marche : chercher OBLIGATOIREMENT un evenement recent sur les 10 derniers jours (elimination europeenne, changement d'entraineur, cascade de blessures, crise interne). Sans explication trouvee ET verifiee, la ligne n'est PAS jouable — le marche integre l'information plus vite qu'un classement Elo (lecon FCSB elimine 7-3 par Auda quatre jours avant : ecart de 7 points qui mesurait notre retard, pas un avantage)"}
 ```
+
+## 04/08/2026 — « 1 & Over 2.5 » est un combiné déguisé en simple
+
+Celtic – Dundee, prédiction « Domicile gagne + plus de 2,5 buts » à 57,0 % : **perdue**
+sur un 1-0. Or la thèse principale était JUSTE — Celtic a gagné, comme le modèle lui
+donnait 83 % de le faire. C'est la seconde condition, les buts, qui a tout emporté.
+
+Un marché « 1 & Over 2.5 » exige DEUX événements. Le vendre comme une sélection unique
+masque qu'on multiplie deux probabilités : 83 % × 71 % ≈ 59 %. La même conviction jouée
+en « victoire Celtic » sec aurait gagné.
+
+Le contre-argument est réel : « victoire Celtic » cotait 1,17, donc injouable. Mais la
+réponse à un favori trop court n'est pas d'y accoler une condition supplémentaire pour
+gonfler la cote — c'est de ne pas jouer le match.
+
+```rule
+{"pattern": "&|\\bet\\b|combo", "field": "market", "market": ".*", "action": "warn", "severity": "soft", "note": "Marche a DEUX conditions (« 1 & Over 2.5 », « 1 & BTTS ») : c'est un combine deguise en simple. Verifier que CHAQUE condition tient separement et ne pas s'en servir pour gonfler la cote d'un favori trop court -- la reponse a un favori a 1,17 est de ne pas jouer le match (lecon Celtic 1-0 : these principale juste, pari perdu sur la seconde condition)"}
+```
+
+## 04/08/2026 — Le veto contextuel confirmé dès sa première application
+
+FCSB – Farul : le moteur donnait FCSB vainqueur à 60,6 % contre 53,5 % pour le marché.
+Ligne mathématiquement jouable (cote 1,82 > seuil 1,74), **refusée** au motif de
+l'élimination 7-3 par Auda quatre jours plus tôt.
+
+Résultat : **2-2**, FCSB mené **0-2 à la mi-temps**, égalisation à la 86ᵉ. Le marché avait
+raison, le modèle avait tort, et l'écart de 7 points mesurait bien notre retard
+d'information — pas un avantage.
+
+Un cas ne prouve rien statistiquement. Mais le mécanisme est validé : la règle
+`desaccord-fort-vaut-alerte` a fait exactement ce pour quoi elle a été écrite.
