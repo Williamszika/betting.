@@ -37,7 +37,12 @@ Décision validée par l'utilisateur après le bilan 0/3 (les combinés tombaien
 - ✅ **Ne PAS construire de combiné** sauf demande explicite de l'utilisateur. Combiner ajoute du risque non maîtrisé quand une seule jambe faible fait tout tomber.
 - ✅ Rien n'est forcé : s'il n'y a aucune value nette (ou match reporté), **carton blanc** — mieux vaut ne pas parier.
 
-## 2026-07-18 — EXIGENCE : le pari doit être JOUABLE sur Betano.de
+## 2026-07-18 — EXIGENCE : le pari doit être JOUABLE chez l'opérateur visé
+
+> **Mise à jour du 04/08/2026** : la règle vaut pour tout opérateur, plus seulement
+> Betano. La référence est passée à **bet365**, qui absorbe la taxe de 5,3 % — le seuil
+> de rentabilité y est la cote juste, contre +5,6 % chez Betano. `edge_scan.py` relève
+> désormais la MEILLEURE cote du marché et l'opérateur qui l'offre.
 Le run a proposé une WNBA (GSV −8.5, handicap US) introuvable sur Betano.de. Cause : betano.de bloque le scraping (403, même en vrai navigateur headless) → le workflow ne partait PAS de l'offre réelle de Betano, mais de matchs/cotes de comparateurs US.
 - ➕ **CATALOGUE BETANO.de** (implémenté dans `deep_research_coupon.js`) : découverte + marchés + vérif cadrés sur ce que Betano.de propose vraiment. `BETANO_EXCLUDE` retire WNBA, Summer League, G League, NCAA, ligues mineures US, 3x3/beach. `BETANO_MARKETS` limite les marchés au menu Betano (foot : 1X2/DC/O-U/BTTS/handicap/corners ; tennis : vainqueur/set1/score sets/jeux ; basket : vainqueur/handicap pts/total pts/QT — PAS de props exotiques).
 - ➕ **Contrôle final Betano** : le vérificateur doit confirmer via un comparateur affichant les cotes Betano.de (Oddspedia) que le match ET le marché sont jouables sur Betano ; sinon `drop`.
@@ -52,6 +57,10 @@ Choix utilisateur : se concentrer exclusivement sur le **football**, sur **TOUS 
 France (1) @1,95 PERDU : Angleterre 6-4 France (match pour la 3e place), 4-0 à la MT, 10 buts au total. France favorite (~57%) balayée. **J'avais pourtant FLAGGÉ le bémol « match de classement / intensité réduite / variance » sur la carte — mais j'en ai quand même fait le PICK PRINCIPAL.** Erreur de jugement.
 - ➕ **DEAD RUBBER / MATCH SANS ENJEU** (3e place, match de classement, dernière journée sans enjeu…) : **NE PAS parier le favori en 1X2**. L'enjeu disparu → intensité défensive quasi nulle, variance maximale. Le favori bâti sur les métriques du tournoi n'a plus d'avantage. Si pari il y a, privilégier **OVER buts** (ici l'Over aurait explosé : 10 buts).
 - ➕ **Un bémol identifié doit DÉCLASSER le pari, pas juste l'annoter** : si un match a un drapeau « intensité réduite/variance/sans enjeu », il ne peut PAS être le pick principal. Le noter puis le jouer quand même = incohérent.
+
+```rule
+{"pattern": "sans_enjeu", "field": "context_flag", "market": "^(1|X|2|DC |DNB )", "action": "exclude", "severity": "hard", "note": "Match SANS ENJEU (3e place, classement, derniere journee sans enjeu) : favori 1X2 INTERDIT. L'intensite defensive s'effondre, le favori bati sur les metriques du tournoi n'a plus d'avantage (perte France 6-4 sur un match pour la 3e place, favori a 57 %). Les marches de BUTS restent ouverts : l'Over aurait gagne avec 10 buts"}
+```
 
 ## 2026-07-20 — Perte Espagne (finale) : le 1X2 90 min est un PIÈGE en finale
 Espagne (1) @2,45 « résultat 90 min » PERDU : Espagne championne 1-0 MAIS but en **prolongation** → **0-0 à 90 min = nul**. L'Espagne gagne le trophée, pas notre pari. La « finale fermée » flaggée sur la carte s'est réalisée.

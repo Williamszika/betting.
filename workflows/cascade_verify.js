@@ -102,14 +102,44 @@ const checked = (await parallel(SHORTLIST.map((s) => () =>
   ).then((v) => ({ ...s, check: v }))
 ))).filter(Boolean)
 
-// VETO FIXTURE : une seule alerte suffit à écarter la ligne (leçon Wings-Liberty).
-const kept = checked.filter((c) =>
-  c.check && c.check.verdict === 'keep' && c.check.fixture_confirmed !== false)
-const dropped = checked.filter((c) => !kept.includes(c))
+// ─── VETOS ────────────────────────────────────────────────────────────────────
+// Une information relevée mais jamais utilisée ne sert à rien. Le context_flag
+// était collecté par les agents et ignoré par le filtre : c'est exactement la
+// faute Wings-Liberty (deux vérificateurs signalaient le report, la synthèse a
+// gardé la ligne). Chaque drapeau agit désormais.
+
+const MARCHES_BUTS = /over|under|btts|goal|but|total/i
+const MARCHES_1X2 = /^(1|X|2|DC |DNB )/
+
+function vetoContexte(c) {
+  const f = (c.check && c.check.context_flag) || 'normal'
+  const m = c.market || ''
+  // Match sans enjeu : l'intensité défensive s'effondre, le favori n'a plus
+  // d'avantage. Perte France 6-4 sur un match pour la 3e place, favori à 57 %.
+  if (f === 'sans_enjeu' && MARCHES_1X2.test(m))
+    return 'match sans enjeu — le favori 1X2 perd son avantage (leçon France 6-4)'
+  // Finale / barrage : nul à 90 min très probable, décision en prolongation.
+  // Perte Espagne : championne 1-0 mais but en prolongation → 0-0 à 90 min.
+  if ((f === 'finale' || f === 'barrage') && MARCHES_1X2.test(m))
+    return 'finale ou barrage — le 1X2 90 min est un piège (leçon Espagne 0-0 à 90)'
+  // Tie déjà plié : la manche retour se ferme, les buts disparaissent.
+  if (f === 'tie_plie' && MARCHES_BUTS.test(m))
+    return 'tie déjà décidé — les marchés de buts s\'effondrent (leçon Craiova 1-0)'
+  return ''
+}
+
+const kept = []
+const dropped = []
+for (const c of checked) {
+  const okVerdict = c.check && c.check.verdict === 'keep' && c.check.fixture_confirmed !== false
+  const veto = okVerdict ? vetoContexte(c) : ''
+  if (okVerdict && !veto) kept.push(c)
+  else dropped.push({ ...c, veto })
+}
 
 for (const d of dropped) {
-  const why = (d.check && (d.check.issues || [])[0]) || 'fixture non confirmée'
-  log(`  ✂ ${d.home} – ${d.away} [${d.market}] : ${String(why).slice(0, 110)}`)
+  const why = d.veto || (d.check && (d.check.issues || [])[0]) || 'fixture non confirmée'
+  log(`  ✂ ${d.home} – ${d.away} [${d.market}] : ${String(why).slice(0, 120)}`)
 }
 
 // Jouable = survit à la vérif ET la cote relevée dépasse le seuil après taxe.
@@ -166,7 +196,7 @@ return {
   })),
   dropped: dropped.map((d) => ({
     match: `${d.home} – ${d.away}`,
-    reason: (d.check && (d.check.issues || [])[0]) || 'fixture non confirmée',
+    reason: d.veto || (d.check && (d.check.issues || [])[0]) || 'fixture non confirmée',
   })),
   playable: playable.length,
   writeup,
