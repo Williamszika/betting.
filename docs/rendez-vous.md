@@ -20,32 +20,63 @@
 ## 🎯 20h00 — prédiction du lendemain
 
 ```
-[RENDEZ-VOUS 20h — PROTOCOLE 100 JOURS] Produis la prédiction SportPredix pour DEMAIN. Football uniquement, marchés jouables sur Betano.de, mode PAPER (bankroll simulée de 10 €, 0 € réellement misé). Tu es dans /home/user/betting..
+[RENDEZ-VOUS 20h — PROTOCOLE 100 JOURS] Produis la prédiction SportPredix pour DEMAIN. Football uniquement, mode PAPER (bankroll simulée de 10 €, 0 € réellement misé). Opérateur de référence : bet365 (il ABSORBE la taxe de 5,3 % depuis janvier 2024, ce qui divise par deux l'écart à créer face au marché). Tu es dans /home/user/betting..
 
 1) git fetch origin && git checkout claude/sports-prediction-agents-wcwmiw && git pull origin claude/sports-prediction-agents-wcwmiw
-2) `PYTHONPATH=src python3 scripts/protocol.py report` — situe le jour N/100 et la bankroll courante.
+2) `PYTHONPATH=src python3 scripts/protocol.py report` — jour N/100 et bankroll courante.
 3) MÉMOIRE : `python3 scripts/lessons_rules.py --args` → {hardRules, softBlock}.
-4) ÉTAGE 1 (moteur, déterministe) :
+
+4) ÉCART MODÈLE / MARCHÉ — LE POINT DE DÉPART :
+   `PYTHONPATH=src python3 scripts/edge_scan.py <DEMAIN> --book bet365 --min-gap 3`
+   Croise notre modèle (ClubElo → Dixon-Coles) et les VRAIES cotes de
+   football-data.co.uk (Pinnacle, moyenne, Betfair, bet365, maximum), marge retirée
+   par la méthode PUISSANCE. C'est la seule mesure fiable d'un avantage.
+   • Aucune ligne « ✅ » → il n'y a rien à jouer. Passer au point 5 pour la
+     prédiction (calibration) mais AUCUNE mise ne sera possible.
+   • Écart > 5 points → RÈGLE DURE : chercher un événement récent sur les 10 derniers
+     jours (élimination européenne, changement d'entraîneur, cascade de blessures)
+     sur les DEUX équipes. Sans explication trouvée ET vérifiée, la ligne n'est PAS
+     jouable : le marché intègre l'information plus vite qu'un classement Elo.
+     (Leçon FCSB : 7 points d'écart, éliminé 7-3 par Auda quatre jours avant → 2-2.)
+
+5) ÉTAGE 1 (moteur déterministe) :
    `PYTHONPATH=src python3 scripts/daily_engine.py <DEMAIN> --min 1.75 --max 3.0 --json --shortlist 3`
-   Si la shortlist est vide → « aucune prédiction crédible demain », enregistre rien, stop après le point 8.
-5) ÉTAGE 2 (agents, contexte seulement) : Workflow scriptPath "workflows/cascade_verify.js"
-   args { date:"<demain>", bookmaker:"Betano", domain:"betano.de", shortlist:<étage 1>, softBlock:<softBlock> }
-   Les agents ne produisent AUCUNE probabilité — fixture, blessures, enjeu, cote Betano réelle.
-6) SÉLECTION : garde AU PLUS 2 lignes validées, matchs distincts, cote dans [1,75 – 3,00].
-   Une ligne validée mais dont la cote Betano est SOUS la cote minimale reste enregistrée —
-   elle sera marquée non jouable par le calcul de mise. C'est voulu : la calibration
-   se mesure sur toutes les prédictions, la bankroll seulement sur les jouables.
-7) ENREGISTREMENT — pour chaque ligne, écris un JSON {id, date, match, competition, market,
-   label, prob, odds, kickoff}. `kickoff` = coup d'envoi en ISO AVEC SON FUSEAU D'ORIGINE
-   (ex. "2026-08-03T21:30:00+03:00" pour un match roumain) — il détermine la date de
-   vérification. Sans lui, un match de fin de soirée serait contrôlé un jour trop tôt.
-   (id = "<AAAA-MM-JJ>-<n>", odds = cote Betano relevée, à défaut la cote juste), puis :
-   `PYTHONPATH=src python3 scripts/protocol.py add --file <fichier>`
-   La mise est calculée automatiquement (Kelly 1/5, taxe 5,3 %, plafond 5 %, minimum 0,20 €).
-8) Écris data/coupon_<AAAA-MM-JJ>.md, commit + push sur la branche.
-9) Résume : jour N/100, la/les prédiction(s) avec proba, cote, cote minimale, MISE ou
-   « non jouable » + raison, et la bankroll. ESTIMATIONS, pas des certitudes.
-   Pas d'incitation à miser.
+   Chaîne d'accès : direct → Jina Reader → cache disque. ClubElo est en HTTP simple
+   et le proxy ne fait que du HTTPS : le repli Jina n'est pas optionnel.
+   Shortlist vide → « aucune prédiction crédible demain », rien à enregistrer.
+
+6) ÉTAGE 2 (agents, contexte SEULEMENT) : Workflow scriptPath "workflows/cascade_verify.js"
+   args { date:"<demain>", bookmaker:"bet365", domain:"bet365.de", shortlist:<étage 1>,
+          softBlock:<softBlock> }
+   Les agents ne produisent AUCUNE probabilité : fixture, blessures, enjeu, cote réelle.
+
+7) SÉLECTION : au plus 2 lignes validées, matchs distincts, cote dans [1,75 – 3,00].
+   Éviter les marchés à DEUX conditions (« 1 & Over 2.5 », « 1 & BTTS ») : ce sont des
+   combinés déguisés en simples. La réponse à un favori trop court n'est pas d'y
+   accoler une condition pour gonfler la cote — c'est de ne pas jouer le match.
+   Une ligne validée dont la cote est sous le seuil reste enregistrée : la calibration
+   se mesure sur TOUTES les prédictions, la bankroll seulement sur les jouables.
+
+8) ENREGISTREMENT — un JSON par ligne :
+   {id, date, match, competition, market, label, prob, odds, kickoff,
+    market_prob, market_ref}
+   • id = "<AAAA-MM-JJ>-<n>"
+   • odds = MEILLEURE cote relevée (edge_scan la donne, avec l'opérateur), à défaut 0
+   • kickoff = ISO AVEC SON FUSEAU D'ORIGINE, ex. "2026-08-08T21:30:00+03:00".
+     Il détermine la date de vérification : un match à 22h45 finit après minuit.
+   • market_prob / market_ref = probabilité de marché dévigorishée + sa source.
+     NE JAMAIS l'inventer : sans référence, mettre 0.
+   Puis `PYTHONPATH=src python3 scripts/protocol.py add --file <fichier>`
+   (ajouter `--veto "<raison>"` si le contexte contredit le calcul).
+   Mise calculée automatiquement : Kelly 1/5, taxe, plafond 5 %, minimum opérateur.
+
+9) COUPON : `PYTHONPATH=src python3 scripts/coupon.py --date <DEMAIN>`
+   Produit le HTML et le PNG partageable. Ne PAS utiliser --combine sauf demande.
+
+10) commit + push sur la branche.
+11) Résume : jour N/100, chaque prédiction avec proba, écart au marché, cote, seuil,
+    MISE ou « non jouable » + raison, et la bankroll. ESTIMATIONS, pas des certitudes.
+    Pas d'incitation à miser ; jamais un match déjà commencé.
 ```
 
 ## ⚖️ 08h00 — vérification des résultats de la veille
@@ -69,9 +100,13 @@
    N'ajoute une leçon à data/lessons.md que s'il y a une CAUSE identifiée et corrigeable,
    au format ```rule``` machine quand c'est une règle dure/douce. Vérifie avec
    `python3 scripts/lessons_rules.py` qu'elle n'est pas orpheline.
-6) `PYTHONPATH=src python3 scripts/protocol.py report` — commit + push.
-7) Résume : chaque résultat 🟢/🔴/⚪ avec le score, la bankroll, le bilan jour N/100,
-   et la CALIBRATION (écart entre probabilité annoncée et réussite réelle).
+6) COUPON : `PYTHONPATH=src python3 scripts/coupon.py --date <date des matchs réglés>`
+   MÊME commande qu'à 20h : le statut du coupon passe de ⏳ à 🟢/🔴 avec les scores,
+   HTML et PNG régénérés au même emplacement.
+7) `PYTHONPATH=src python3 scripts/protocol.py report` — commit + push.
+8) Résume : chaque résultat 🟢/🔴/⚪ avec le score, la bankroll, le bilan jour N/100,
+   la CALIBRATION (écart entre probabilité annoncée et réussite réelle) et la section
+   FACE AU MARCHÉ (sur les désaccords ≥3 points, le modèle a-t-il eu raison ?).
    Factuel, sans complaisance.
 ```
 

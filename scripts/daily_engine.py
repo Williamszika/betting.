@@ -58,25 +58,43 @@ LABELS = {
 CACHE = ROOT / "data" / "cache" / "clubelo_fixtures.csv"
 
 
-def fetch_fixtures(retries: int = 6) -> list[dict]:
-    """ClubElo renvoie fréquemment 503 : on réessaie, puis on retombe sur le
-    cache disque. Le workflow ne doit jamais dépendre d'un appel unique."""
+def _csv_utile(txt: str) -> str:
+    """Extrait le CSV d'une réponse, même précédée d'en-têtes markdown (Jina)."""
+    i = txt.find("Date,Country")
+    return txt[i:] if i >= 0 else (txt if txt.startswith("Date,") else "")
+
+
+def fetch_fixtures(retries: int = 4) -> list[dict]:
+    """Trois voies, dans l'ordre, puis le cache disque.
+
+    ClubElo est en **HTTP simple**, et le proxy sortant de cet environnement ne
+    fait que des tunnels CONNECT HTTPS. Le 03/08 au soir, la routine a donc
+    échoué faute d'accès — pas faute de matchs. Jina Reader résout ce cas
+    structurellement : il interroge ClubElo en HTTP depuis SES serveurs et nous
+    répond en HTTPS.
+    """
     import time
+    voies = [("direct", FIXTURES_URL),
+             ("jina", "https://r.jina.ai/" + FIXTURES_URL)]
     for attempt in range(retries):
-        try:
-            out = subprocess.run(
-                ["curl", "-sS", "-m", "30", "-A", "Mozilla/5.0", FIXTURES_URL],
-                capture_output=True, timeout=45,
-            ).stdout.decode("utf-8", "replace")
-            if len(out) > 1000 and out.startswith("Date,"):
+        for nom, url in voies:
+            try:
+                out = subprocess.run(
+                    ["curl", "-sSL", "-m", "40", "-A", "Mozilla/5.0", url],
+                    capture_output=True, timeout=60,
+                ).stdout.decode("utf-8", "replace")
+            except Exception:
+                continue
+            csv_txt = _csv_utile(out)
+            if len(csv_txt) > 1000:
+                if nom != "direct":
+                    print(f"[info] ClubElo atteint via {nom}", file=sys.stderr)
                 CACHE.parent.mkdir(parents=True, exist_ok=True)
-                CACHE.write_text(out, encoding="utf-8")
-                return list(csv.DictReader(io.StringIO(out)))
-        except Exception:
-            pass
+                CACHE.write_text(csv_txt, encoding="utf-8")
+                return list(csv.DictReader(io.StringIO(csv_txt)))
         time.sleep(1.5 * (attempt + 1))
     if CACHE.exists():                       # repli : dernier téléchargement réussi
-        print(f"[info] ClubElo indisponible — utilisation du cache {CACHE.name}",
+        print(f"[info] ClubElo indisponible sur toutes les voies — cache {CACHE.name}",
               file=sys.stderr)
         return list(csv.DictReader(io.StringIO(CACHE.read_text(encoding="utf-8"))))
     return []
