@@ -89,6 +89,32 @@
       "fin_local": "2026-08-03T22:30+02:00",
       "verifiable_le": "2026-08-04",
       "score": "2-2 (FCSB mene 0-2 a la pause)"
+    },
+    {
+      "id": "2026-08-05-1",
+      "date": "2026-08-05",
+      "match": "Ferencvaros – Gornik",
+      "competition": "UEL Q3 aller",
+      "market": "1",
+      "label": "Victoire domicile",
+      "kickoff": "2026-08-05T20:15:00+02:00",
+      "kickoff_local": "2026-08-05T20:15+02:00",
+      "fin_local": "2026-08-05T22:15+02:00",
+      "verifiable_le": "2026-08-06",
+      "prob": 0.5609,
+      "odds": 1.72,
+      "market_prob": null,
+      "market_ref": "Aucune cote Pinnacle ni bet365 localisée malgré plusieurs tentatives (oddsportal en 503) — market_prob non estimé, mis à 0 par protocole strict. Pour info seule, agrégat non-référence (1xBet/ODDSET/22bet/Melbet/20Bet/Megapari) ~57-60% brut, direction cohérente avec le moteur (56,1%).",
+      "eff_odds": 1.629,
+      "min_odds": 1.88,
+      "edge": -0.0864,
+      "kelly_full": 0.0,
+      "stake": 0.0,
+      "playable": false,
+      "stake_reason": "cote 1.72 sous le seuil de rentabilité 1.88 (taxe 5.3 % incluse)",
+      "result": "pending",
+      "settled": null,
+      "payout": 0.0
     }
   ],
   "bankroll_history": [
