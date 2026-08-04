@@ -192,6 +192,10 @@ def charger(date: str | None = None, timeout: int = 45) -> list[Fixture]:
 #: et « FCSB » sont deux clubs différents et le rapprochement échoue.
 ALIAS = {
     "steaua": "fcsb", "viitorul": "farul", "dundee fc": "dundee",
+    # Saburtalo Tbilissi est devenu Iberia 1999 en 2023. Sans cet alias, la
+    # vérification conclut à un match inexistant — c'est le troisième cas de
+    # nom périmé chez ClubElo, après Steaua et Viitorul.
+    "saburtalo": "iberia 1999", "saburtalo tbilisi": "iberia 1999",
     "sparta rotterdam": "sparta", "man united": "manchester united",
     "man city": "manchester city", "nott'm forest": "nottingham forest",
     "sheffield weds": "sheffield wednesday", "lok plovdiv": "lokomotiv plovdiv",
