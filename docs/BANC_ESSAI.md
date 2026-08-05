@@ -97,3 +97,36 @@ Le modèle glissant, même parfaitement calibré, **ne bat pas le marché** sur
 mesuré, hors échantillon, sur des dizaines de milliers de paris.
 
 *Mode PAPER. Aucun euro engagé.*
+
+---
+
+## Résultat 5 — le rétrécissement vers le marché ne sauve rien
+
+Idée testée : ancrer la probabilité finale sur le marché d'autant plus fort que
+nos données sont minces — `p = w × modèle + (1−w) × marché`.
+
+**Première mesure, spectaculaire :** CLV +6,05 %, positif dans 75,3 % des cas.
+
+**Puis vérification de l'implémentation.** L'ancrage se faisait sur la cote de
+**clôture**, qui n'existe pas encore au moment de parier. Le futur fuyait dans le
+passé et rendait le CLV positif par construction.
+
+Corrigé — ancrage sur la cote d'ouverture seule :
+
+| Poids du modèle | Paris | ROI | CLV |
+|---|---|---|---|
+| 0,50 | 10 622 | −12,58 % | −0,53 % |
+| 0,30 | 6 846 | −15,72 % | −0,41 % |
+
+Le CLV retombe à zéro, et **le ROI est PIRE qu'avant mélange** (≈ −10 %).
+
+La raison est mécanique. Parier exige `p_finale × cote > 1`. En rapprochant
+`p_finale` du marché, on ne déclenche plus que sur les désaccords qui **survivent**
+au mélange — donc les plus extrêmes, ceux où le modèle a le plus tort.
+
+> **Le rétrécissement vers le marché ne supprime pas la sélection adverse :
+> il la concentre.**
+
+Effet secondaire : la calibration se dégrade (0,8 → 2,6 pts). Le mélange est
+appliqué APRÈS la calibration et la défait. Si l'on tient au mélange, il doit
+précéder la calibration, jamais la suivre.

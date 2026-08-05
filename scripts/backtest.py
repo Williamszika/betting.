@@ -25,7 +25,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from sportsbet import backtest as BT, devig as D, markets as M, rolling as R  # noqa: E402
+from sportsbet import (backtest as BT, blend as BL, devig as D,  # noqa: E402
+                       markets as M, rolling as R)
 
 ISSUES = ("1", "X", "2")
 
@@ -37,7 +38,7 @@ def arg(argv, nom, defaut, conv=str):
 def rejouer(matchs: list, edge_min: float, issues: tuple,
             book: str, meilleure: bool, min_prob: float,
             arg_k: float = R.K_RETRECISSEMENT,
-            calib=None, debut_test=None) -> tuple[list, dict, list]:
+            calib=None, debut_test=None, poids=None) -> tuple[list, dict, list]:
     """Le cœur : prédire, décider, puis seulement apprendre."""
     ligues: dict[str, R.Ligue] = {}
     paris, compte = [], {"vus": 0, "predits": 0, "sans_cote": 0, "sans_historique": 0}
@@ -77,6 +78,19 @@ def rejouer(matchs: list, edge_min: float, issues: tuple,
         if calib is not None and calib.pret:
             mk = {k2: calib.corriger(v) for k2, v in mk.items()
                   if k2 in ISSUES} | {k2: v for k2, v in mk.items() if k2 not in ISSUES}
+        # ÉTAPE 5 — ancrage sur le marché. Le poids accordé au modèle dépend
+        # de ce qu'on sait vraiment ; le reste revient au marché.
+        if poids is not None:
+            # OUVERTURE uniquement. La cote de clôture n'existe pas encore au
+            # moment où l'on parie : s'y ancrer ferait fuir le futur dans le
+            # passé et rendrait le CLV positif par construction.
+            ref = m.ouverture.get("pinnacle") or m.ouverture.get("avg")
+            if ref:
+                pm = D.power(list(ref))
+                marche = {"1": pm[0], "X": pm[1], "2": pm[2]}
+                fondu = BL.melanger_1x2({k2: mk[k2] for k2 in ISSUES}, marche, poids)
+                mk = mk | fondu
+
         for iss in ISSUES:
             toutes.append((mk.get(iss, 0.0), m.issue == iss, m.date))
 
@@ -124,6 +138,7 @@ def main(argv: list[str]) -> None:
     min_prob = arg(argv, "--min-prob", 0.10, float)
     meilleure = "--meilleure-cote" in argv
     k = arg(argv, "--k", R.K_RETRECISSEMENT, float)
+    poids = arg(argv, "--poids", None, float) if "--poids" in argv else None
 
     print(f"=== BANC D'ESSAI — {','.join(ligues)} · saisons {de}/{de+1} à {a}/{a+1} ===")
     print(f"Cote : {'MEILLEURE du marché' if meilleure else book} (clôture) | "
@@ -151,7 +166,8 @@ def main(argv: list[str]) -> None:
             f"{x*100:.0f}→{y*100:.0f}" for x, y in calib.courbe()[::3]))
         # PASSE 2 — appliquer la correction, ne parier QUE hors échantillon.
         paris, c, toutes = rejouer(matchs, edge, issues, book, meilleure,
-                                   min_prob, k, calib=calib, debut_test=d_test)
+                                   min_prob, k, calib=calib, debut_test=d_test,
+                                   poids=poids)
         toutes = [(pr, ok) for pr, ok, dt in toutes if dt >= d_test]
     else:
         paris, c, toutes = rejouer(matchs, edge, issues, book, meilleure, min_prob, k)
