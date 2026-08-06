@@ -71,12 +71,27 @@
    Mise calculée automatiquement : Kelly 1/5, taxe, plafond 5 %, minimum opérateur.
 
 9) COUPON : `PYTHONPATH=src python3 scripts/coupon.py --date <DEMAIN>`
-   Produit le HTML et le PNG partageable. Ne PAS utiliser --combine sauf demande.
+   Produit data/coupons/coupon_<DEMAIN>.html ET .png. Ne PAS utiliser --combine
+   sauf demande explicite.
 
-10) commit + push sur la branche.
-11) Résume : jour N/100, chaque prédiction avec proba, écart au marché, cote, seuil,
-    MISE ou « non jouable » + raison, et la bankroll. ESTIMATIONS, pas des certitudes.
-    Pas d'incitation à miser ; jamais un match déjà commencé.
+10) ⚠️ ENVOI OBLIGATOIRE — l'utilisateur ne voit PAS les fichiers du dépôt.
+    SendUserFile({ files:["data/coupons/coupon_<DEMAIN>.png"], display:"render",
+                   status:"proactive",
+                   caption:"Coupon du <DEMAIN> — <ACTION> · bankroll <X,XX> €" })
+    À faire MÊME si aucune mise n'est possible : un coupon « NE RIEN MISER » est
+    une information, et son absence ressemble à une panne.
+
+11) commit + push sur la branche.
+
+12) RÉPONDRE DANS LA CONVERSATION — c'est le livrable, pas le commit. Structure :
+    • titre : jour N/100, date, et l'ACTION en clair (miser X € / ne rien miser)
+    • un bloc par prédiction : match, heure locale, marché, probabilité, cote,
+      cote minimale, écart au marché, MISE ou raison du refus
+    • les lignes ÉCARTÉES avec leur motif (fixture, veto contexte, seuil)
+    • bankroll avant → après
+    • ce qui a été appris ou constaté d'inhabituel
+    ESTIMATIONS, pas des certitudes. Pas d'incitation à miser ; jamais un match
+    déjà commencé. Si rien n'est jouable, le dire franchement en une phrase.
 ```
 
 ## ⚖️ 08h00 — vérification des résultats de la veille
@@ -101,12 +116,23 @@
    au format ```rule``` machine quand c'est une règle dure/douce. Vérifie avec
    `python3 scripts/lessons_rules.py` qu'elle n'est pas orpheline.
 6) COUPON : `PYTHONPATH=src python3 scripts/coupon.py --date <date des matchs réglés>`
-   MÊME commande qu'à 20h : le statut du coupon passe de ⏳ à 🟢/🔴 avec les scores,
-   HTML et PNG régénérés au même emplacement.
-7) `PYTHONPATH=src python3 scripts/protocol.py report` — commit + push.
-8) Résume : chaque résultat 🟢/🔴/⚪ avec le score, la bankroll, le bilan jour N/100,
-   la CALIBRATION (écart entre probabilité annoncée et réussite réelle) et la section
-   FACE AU MARCHÉ (sur les désaccords ≥3 points, le modèle a-t-il eu raison ?).
+   MÊME commande qu'à 20h : le statut passe de ⏳ à 🟢/🔴 avec les scores, HTML et
+   PNG régénérés au même emplacement.
+
+7) ⚠️ ENVOI OBLIGATOIRE du coupon réglé :
+   SendUserFile({ files:["data/coupons/coupon_<date>.png"], display:"render",
+                  status:"proactive",
+                  caption:"Résultats du <date> — <N> 🟢 / <N> 🔴 · bankroll <X,XX> €" })
+
+8) `PYTHONPATH=src python3 scripts/protocol.py report` — commit + push.
+
+9) RÉPONDRE DANS LA CONVERSATION :
+   • chaque résultat 🟢/🔴/⚪ avec le score réel et la source
+   • bankroll avant → après, et le bilan jour N/100
+   • la CALIBRATION (écart entre probabilité annoncée et réussite réelle)
+   • la section FACE AU MARCHÉ (sur les désaccords ≥3 points, le modèle a-t-il
+     eu raison ?)
+   • pour chaque perte : le modèle avait-il tort, ou était-ce la variance annoncée ?
    Factuel, sans complaisance.
 ```
 

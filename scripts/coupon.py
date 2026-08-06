@@ -131,6 +131,21 @@ def rendu(st: dict, sels: list[dict], date: str, combine: bool) -> str:
         else:
             gain = sum(s.get("payout", 0.0) for s in joues)
 
+    # La ligne d'ACTION répond en un coup d'œil à la seule question qui
+    # compte pour le lecteur : est-ce que je mise, et combien ?
+    if not joues:
+        action = "→ NE RIEN MISER AUJOURD'HUI"
+    elif lib == "EN ATTENTE":
+        action = (f"→ MISER {mise:.2f} €" +
+                  (f" sur le combiné" if combine and len(joues) > 1
+                   else f" au total sur {len(joues)} pari(s)"))
+    elif lib == "GAGNÉ":
+        action = f"→ ENCAISSÉ {gain:.2f} €  (mise {mise:.2f} €)"
+    elif lib == "PERDU":
+        action = f"→ PERDU {mise:.2f} €"
+    else:
+        action = f"→ MISE RENDUE {mise:.2f} €"
+
     d0 = datetime.date.fromisoformat(st["start"])
     jour = (datetime.date.fromisoformat(date) - d0).days + 1
 
@@ -142,26 +157,29 @@ def rendu(st: dict, sels: list[dict], date: str, combine: bool) -> str:
   .ticket {{ max-width:640px; margin:0 auto; background:#fff; border-radius:14px;
             box-shadow:0 10px 30px rgba(0,0,0,.10); overflow:hidden; }}
   .tete {{ background:#0f172a; color:#fff; padding:20px 24px; }}
-  .tete h1 {{ margin:0; font-size:18px; letter-spacing:.14em; }}
+  .tete h1 {{ margin:0; font-size:17px; letter-spacing:.15em; opacity:.75; }}
   .tete .meta {{ margin-top:6px; font-size:13px; color:#94a3b8; }}
   .statut {{ display:inline-block; margin-top:12px; padding:7px 16px;
             border-radius:999px; font-weight:700; font-size:14px;
             color:{coul}; background:{fond}; }}
+  .action {{ margin-top:14px; font-size:19px; font-weight:750;
+            letter-spacing:-.01em; color:#fff; }}
   .corps {{ padding:8px 24px 24px; }}
   .sel {{ border-bottom:1px dashed #cbd5e1; padding:18px 0; }}
   .sel:last-child {{ border-bottom:none; }}
   .sel-tete {{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }}
   .num {{ font-size:11px; font-weight:700; color:#64748b; background:#f1f5f9;
          padding:3px 8px; border-radius:6px; }}
-  .match {{ font-weight:700; font-size:16px; flex:1; }}
+  .match {{ font-weight:750; font-size:19px; flex:1; letter-spacing:-.015em; }}
   .badge {{ padding:4px 11px; border-radius:999px; font-size:11px; font-weight:700; }}
-  .compet {{ font-size:12px; color:#64748b; margin-top:3px; }}
-  .pari {{ margin-top:10px; font-size:15px; font-weight:600; color:#1d4ed8; }}
+  .compet {{ font-size:13px; color:#64748b; margin-top:4px; }}
+  .pari {{ margin-top:11px; font-size:17px; font-weight:680; color:#1d4ed8;
+         padding:9px 13px; background:#eff6ff; border-radius:8px; }}
   .chiffres {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr));
               gap:10px; margin-top:12px; }}
   .chiffres div {{ background:#f8fafc; border-radius:8px; padding:9px 11px; }}
   .chiffres span {{ display:block; font-size:11px; color:#64748b; }}
-  .chiffres b {{ font-size:15px; }}
+  .chiffres b {{ font-size:16px; }}
   .marche {{ margin-top:9px; font-size:12px; color:#7c3aed; }}
   .refus {{ margin-top:9px; font-size:12px; background:#fef2f2; color:#991b1b;
            border-left:3px solid #dc2626; padding:8px 11px; border-radius:0 6px 6px 0; }}
@@ -179,6 +197,7 @@ def rendu(st: dict, sels: list[dict], date: str, combine: bool) -> str:
   .avis {{ margin-top:14px; font-size:11px; color:#64748b; line-height:1.6; }}
   @media (prefers-color-scheme: dark) {{
     body {{ background:#0b1120; color:#e2e8f0; }}
+    .pari {{ background:#172554; color:#93c5fd; }}
     .ticket {{ background:#111827; }}
     .chiffres div, .pied {{ background:#1e293b; }}
     .num {{ background:#1e293b; color:#94a3b8; }}
@@ -194,6 +213,7 @@ def rendu(st: dict, sels: list[dict], date: str, combine: bool) -> str:
     <h1>SPORTPREDIX · COUPON</h1>
     <div class="meta">{date} · jour {jour}/100 · {type_txt} · mode PAPER</div>
     <div class="statut">{ico} {lib}</div>
+    <div class="action">{action}</div>
   </div>
   <div class="corps">
     {''.join(ligne_html(s, i, n) for i, s in enumerate(sels, 1))}
