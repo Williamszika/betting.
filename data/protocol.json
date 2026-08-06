@@ -112,9 +112,10 @@
       "stake": 0.0,
       "playable": false,
       "stake_reason": "cote 1.72 sous le seuil de rentabilité 1.88 (taxe 5.3 % incluse)",
-      "result": "pending",
-      "settled": null,
-      "payout": 0.0
+      "result": "won",
+      "settled": "2026-08-06",
+      "payout": 0.0,
+      "score": "1-0 (Ferencvaros - Gornik Zabrze, but Corbu 65e)"
     },
     {
       "id": "2026-08-06-1",
