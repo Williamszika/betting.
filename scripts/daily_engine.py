@@ -27,7 +27,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from sportsbet import markets as M  # noqa: E402
+from sportsbet import fetch as F, markets as M  # noqa: E402
 
 TAX_FACTOR = 0.947          # Betano répercute 5,3 % sur le gain
 FIXTURES_URL = "http://api.clubelo.com/Fixtures"   # HTTP obligatoire (pas de HTTPS)
@@ -58,33 +58,51 @@ LABELS = {
 CACHE = ROOT / "data" / "cache" / "clubelo_fixtures.csv"
 
 
-def fetch_fixtures(retries: int = 6) -> list[dict]:
-    """ClubElo renvoie fréquemment 503 : on réessaie, puis on retombe sur le
-    cache disque. Le workflow ne doit jamais dépendre d'un appel unique."""
+def _csv_utile(txt: str) -> str:
+    """Extrait le CSV d'une réponse, même précédée d'en-têtes markdown (Jina)."""
+    i = txt.find("Date,Country")
+    return txt[i:] if i >= 0 else (txt if txt.startswith("Date,") else "")
+
+
+def fetch_fixtures(retries: int = 4) -> list[dict]:
+    """Trois voies, dans l'ordre, puis le cache disque.
+
+    ClubElo est en **HTTP simple**, et le proxy sortant de cet environnement ne
+    fait que des tunnels CONNECT HTTPS. Le 03/08 au soir, la routine a donc
+    échoué faute d'accès — pas faute de matchs. Jina Reader résout ce cas
+    structurellement : il interroge ClubElo en HTTP depuis SES serveurs et nous
+    répond en HTTPS.
+
+    La chaîne d'accès vit dans ``sportsbet.fetch`` (14 tests) et n'est PAS
+    réécrite ici : dupliquer la logique reviendrait à faire tourner en
+    production une version que les tests ne couvrent pas.
+    """
     import time
     for attempt in range(retries):
-        try:
-            out = subprocess.run(
-                ["curl", "-sS", "-m", "30", "-A", "Mozilla/5.0", FIXTURES_URL],
-                capture_output=True, timeout=45,
-            ).stdout.decode("utf-8", "replace")
-            if len(out) > 1000 and out.startswith("Date,"):
-                CACHE.parent.mkdir(parents=True, exist_ok=True)
-                CACHE.write_text(out, encoding="utf-8")
-                return list(csv.DictReader(io.StringIO(out)))
-        except Exception:
-            pass
+        page = F.lire(FIXTURES_URL, timeout=40)      # chaîne testée : Jina puis curl
+        csv_txt = _csv_utile(page.contenu)
+        if len(csv_txt) > 1000:
+            if page.backend != "curl":
+                print(f"[info] ClubElo atteint via {page.backend}", file=sys.stderr)
+            CACHE.parent.mkdir(parents=True, exist_ok=True)
+            CACHE.write_text(csv_txt, encoding="utf-8")
+            return list(csv.DictReader(io.StringIO(csv_txt)))
         time.sleep(1.5 * (attempt + 1))
     if CACHE.exists():                       # repli : dernier téléchargement réussi
-        print(f"[info] ClubElo indisponible — utilisation du cache {CACHE.name}",
+        print(f"[info] ClubElo indisponible sur toutes les voies — cache {CACHE.name}",
               file=sys.stderr)
         return list(csv.DictReader(io.StringIO(CACHE.read_text(encoding="utf-8"))))
     return []
 
 
-def lambdas(row: dict) -> tuple[float, float]:
-    """λ domicile / extérieur déduits de la distribution de scores ClubElo."""
-    lh = la = tot = 0.0
+def score_cells(row: dict) -> dict[tuple[int, int], float]:
+    """Distribution de scores exacts publiée par ClubElo (28 cellules, ~97,8 %).
+
+    On l'utilise TELLE QUELLE. La collapser en λ puis la reconstruire en Poisson
+    déformait ClubElo de 5 points sur la victoire domicile et de 2 points sur
+    « les deux équipes marquent » — assez pour fabriquer de faux avantages.
+    """
+    cells = {}
     for k, v in row.items():
         if not k.startswith("R:"):
             continue
@@ -92,7 +110,14 @@ def lambdas(row: dict) -> tuple[float, float]:
             p = float(v)
         except (TypeError, ValueError):
             continue
-        i, j = map(int, k[2:].split("-"))
+        cells[tuple(map(int, k[2:].split("-")))] = p
+    return cells
+
+
+def lambdas(row: dict) -> tuple[float, float]:
+    """λ domicile / extérieur — sert à compléter la QUEUE de la distribution."""
+    lh = la = tot = 0.0
+    for (i, j), p in score_cells(row).items():
         lh += p * i
         la += p * j
         tot += p
@@ -110,15 +135,42 @@ def clubelo_1x2(row: dict) -> tuple[float, float, float]:
     return (h / s, d / s, a / s) if s else (0.34, 0.33, 0.33)
 
 
+def drop_duplicate_fixtures(rows: list[dict]) -> tuple[list[dict], list[str]]:
+    """Écarte les matchs listés DEUX FOIS avec domicile/extérieur inversés.
+
+    Constaté le 03/08/2026 : ClubElo publiait « Shakhtar – Kudrivka » ET
+    « Kudrivka – Shakhtar », avec des probabilités identiques. Au moins une des
+    deux lignes attribue donc l'avantage du terrain à la mauvaise équipe, et on
+    ne peut pas savoir laquelle. Pire : sans ce contrôle, le moteur pouvait
+    proposer les deux lignes comme un combiné à deux jambes — le MÊME match
+    deux fois, parfaitement corrélé, présenté comme une diversification.
+
+    On ne devine pas : on écarte les deux.
+    """
+    vues: dict[tuple, list[dict]] = {}
+    for r in rows:
+        vues.setdefault(tuple(sorted((r.get("Home", ""), r.get("Away", "")))), []).append(r)
+    gardes, ecartes = [], []
+    for paire, lignes in vues.items():
+        if len(lignes) > 1:
+            ecartes.append(" / ".join(f"{x['Home']} – {x['Away']}" for x in lignes))
+        else:
+            gardes.extend(lignes)
+    return gardes, ecartes
+
+
 def build(date: str, odds_min: float, odds_max: float, max_legs: int = 2) -> dict:
     rows = [r for r in fetch_fixtures() if r.get("Date") == date]
+    rows, doublons = drop_duplicate_fixtures(rows)
+    for d in doublons:
+        print(f"[alerte] match listé deux fois par ClubElo, écarté : {d}", file=sys.stderr)
     if not rows:
         return {"date": date, "matches": 0, "candidates": [], "coupon": []}
 
     cands = []
     for r in rows:
         lh, la = lambdas(r)
-        mk = M.all_goal_markets(lh, la, rho=-0.10)
+        mk = M.all_goal_markets(lh, la, rho=-0.10, cells=score_cells(r))
         ch, cd, ca = clubelo_1x2(r)
         # [3] CONTRÔLE : désaccord fort avec la référence => on écarte le match
         gap = max(abs(mk["1"] - ch), abs(mk["X"] - cd), abs(mk["2"] - ca))
@@ -167,21 +219,37 @@ def main(argv: list[str]) -> None:
     # On ne transmet que la SHORTLIST : les agents ne travaillent que sur ces lignes.
     if "--json" in argv:
         import json
-        short, used = [], set()
-        for c in res["candidates"]:
-            if c["match"] in used:
-                continue
-            used.add(c["match"])
-            short.append({
-                "country": c["country"], "home": c["home"], "away": c["away"],
-                "market": c["market"], "label": c["label"],
-                "prob": round(c["prob"], 4), "fair_odds": round(c["fair"], 2),
-                "min_odds": round(c["need"], 2),
-                "lambda_home": round(c["lh"], 2), "lambda_away": round(c["la"], 2),
-                "clubelo_gap": round(c["gap"], 4),
-            })
+        # DIVERSIFICATION DES PRIX (correctif 02/08).
+        # Trier par probabilité décroissante donnait 3 lignes au MÊME point de
+        # prix (cote juste ~1,77). Or une ligne n'est jouable que si Betano paie
+        # au-dessus de fair / 0,947 — jamais le cas sur un favori. En balayant
+        # des tranches de cote distinctes, l'étage 2 échantillonne plusieurs
+        # niveaux de prix et a une vraie chance de tomber sur un décalage.
+        bands = [(omin, 2.0), (2.0, 2.4), (2.4, omax)]
+        short, used, seen_band = [], set(), set()
+        pool = sorted(res["candidates"], key=lambda c: -c["prob"])
+        for lo, hi in bands:
+            for c in pool:
+                if c["match"] in used or not (lo <= c["fair"] < hi):
+                    continue
+                used.add(c["match"])
+                seen_band.add((lo, hi))
+                short.append(c)
+                break
+        for c in pool:                       # compléter si une tranche est vide
             if len(short) >= n_short:
                 break
+            if c["match"] not in used:
+                used.add(c["match"])
+                short.append(c)
+        short = [{
+            "country": c["country"], "home": c["home"], "away": c["away"],
+            "market": c["market"], "label": c["label"],
+            "prob": round(c["prob"], 4), "fair_odds": round(c["fair"], 2),
+            "min_odds": round(c["need"], 2),
+            "lambda_home": round(c["lh"], 2), "lambda_away": round(c["la"], 2),
+            "clubelo_gap": round(c["gap"], 4),
+        } for c in short[:n_short]]
         print(json.dumps({"date": date, "matches": res["matches"],
                           "candidates": len(res["candidates"]),
                           "shortlist": short}, ensure_ascii=False, indent=2))

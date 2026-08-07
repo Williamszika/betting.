@@ -1,0 +1,461 @@
+<title>Audit du workflow SportPredix — 4 août 2026</title>
+<style>
+  :root {
+    --ground: #F5F7F8;
+    --surface: #FFFFFF;
+    --ink: #10171E;
+    --ink-2: #47555F;
+    --ink-3: #7C8A93;
+    --rule: #D8E0E3;
+    --rule-strong: #B4C1C6;
+    --accent: #0D6570;
+    --accent-soft: #E3EFF0;
+    --crit: #8C1D24;
+    --crit-soft: #F7E6E7;
+    --warn: #7E5300;
+    --warn-soft: #FAF0DC;
+    --ok: #1A6141;
+    --ok-soft: #E3F0E9;
+
+    --display: ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --body: Charter, "Bitstream Charter", "Iowan Old Style", Georgia, serif;
+    --data: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #0A1015; --surface: #10181E; --ink: #E4EBEE; --ink-2: #A0AEB6;
+      --ink-3: #6D7C85; --rule: #222E36; --rule-strong: #35444D;
+      --accent: #4FB3BF; --accent-soft: #122A2E;
+      --crit: #E9848B; --crit-soft: #2B1518;
+      --warn: #D9A441; --warn-soft: #2A2013;
+      --ok: #6BC095; --ok-soft: #12261C;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #0A1015; --surface: #10181E; --ink: #E4EBEE; --ink-2: #A0AEB6;
+    --ink-3: #6D7C85; --rule: #222E36; --rule-strong: #35444D;
+    --accent: #4FB3BF; --accent-soft: #122A2E;
+    --crit: #E9848B; --crit-soft: #2B1518;
+    --warn: #D9A441; --warn-soft: #2A2013;
+    --ok: #6BC095; --ok-soft: #12261C;
+  }
+  :root[data-theme="light"] {
+    --ground: #F5F7F8; --surface: #FFFFFF; --ink: #10171E; --ink-2: #47555F;
+    --ink-3: #7C8A93; --rule: #D8E0E3; --rule-strong: #B4C1C6;
+    --accent: #0D6570; --accent-soft: #E3EFF0;
+    --crit: #8C1D24; --crit-soft: #F7E6E7;
+    --warn: #7E5300; --warn-soft: #FAF0DC;
+    --ok: #1A6141; --ok-soft: #E3F0E9;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--ground); color: var(--ink);
+    font-family: var(--body); font-size: 17px; line-height: 1.62;
+    margin: 0; padding: 0 20px 96px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; }
+  p { margin: 0 0 1em; max-width: 66ch; }
+  a { color: var(--accent); }
+
+  /* ── En-tête ─────────────────────────────────────────── */
+  header { padding: 56px 0 26px; border-bottom: 2px solid var(--ink); }
+  .eyebrow {
+    font-family: var(--data); font-size: 11px; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 14px;
+  }
+  h1 {
+    font-family: var(--display); font-weight: 760; font-size: clamp(30px, 5.4vw, 46px);
+    line-height: 1.06; letter-spacing: -.025em; margin: 0 0 16px;
+    text-wrap: balance;
+  }
+  .meta {
+    font-family: var(--data); font-size: 12.5px; color: var(--ink-2);
+    display: flex; flex-wrap: wrap; gap: 6px 20px;
+  }
+
+  /* ── Bandeau de mesures ──────────────────────────────── */
+  .band {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+    border-bottom: 1px solid var(--rule); margin-bottom: 8px;
+  }
+  .band > div { padding: 22px 18px 22px 0; }
+  .band dt {
+    font-family: var(--data); font-size: 10.5px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ink-3); margin-bottom: 7px;
+  }
+  .band dd {
+    font-family: var(--display); font-weight: 700; font-size: 27px;
+    letter-spacing: -.02em; margin: 0; font-variant-numeric: tabular-nums;
+  }
+  .band dd small {
+    display: block; font-family: var(--body); font-weight: 400;
+    font-size: 13px; letter-spacing: 0; color: var(--ink-2); margin-top: 3px;
+  }
+
+  h2 {
+    font-family: var(--display); font-weight: 720; font-size: 13px;
+    letter-spacing: .13em; text-transform: uppercase;
+    margin: 60px 0 6px; padding-bottom: 9px;
+    border-bottom: 1px solid var(--rule-strong); color: var(--ink);
+  }
+  h2 + .lede { color: var(--ink-2); font-size: 16px; margin-top: 16px; }
+  h3 {
+    font-family: var(--display); font-weight: 680; font-size: 19px;
+    letter-spacing: -.012em; margin: 34px 0 10px;
+  }
+
+  /* ── Trace de la chaîne ──────────────────────────────── */
+  ol.chain { list-style: none; margin: 22px 0 0; padding: 0; counter-reset: s; }
+  ol.chain li {
+    counter-increment: s; display: grid;
+    grid-template-columns: 34px 1fr auto; gap: 14px; align-items: baseline;
+    padding: 11px 0; border-bottom: 1px solid var(--rule);
+  }
+  ol.chain li::before {
+    content: counter(s, decimal-leading-zero);
+    font-family: var(--data); font-size: 11.5px; color: var(--ink-3);
+  }
+  .step-cmd { font-family: var(--data); font-size: 13.5px; color: var(--ink); }
+  .step-note { font-size: 14px; color: var(--ink-2); display: block; margin-top: 2px; }
+  .chk {
+    font-family: var(--data); font-size: 10.5px; letter-spacing: .07em;
+    padding: 3px 9px; white-space: nowrap;
+    color: var(--ok); background: var(--ok-soft);
+  }
+  .chk.part { color: var(--warn); background: var(--warn-soft); }
+
+  /* ── Constats ────────────────────────────────────────── */
+  .finding { padding: 26px 0; border-bottom: 1px solid var(--rule); }
+  .fhead { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; margin-bottom: 9px; }
+  .fid {
+    font-family: var(--data); font-size: 12px; font-weight: 600;
+    letter-spacing: .04em;
+  }
+  .sev {
+    font-family: var(--data); font-size: 10px; letter-spacing: .11em;
+    text-transform: uppercase; padding: 3px 8px;
+  }
+  .s-crit { color: var(--crit); background: var(--crit-soft); }
+  .s-warn { color: var(--warn); background: var(--warn-soft); }
+  .s-fix  { color: var(--ok);   background: var(--ok-soft); }
+  .ftitle {
+    font-family: var(--display); font-weight: 660; font-size: 18.5px;
+    letter-spacing: -.01em; flex-basis: 100%; margin-top: 2px;
+  }
+  .finding p { font-size: 16px; }
+  .finding p:last-child { margin-bottom: 0; }
+
+  code, .mono { font-family: var(--data); font-size: .88em; }
+  code { background: var(--accent-soft); color: var(--accent); padding: 1px 5px; }
+  @media (prefers-color-scheme: dark) { code { color: var(--accent); } }
+
+  /* ── Tableaux ────────────────────────────────────────── */
+  .scroll { overflow-x: auto; margin: 20px 0 26px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+  th {
+    font-family: var(--data); font-size: 10.5px; letter-spacing: .09em;
+    text-transform: uppercase; color: var(--ink-3); text-align: left;
+    padding: 0 16px 8px 0; border-bottom: 1px solid var(--rule-strong); font-weight: 500;
+  }
+  td {
+    padding: 10px 16px 10px 0; border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  td.num, th.num { text-align: right; font-family: var(--data);
+    font-variant-numeric: tabular-nums; padding-right: 0; }
+  tbody tr:last-child td { border-bottom: none; }
+
+  /* ── Encart de conclusion ────────────────────────────── */
+  .verdict {
+    background: var(--surface); border-top: 3px solid var(--accent);
+    padding: 30px 30px 24px; margin: 34px 0;
+  }
+  .verdict h3 { margin-top: 0; }
+  .verdict .figure {
+    font-family: var(--data); font-variant-numeric: tabular-nums;
+    font-size: 15px; line-height: 2; margin: 18px 0 4px;
+    border-top: 1px solid var(--rule); padding-top: 16px;
+  }
+  .figure span { display: inline-block; min-width: 210px; color: var(--ink-2); }
+  .figure b { font-size: 17px; }
+
+  footer {
+    margin-top: 64px; padding-top: 22px; border-top: 1px solid var(--rule);
+    font-size: 13.5px; color: var(--ink-3);
+  }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Rapport d'audit · protocole 100 jours</div>
+  <h1>Le workflow tient. L'avantage, lui, n'existe pas encore.</h1>
+  <div class="meta">
+    <span>4 août 2026</span><span>jour 2 / 100</span>
+    <span>branche <span class="mono">claude/sports-prediction-agents-wcwmiw</span></span>
+  </div>
+</header>
+
+<dl class="band">
+  <div><dt>Tests</dt><dd>137<small>tous au vert</small></dd></div>
+  <div><dt>Chaîne</dt><dd>6/6<small>étapes exécutées</small></dd></div>
+  <div><dt>Bankroll</dt><dd>10,00 €<small>intacte, 0 € misé</small></dd></div>
+  <div><dt>Écart au marché</dt><dd>1,3 pt<small>il en faut ≈ 5</small></dd></div>
+</dl>
+
+<p class="lede">Cet audit a été mené en exécutant réellement chaque étape, pas en
+relisant le code. Il a trouvé quatre défauts, dont trois que j'avais moi-même
+introduits. Trois sont corrigés dans ce même passage. Le quatrième est structurel
+et mérite une décision de ta part.</p>
+
+<h2>Ce qui a été exécuté</h2>
+<p class="lede">La chaîne complète, de la mémoire jusqu'au coupon partageable.</p>
+
+<ol class="chain">
+  <li><span><span class="step-cmd">protocol.py report</span>
+    <span class="step-note">Situe le jour et la bankroll — 1 193 octets de sortie.</span></span>
+    <span class="chk">exécuté</span></li>
+  <li><span><span class="step-cmd">protocol.py pending</span>
+    <span class="step-note">Rien à vérifier : les trois matchs du 3 août sont réglés.</span></span>
+    <span class="chk">exécuté</span></li>
+  <li><span><span class="step-cmd">lessons_rules.py --args</span>
+    <span class="step-note">3 règles dures, 3 douces chargées dans le workflow.</span></span>
+    <span class="chk">exécuté</span></li>
+  <li><span><span class="step-cmd">edge_scan.py --book bet365</span>
+    <span class="step-note">Croise modèle et vraies cotes. Ne rend rien : voir constat B-02.</span></span>
+    <span class="chk part">sans données</span></li>
+  <li><span><span class="step-cmd">daily_engine.py --json</span>
+    <span class="step-note">14 matchs, 96 candidats, 3 lignes retenues pour le 8 août.</span></span>
+    <span class="chk">exécuté</span></li>
+  <li><span><span class="step-cmd">coupon.py --date</span>
+    <span class="step-note">HTML et PNG régénérés avec les statuts réglés.</span></span>
+    <span class="chk">exécuté</span></li>
+</ol>
+
+<p style="margin-top:20px">L'étage 2 — les agents de vérification contextuelle —
+n'a pas été relancé : c'est le travail de la routine de 20 h, et le repayer
+n'aurait rien prouvé de plus. Sa logique de veto a été testée séparément sur
+onze cas.</p>
+
+<h2>Constats</h2>
+
+<div class="finding">
+  <div class="fhead">
+    <span class="fid" style="color:var(--crit)">A-01</span>
+    <span class="sev s-crit">critique</span>
+    <span class="sev s-fix">corrigé</span>
+    <div class="ftitle">La chaîne d'accès testée n'était pas celle qui tournait</div>
+  </div>
+  <p>J'ai écrit <code>fetch.py</code> — repli Jina Reader, détection des pages
+  faussement valides, 14 tests. Puis j'ai réimplémenté la même logique <em>à la
+  main</em> dans <code>daily_engine.py</code>. La version qui tournait en
+  production n'était couverte par aucun test.</p>
+  <p>Corrigé pendant l'audit : le moteur appelle désormais le module testé. Et la
+  correction s'est validée d'elle-même — la première exécution a affiché
+  <span class="mono">« ClubElo atteint via jina »</span>, l'accès direct ayant
+  échoué à cet instant précis.</p>
+</div>
+
+<div class="finding">
+  <div class="fhead">
+    <span class="fid" style="color:var(--crit)">A-02</span>
+    <span class="sev s-crit">critique</span>
+    <span class="sev s-fix">corrigé</span>
+    <div class="ftitle">Le module qui décide si un avantage est réel n'avait aucun test</div>
+  </div>
+  <p><code>devig.py</code> retire la marge du bookmaker. C'est le calcul le plus
+  dangereux du système : une méthode inadaptée <em>fabrique</em> un avantage. Sur
+  Celtic&nbsp;–&nbsp;Dundee, la méthode proportionnelle annonçait 78,1 % pour le
+  favori contre 81,6 % en puissance — 5,1 points de faux écart, largement de quoi
+  déclencher une mise sur du vide.</p>
+  <p>Zéro test le couvrait. 28 tests ajoutés, dont la vérification que les trois
+  méthodes convergent sur un marché équilibré et divergent de plus de 3 points sur
+  un favori net.</p>
+</div>
+
+<div class="finding">
+  <div class="fhead">
+    <span class="fid" style="color:var(--crit)">A-03</span>
+    <span class="sev s-crit">critique</span>
+    <span class="sev s-fix">corrigé</span>
+    <div class="ftitle">Le contexte était relevé par les agents puis ignoré</div>
+  </div>
+  <p>Le champ <code>context_flag</code> — « match sans enjeu », « finale »,
+  « tie déjà plié » — était renseigné par les agents de l'étage 2 et jamais lu par
+  le filtre, qui ne regardait que le verdict et la tenue du match.</p>
+  <p>C'est exactement la faute Wings-Liberty : l'information est recueillie, puis
+  rien ne s'en sert. Trois pertes passées venaient de là — France 6-4 (favori dans
+  un match sans enjeu), Espagne 0-0 à 90 min (1X2 en finale), Craiova 1-0 (Over sur
+  un tie plié). Aucune n'était réellement protégée. Les vetos agissent désormais,
+  testés sur onze cas — et avec la finesse voulue : « sans enjeu » écarte le 1X2
+  mais garde l'Over, puisque ce jour-là l'Over aurait gagné avec 10 buts.</p>
+</div>
+
+<div class="finding">
+  <div class="fhead">
+    <span class="fid" style="color:var(--warn)">A-04</span>
+    <span class="sev s-warn">à décider</span>
+    <div class="ftitle">Le correctif que je t'ai présenté comme majeur ne s'exécute plus</div>
+  </div>
+  <p>Je t'avais annoncé la correction de l'avantage du terrain dans
+  <code>model.py</code> comme le correctif le plus important de l'audit
+  précédent — l'ancienne version gonflait le λ extérieur de 12,5 %.</p>
+  <p>C'était vrai <em>à ce moment-là</em>. Ça ne l'est plus : le moteur actuel
+  déduit ses probabilités directement de la distribution de scores de ClubElo, qui
+  intègre déjà l'avantage du terrain. <code>model.py</code> — 182 lignes,
+  15 tests — n'est plus importé que par des tests. Ce n'est pas une régression :
+  utiliser les chiffres de ClubElo plutôt que les recalculer est le bon choix. Mais
+  il faut le dire clairement, et décider si ce code reste ou part.</p>
+</div>
+
+<div class="finding">
+  <div class="fhead">
+    <span class="fid" style="color:var(--warn)">B-01</span>
+    <span class="sev s-warn">structurel</span>
+    <div class="ftitle">Une seule source de modèle, et elle est fragile</div>
+  </div>
+  <p>ClubElo est le seul fournisseur de probabilités. Il est en HTTP simple quand
+  notre sortie réseau ne fait que du HTTPS — ce n'est pas un incident passager. Le
+  3 août au soir, la routine n'a produit aucune prédiction pour cette raison.</p>
+  <p>Le repli Jina traite ce cas et a déjà servi. Mais si ClubElo disparaît ou
+  change de format, le système s'arrête net : il n'existe pas de second modèle.</p>
+</div>
+
+<div class="finding">
+  <div class="fhead">
+    <span class="fid" style="color:var(--warn)">B-02</span>
+    <span class="sev s-warn">structurel</span>
+    <div class="ftitle">Les deux sources ne se recouvrent pas encore</div>
+  </div>
+  <p><code>edge_scan</code> ne peut mesurer un écart que sur les matchs présents
+  <em>dans les deux</em> sources. Le recouvrement mesuré aujourd'hui est de zéro
+  match, pour deux raisons distinctes.</p>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Source</th><th>Couvre</th><th>Ne couvre pas</th></tr></thead>
+      <tbody>
+        <tr><td>ClubElo</td><td>Europe uniquement</td>
+            <td>Brésil, Argentine, USA, Mexique, Chine</td></tr>
+        <tr><td>football-data</td><td>Amériques, Asie, Nord et Est européens</td>
+            <td>Qualifications UEFA</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>S'y ajoute le calendrier : les championnats européens redémarrent le 8 août et
+  football-data ne les a pas encore publiés. Les dix matchs de Serie A brésilienne
+  disponibles avec de vraies cotes restent, eux, définitivement inexploitables — on
+  a le prix, pas le modèle. Le recouvrement utile — Pologne, Roumanie, Danemark,
+  Suède, Norvège, Suisse, Autriche, Irlande, Écosse, puis les grands championnats —
+  devrait apparaître vers le 8-10 août.</p>
+</div>
+
+<div class="finding">
+  <div class="fhead">
+    <span class="fid" style="color:var(--warn)">B-03</span>
+    <span class="sev s-warn">dette</span>
+    <div class="ftitle">Les scripts qui produisent les prédictions n'ont pas de tests unitaires</div>
+  </div>
+  <p>Les 137 tests couvrent les modules de calcul. Les quatre scripts du chemin
+  quotidien — <code>daily_engine</code>, <code>edge_scan</code>,
+  <code>protocol</code>, <code>coupon</code> — ne sont vérifiés que par exécution
+  de bout en bout. Un changement silencieux de comportement passerait.</p>
+  <p>S'y ajoutent <span class="mono">1 272</span> lignes de workflows hérités
+  (dont <code>deep_research_coupon.js</code>, 742 lignes) et 11 modules devenus
+  inactifs. Ils ne nuisent pas, mais ils brouillent la lecture de ce qui tourne
+  vraiment.</p>
+</div>
+
+<h2>Le constat de fond</h2>
+
+<p>Trois écarts « prometteurs » ont été examinés depuis le début du protocole.
+Aucun n'a survécu à la vérification.</p>
+
+<div class="scroll">
+  <table>
+    <thead>
+      <tr><th>Écart annoncé</th><th>Match</th><th class="num">Réel</th><th>Cause</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="mono">5,5 pts</td><td>Celtic – Dundee, BTTS</td><td class="num">1,1</td>
+          <td>notre Poisson écrasait la distribution ClubElo</td></tr>
+      <tr><td class="mono">5,1 pts</td><td>Celtic – Dundee, 1X2</td><td class="num">1,3</td>
+          <td>marge retirée par la mauvaise méthode</td></tr>
+      <tr><td class="mono">7,1 pts</td><td>FCSB – Farul, 1X2</td><td class="num">—</td>
+          <td>FCSB éliminé 7-3 par Auda quatre jours avant</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<p>Deux venaient de nos propres défauts de calcul. Le troisième mesurait notre
+retard d'information sur le marché — et le match s'est terminé 2-2, FCSB mené 0-2
+à la mi-temps. Le marché avait raison.</p>
+
+<div class="verdict">
+  <h3>Ce que mesure vraiment le système aujourd'hui</h3>
+  <p>Le modèle est <em>juste</em> : il tombe à un point du consensus des
+  professionnels. C'est une bonne nouvelle sur le calcul et une mauvaise sur
+  l'économie — pour gagner, il ne suffit pas d'avoir raison, il faut avoir raison
+  là où le marché a tort, et suffisamment pour couvrir la marge.</p>
+  <div class="figure">
+    <span>Écart mesuré</span><b>0,9 à 1,3 point</b><br>
+    <span>Requis chez bet365</span><b>≈ 5 points</b><br>
+    <span>Requis chez Betano</span><b>≈ 10,6 points</b>
+  </div>
+</div>
+
+<p>Passer de Betano à bet365 divise l'effort par deux, gratuitement : bet365
+absorbe la taxe de 5,3 % depuis janvier 2024, donc le seuil de rentabilité y est
+la cote juste. C'est nécessaire. Ce n'est pas suffisant.</p>
+
+<h2>Bilan du protocole</h2>
+
+<div class="scroll">
+  <table>
+    <thead>
+      <tr><th>Match</th><th>Prédiction</th><th class="num">Proba</th>
+          <th class="num">Score</th><th class="num">Issue</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Celtic – Dundee</td><td>Domicile + plus de 2,5 buts</td>
+          <td class="num">57,0 %</td><td class="num">1-0</td><td class="num">🔴</td></tr>
+      <tr><td>Spartak Varna – Lok Plovdiv</td><td>Domicile, nul remboursé</td>
+          <td class="num">41,6 %</td><td class="num">1-0</td><td class="num">🟢</td></tr>
+      <tr><td>FCSB – Farul</td><td>Victoire FCSB <em>(veto)</em></td>
+          <td class="num">60,6 %</td><td class="num">2-2</td><td class="num">🔴</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<p>Une gagnée, deux perdues, <b>zéro euro engagé</b>. La calibration ne voudra rien
+dire avant plusieurs dizaines de prédictions. Le seul indicateur déjà lisible :
+sur les désaccords d'au moins 3 points avec le marché, le modèle a eu raison
+0 fois sur 1.</p>
+
+<p>Une remarque sur la perte de Celtic, parce qu'elle est instructive : la thèse
+était <em>juste</em>. Celtic a gagné, comme le modèle lui donnait 83 % de le faire.
+C'est la seconde condition — plus de 2,5 buts — qui a tout emporté sur un 1-0.
+« 1 &amp; Over 2.5 » est un combiné déguisé en simple, et la réponse à un favori
+trop court n'est pas d'y accoler une condition pour gonfler la cote : c'est de ne
+pas jouer ce match.</p>
+
+<h2>Ce qui reste à décider</h2>
+
+<p><b>A-04</b> — garder ou supprimer <code>model.py</code> et ses 15 tests, qui
+vérifient du code hors du chemin actif.</p>
+
+<p><b>B-03</b> — écrire des tests pour les quatre scripts quotidiens, et archiver
+les 1 272 lignes de workflows hérités.</p>
+
+<p><b>B-01</b> — chercher ou non une seconde source de modèle. Aujourd'hui, si
+ClubElo tombe durablement, le protocole s'arrête.</p>
+
+<footer>
+  Audit mené en exécutant chaque étape. Mode PAPER : aucun euro engagé, la bankroll
+  de 10 € est simulée. Les probabilités citées sont des estimations statistiques,
+  pas des certitudes. Ce document n'est pas une invitation à parier.<br>
+  Aide au joueur : joueurs-info-service.fr · 09 74 75 13 13.
+</footer>
+
+</div>

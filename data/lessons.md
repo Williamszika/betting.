@@ -37,7 +37,12 @@ Décision validée par l'utilisateur après le bilan 0/3 (les combinés tombaien
 - ✅ **Ne PAS construire de combiné** sauf demande explicite de l'utilisateur. Combiner ajoute du risque non maîtrisé quand une seule jambe faible fait tout tomber.
 - ✅ Rien n'est forcé : s'il n'y a aucune value nette (ou match reporté), **carton blanc** — mieux vaut ne pas parier.
 
-## 2026-07-18 — EXIGENCE : le pari doit être JOUABLE sur Betano.de
+## 2026-07-18 — EXIGENCE : le pari doit être JOUABLE chez l'opérateur visé
+
+> **Mise à jour du 04/08/2026** : la règle vaut pour tout opérateur, plus seulement
+> Betano. La référence est passée à **bet365**, qui absorbe la taxe de 5,3 % — le seuil
+> de rentabilité y est la cote juste, contre +5,6 % chez Betano. `edge_scan.py` relève
+> désormais la MEILLEURE cote du marché et l'opérateur qui l'offre.
 Le run a proposé une WNBA (GSV −8.5, handicap US) introuvable sur Betano.de. Cause : betano.de bloque le scraping (403, même en vrai navigateur headless) → le workflow ne partait PAS de l'offre réelle de Betano, mais de matchs/cotes de comparateurs US.
 - ➕ **CATALOGUE BETANO.de** (implémenté dans `deep_research_coupon.js`) : découverte + marchés + vérif cadrés sur ce que Betano.de propose vraiment. `BETANO_EXCLUDE` retire WNBA, Summer League, G League, NCAA, ligues mineures US, 3x3/beach. `BETANO_MARKETS` limite les marchés au menu Betano (foot : 1X2/DC/O-U/BTTS/handicap/corners ; tennis : vainqueur/set1/score sets/jeux ; basket : vainqueur/handicap pts/total pts/QT — PAS de props exotiques).
 - ➕ **Contrôle final Betano** : le vérificateur doit confirmer via un comparateur affichant les cotes Betano.de (Oddspedia) que le match ET le marché sont jouables sur Betano ; sinon `drop`.
@@ -52,6 +57,10 @@ Choix utilisateur : se concentrer exclusivement sur le **football**, sur **TOUS 
 France (1) @1,95 PERDU : Angleterre 6-4 France (match pour la 3e place), 4-0 à la MT, 10 buts au total. France favorite (~57%) balayée. **J'avais pourtant FLAGGÉ le bémol « match de classement / intensité réduite / variance » sur la carte — mais j'en ai quand même fait le PICK PRINCIPAL.** Erreur de jugement.
 - ➕ **DEAD RUBBER / MATCH SANS ENJEU** (3e place, match de classement, dernière journée sans enjeu…) : **NE PAS parier le favori en 1X2**. L'enjeu disparu → intensité défensive quasi nulle, variance maximale. Le favori bâti sur les métriques du tournoi n'a plus d'avantage. Si pari il y a, privilégier **OVER buts** (ici l'Over aurait explosé : 10 buts).
 - ➕ **Un bémol identifié doit DÉCLASSER le pari, pas juste l'annoter** : si un match a un drapeau « intensité réduite/variance/sans enjeu », il ne peut PAS être le pick principal. Le noter puis le jouer quand même = incohérent.
+
+```rule
+{"pattern": "sans_enjeu", "field": "context_flag", "market": "^(1|X|2|DC |DNB )", "action": "exclude", "severity": "hard", "note": "Match SANS ENJEU (3e place, classement, derniere journee sans enjeu) : favori 1X2 INTERDIT. L'intensite defensive s'effondre, le favori bati sur les metriques du tournoi n'a plus d'avantage (perte France 6-4 sur un match pour la 3e place, favori a 57 %). Les marches de BUTS restent ouverts : l'Over aurait gagne avec 10 buts"}
+```
 
 ## 2026-07-20 — Perte Espagne (finale) : le 1X2 90 min est un PIÈGE en finale
 Espagne (1) @2,45 « résultat 90 min » PERDU : Espagne championne 1-0 MAIS but en **prolongation** → **0-0 à 90 min = nul**. L'Espagne gagne le trophée, pas notre pari. La « finale fermée » flaggée sur la carte s'est réalisée.
@@ -74,3 +83,71 @@ Pick « Mirassol (2) » @3,65 perdu sur le nul (mené 1-0, Vasco égalise 80ᵉ)
 - ➕ **Edge « modèle seul »** : quand l'écart modèle/marché n'est corroboré par AUCUNE dislocation de cotes ni ligne sharp (Pinnacle inaccessible), appliquer un discount supplémentaire ou baisser la confiance sous le seuil de publication.
 
 _(les prochaines leçons s'ajoutent ici automatiquement)_
+
+## 03/08/2026 — Un fort désaccord avec le marché est d'abord une alerte, pas une opportunité
+
+Le moteur donnait FCSB vainqueur à 60,6 % contre 53,5 % pour le marché : +7,1 points,
+cote Betano 1,82 au-dessus du seuil de rentabilité (1,74). Premier pari mathématiquement
+jouable du protocole.
+
+Vérification du contexte : **FCSB avait été éliminé 7-3 par FK Auda (Lettonie) le
+30 juillet**, quatre jours avant — 2-3 à domicile puis 1-4 en Lettonie, club en crise
+ouverte. L'Elo de ClubElo bouge de quelques points après un match ; le marché, lui,
+avait intégré l'effondrement immédiatement.
+
+L'écart de 7 points ne mesurait pas un avantage : il mesurait **notre retard
+d'information**. Le pari a été enregistré pour la calibration, mise 0 €.
+
+```rule
+{"pattern": ".*", "field": "market_gap", "market": ".*", "action": "exclude", "severity": "hard", "note": "Ecart >5 points entre le modele et le marche : chercher OBLIGATOIREMENT un evenement recent sur les 10 derniers jours (elimination europeenne, changement d'entraineur, cascade de blessures, crise interne). Sans explication trouvee ET verifiee, la ligne n'est PAS jouable — le marche integre l'information plus vite qu'un classement Elo (lecon FCSB elimine 7-3 par Auda quatre jours avant : ecart de 7 points qui mesurait notre retard, pas un avantage)"}
+```
+
+## 04/08/2026 — « 1 & Over 2.5 » est un combiné déguisé en simple
+
+Celtic – Dundee, prédiction « Domicile gagne + plus de 2,5 buts » à 57,0 % : **perdue**
+sur un 1-0. Or la thèse principale était JUSTE — Celtic a gagné, comme le modèle lui
+donnait 83 % de le faire. C'est la seconde condition, les buts, qui a tout emporté.
+
+Un marché « 1 & Over 2.5 » exige DEUX événements. Le vendre comme une sélection unique
+masque qu'on multiplie deux probabilités : 83 % × 71 % ≈ 59 %. La même conviction jouée
+en « victoire Celtic » sec aurait gagné.
+
+Le contre-argument est réel : « victoire Celtic » cotait 1,17, donc injouable. Mais la
+réponse à un favori trop court n'est pas d'y accoler une condition supplémentaire pour
+gonfler la cote — c'est de ne pas jouer le match.
+
+```rule
+{"pattern": "&|\\bet\\b|combo", "field": "market", "market": ".*", "action": "warn", "severity": "soft", "note": "Marche a DEUX conditions (« 1 & Over 2.5 », « 1 & BTTS ») : c'est un combine deguise en simple. Verifier que CHAQUE condition tient separement et ne pas s'en servir pour gonfler la cote d'un favori trop court -- la reponse a un favori a 1,17 est de ne pas jouer le match (lecon Celtic 1-0 : these principale juste, pari perdu sur la seconde condition)"}
+```
+
+## 04/08/2026 — Le veto contextuel confirmé dès sa première application
+
+FCSB – Farul : le moteur donnait FCSB vainqueur à 60,6 % contre 53,5 % pour le marché.
+Ligne mathématiquement jouable (cote 1,82 > seuil 1,74), **refusée** au motif de
+l'élimination 7-3 par Auda quatre jours plus tôt.
+
+Résultat : **2-2**, FCSB mené **0-2 à la mi-temps**, égalisation à la 86ᵉ. Le marché avait
+raison, le modèle avait tort, et l'écart de 7 points mesurait bien notre retard
+d'information — pas un avantage.
+
+Un cas ne prouve rien statistiquement. Mais le mécanisme est validé : la règle
+`desaccord-fort-vaut-alerte` a fait exactement ce pour quoi elle a été écrite.
+
+## 04/08/2026 — Le banc d'essai réfute le nul et mesure l'avantage du marché
+
+Rejeu de 35 000 matchs sur 11 championnats, calibration apprise sur 2015-2020 et
+appliquée hors échantillon sur 2021-2025.
+
+**Acquis** : la calibration ramène l'erreur de 5,3 pts à **0,8 pt**. Le modèle
+compressait ses probabilités vers le milieu (75 % annoncé pour 89,5 % réel).
+
+**Réfuté** : le nul semblait rentable sur les 5 grands (ROI +1,40 %, CLV +0,89 %,
+z = 2,60) — il donne **−11,40 %** sur six championnats jamais utilisés. Trois issues
+testées, une positive : c'est le résultat attendu du hasard.
+
+**Mesuré** : 0,8 pt d'erreur sur toutes les prédictions, ~12 pts sur les paris
+sélectionnés. Cet écart est l'avantage informationnel du marché.
+
+```rule
+{"pattern": ".*", "field": "always", "market": ".*", "action": "warn", "severity": "soft", "note": "Un resultat positif trouve en testant plusieurs variantes doit etre reteste sur des donnees JAMAIS utilisees avant d'etre cru. Le nul ressortait a +1,40 % de ROI et +0,89 % de CLV sur les 5 grands championnats, avec z = 2,60 : il donne -11,40 % sur six championnats independants. Tester trois issues et en garder la meilleure produit un faux positif par construction"}
+```

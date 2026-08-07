@@ -43,6 +43,10 @@ const VERDICT_SCHEMA = {
     betano_odds: { type: 'number' },          // cote relevée (0 si introuvable)
     odds_source: { type: 'string' },
     beats_min_odds: { type: 'boolean' },      // cote relevée >= min_odds du moteur ?
+    // Probabilité IMPLICITE DU MARCHÉ, marge retirée. C'est le seul chiffre qui
+    // dise si le modèle apporte une information ou s'il récite le consensus.
+    market_prob: { type: 'number' },          // 0 si aucune cote de référence
+    market_ref: { type: 'string' },           // bookmaker + cotes brutes + marge
     context_notes: { type: 'array', items: { type: 'string' } },
     issues: { type: 'array', items: { type: 'string' } },
   },
@@ -79,6 +83,16 @@ const checked = (await parallel(SHORTLIST.map((s) => () =>
     `Si la cote est INTROUVABLE, mets betano_odds=0 et signale-le — ne devine pas.\n` +
     `4) COHÉRENCE : le marché « ${s.label} » est-il bien proposé par ${BOOK} sur cette compétition ? ` +
     `(sur les petits championnats, l'offre se limite souvent à 1X2/DC/O-U/BTTS).\n` +
+    `5) RÉFÉRENCE DE MARCHÉ — LE CONTRÔLE LE PLUS IMPORTANT. Relève les cotes 1X2 ` +
+    `d'un bookmaker à faible marge (Pinnacle en priorité, sinon Bet365) sur ce match. ` +
+    `RETIRE LA MARGE : somme des probabilités brutes (1/cote), puis divise chaque ` +
+    `probabilité par cette somme. Déduis-en la probabilité de marché du marché « ${s.label} » ` +
+    `si elle est déductible du 1X2 (1, X, 2, doubles chances, DNB le sont ; ` +
+    `BTTS et Over/Under ne le sont PAS — dans ce cas relève directement la cote de ce marché). ` +
+    `Renseigne market_prob (0 si aucune référence trouvée) et market_ref ` +
+    `(bookmaker + cotes brutes + marge calculée). NE DEVINE JAMAIS ce chiffre : ` +
+    `un market_prob inventé est pire qu'un market_prob absent, car il ferait croire ` +
+    `à un avantage inexistant. Sans cote de référence : market_prob=0.\n` +
     SOFT +
     `\nSois sceptique et FACTUEL. Au moindre doute sérieux sur la tenue du match ou sur ` +
     `l'existence du marché : verdict=drop. Une cote sous le minimum n'est PAS un drop en soi ` +
@@ -88,14 +102,44 @@ const checked = (await parallel(SHORTLIST.map((s) => () =>
   ).then((v) => ({ ...s, check: v }))
 ))).filter(Boolean)
 
-// VETO FIXTURE : une seule alerte suffit à écarter la ligne (leçon Wings-Liberty).
-const kept = checked.filter((c) =>
-  c.check && c.check.verdict === 'keep' && c.check.fixture_confirmed !== false)
-const dropped = checked.filter((c) => !kept.includes(c))
+// ─── VETOS ────────────────────────────────────────────────────────────────────
+// Une information relevée mais jamais utilisée ne sert à rien. Le context_flag
+// était collecté par les agents et ignoré par le filtre : c'est exactement la
+// faute Wings-Liberty (deux vérificateurs signalaient le report, la synthèse a
+// gardé la ligne). Chaque drapeau agit désormais.
+
+const MARCHES_BUTS = /over|under|btts|goal|but|total/i
+const MARCHES_1X2 = /^(1|X|2|DC |DNB )/
+
+function vetoContexte(c) {
+  const f = (c.check && c.check.context_flag) || 'normal'
+  const m = c.market || ''
+  // Match sans enjeu : l'intensité défensive s'effondre, le favori n'a plus
+  // d'avantage. Perte France 6-4 sur un match pour la 3e place, favori à 57 %.
+  if (f === 'sans_enjeu' && MARCHES_1X2.test(m))
+    return 'match sans enjeu — le favori 1X2 perd son avantage (leçon France 6-4)'
+  // Finale / barrage : nul à 90 min très probable, décision en prolongation.
+  // Perte Espagne : championne 1-0 mais but en prolongation → 0-0 à 90 min.
+  if ((f === 'finale' || f === 'barrage') && MARCHES_1X2.test(m))
+    return 'finale ou barrage — le 1X2 90 min est un piège (leçon Espagne 0-0 à 90)'
+  // Tie déjà plié : la manche retour se ferme, les buts disparaissent.
+  if (f === 'tie_plie' && MARCHES_BUTS.test(m))
+    return 'tie déjà décidé — les marchés de buts s\'effondrent (leçon Craiova 1-0)'
+  return ''
+}
+
+const kept = []
+const dropped = []
+for (const c of checked) {
+  const okVerdict = c.check && c.check.verdict === 'keep' && c.check.fixture_confirmed !== false
+  const veto = okVerdict ? vetoContexte(c) : ''
+  if (okVerdict && !veto) kept.push(c)
+  else dropped.push({ ...c, veto })
+}
 
 for (const d of dropped) {
-  const why = (d.check && (d.check.issues || [])[0]) || 'fixture non confirmée'
-  log(`  ✂ ${d.home} – ${d.away} [${d.market}] : ${String(why).slice(0, 110)}`)
+  const why = d.veto || (d.check && (d.check.issues || [])[0]) || 'fixture non confirmée'
+  log(`  ✂ ${d.home} – ${d.away} [${d.market}] : ${String(why).slice(0, 120)}`)
 }
 
 // Jouable = survit à la vérif ET la cote relevée dépasse le seuil après taxe.
@@ -110,6 +154,7 @@ const writeup = await agent(
     proba: `${(k.prob * 100).toFixed(1)}%`, cote_min: k.min_odds,
     cote_betano: k.check.betano_odds || 'introuvable',
     au_dessus_du_seuil: k.check.beats_min_odds === true,
+    proba_marche: k.check.market_prob || 'non relevée', reference: k.check.market_ref || '',
     contexte: k.check.context_flag, notes: (k.check.context_notes || []).slice(0, 3),
   }))).slice(0, 4000)}\n` +
   `Lignes ÉCARTÉES : ${JSON.stringify(dropped.map((d) => ({
@@ -123,6 +168,10 @@ const writeup = await agent(
   `- Si aucune cote ne dépasse son seuil, dis-le franchement : « rien de jouable aujourd'hui, ` +
   `les cotes offertes sont sous le seuil de rentabilité » — c'est un résultat utile.\n` +
   `- Rappelle que la cote minimale intègre la taxe allemande de 5,3 %.\n` +
+  `- ÉCART AU MARCHÉ : quand une proba de marché a été relevée, compare-la à celle du ` +
+  `moteur et dis-le franchement. Moins de 1,5 point d'écart = le modèle récite le ` +
+  `consensus, il ne peut structurellement pas battre la marge. C'est le constat le ` +
+  `plus utile de la journée, ne l'enterre pas.\n` +
   `- Mode PAPER, 0 € misé. ESTIMATIONS, pas des certitudes. Pas d'incitation à miser.`,
   { label: 'redaction', phase: 'Verdict' }
 )
@@ -136,13 +185,18 @@ return {
     prob: k.prob, fair_odds: k.fair_odds, min_odds: k.min_odds,
     betano_odds: k.check.betano_odds || null,
     beats_min_odds: k.check.beats_min_odds === true,
+    market_prob: k.check.market_prob || null,
+    market_ref: k.check.market_ref || '',
+    // Écart au consensus : < 1,5 pt = le modèle récite le marché.
+    market_gap: k.check.market_prob
+      ? Math.round((k.prob - k.check.market_prob) * 1000) / 10 : null,
     context_flag: k.check.context_flag || 'normal',
     confidence: k.check.confidence,
     notes: k.check.context_notes || [],
   })),
   dropped: dropped.map((d) => ({
     match: `${d.home} – ${d.away}`,
-    reason: (d.check && (d.check.issues || [])[0]) || 'fixture non confirmée',
+    reason: d.veto || (d.check && (d.check.issues || [])[0]) || 'fixture non confirmée',
   })),
   playable: playable.length,
   writeup,
