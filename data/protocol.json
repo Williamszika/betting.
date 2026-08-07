@@ -139,9 +139,10 @@
       "stake": 0.0,
       "playable": false,
       "stake_reason": "cote Betano non relevée — enregistré pour la calibration",
-      "result": "pending",
-      "settled": null,
-      "payout": 0.0
+      "result": "lost",
+      "settled": "2026-08-07",
+      "payout": 0.0,
+      "score": "6-0 (Twente 6, Dunajska Streda 0)"
     },
     {
       "id": "2026-08-06-2",
@@ -165,9 +166,10 @@
       "stake": 0.0,
       "playable": false,
       "stake_reason": "cote Betano non relevée — enregistré pour la calibration",
-      "result": "pending",
-      "settled": null,
-      "payout": 0.0
+      "result": "lost",
+      "settled": "2026-08-07",
+      "payout": 0.0,
+      "score": "1-0 (Dynamo Kyiv 1, Qarabag/Karabakh 0)"
     }
   ],
   "bankroll_history": [
